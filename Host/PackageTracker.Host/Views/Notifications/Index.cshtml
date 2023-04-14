@@ -1,0 +1,42 @@
+﻿@using PackageTracker.Messages.Queries;
+@using PackageTracker.WebHost.Controllers;
+@model IEnumerable<GetLatestNotificationsQueryResponse.NotificationDto>
+@{
+    ViewData["Title"] = "Notifications";
+    var readNotificationUrl = Url.Action(nameof(NotificationsController.Read), nameof(NotificationsController).Replace(nameof(Controller), string.Empty));
+}
+
+<table class="table table-bordered table-hover">
+    <thead class="align-content-center text-center">
+        <tr class="bg-info">
+            <th><i class="fa-solid fa-clock"></i> Date</th>
+            <th><i class="fa-solid fa-message"></i> Message</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var notification in Model)
+        {
+            <tr id="notification-@notification.Id.ToString()" class="@(notification.IsRead ? "fst-normal":"fw-bold cursor-pointer")" onclick="markAsRead('@notification.Id.ToString()')">
+                <td class="text-center">
+                    @notification.DateTime.ToString("dd/MM/yyyy HH:mm:ss")
+                </td>
+                <td class="text-left">
+                    @notification.Content
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<script type="text/javascript">
+    const markAsRead = (id) => {
+        $.ajax({
+            data: { id: id },
+            method: 'put',
+            url: '@readNotificationUrl',
+            success: function () {
+                $("#notification-" + id).removeClass("fw-bold").removeClass("cursor-pointer");
+            }
+        });
+    }
+</script>

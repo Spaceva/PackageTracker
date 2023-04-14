@@ -1,0 +1,26 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
+
+	<PropertyGroup>
+		<TargetFramework>net6.0</TargetFramework>
+		<Nullable>enable</Nullable>
+		<ImplicitUsings>enable</ImplicitUsings>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<PackageReference Include="Serilog.AspNetCore" Version="6.1.0" />
+		<PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" Version="6.0.0" />
+		<PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="6.0.3" />
+		<PackageReference Include="Microsoft.Extensions.Options" Version="6.0.0" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<ProjectReference Include="..\..\Application\PackageTracker.Domain\PackageTracker.Domain.csproj" />
+		<ProjectReference Include="..\..\Application\PackageTracker.Handlers\PackageTracker.Handlers.csproj" />
+		<ProjectReference Include="..\..\Application\PackageTracker.Messages\PackageTracker.Messages.csproj" />
+		<ProjectReference Include="..\..\Infrastructure\PackageTracker.Cache\PackageTracker.Cache.csproj" />
+		<ProjectReference Include="..\..\Infrastructure\PackageTracker.Fetcher\PackageTracker.Fetcher.csproj" />
+		<ProjectReference Include="..\..\Infrastructure\PackageTracker.Infrastructure\PackageTracker.Infrastructure.csproj" />
+		<ProjectReference Include="..\..\Infrastructure\PackageTracker.Telegram\PackageTracker.Telegram.csproj" />
+	</ItemGroup>
+
+</Project>

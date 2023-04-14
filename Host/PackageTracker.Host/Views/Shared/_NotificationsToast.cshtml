@@ -1,0 +1,51 @@
+﻿@using PackageTracker.WebHost.Controllers;
+@{
+    var checkUnreadNotificationsUrl = Url.Action(nameof(NotificationsController.Unread), nameof(NotificationsController).Replace(nameof(Controller), string.Empty));
+    var printNotificationUrl = Url.Action(nameof(HomeController.Toast), nameof(HomeController).Replace(nameof(Controller), string.Empty));
+    var readNotificationUrl = Url.Action(nameof(NotificationsController.Read), nameof(NotificationsController).Replace(nameof(Controller), string.Empty));
+}
+
+<div aria-live="polite" aria-atomic="true" style="position: absolute; top: 0; right: 0;">
+    <div id="toast-container"></div>
+</div>
+
+<script type="text/javascript">
+    setInterval(() => {
+        $.get({
+            url: '@(checkUnreadNotificationsUrl)',
+            success: (unreadNotifications) => {
+                for (notification of unreadNotifications) {
+                    printNotification(notification);
+                }
+            }
+        })
+    }, 5000);
+
+    const printNotification = (notification) => {
+        if ($("#notification-toast-" + notification.id).length) {
+            return;
+        }
+        const content = notification.content;
+        const date = notification.dateTime;
+        $.post({
+            url: '@(printNotificationUrl)',
+            data: JSON.stringify(notification),
+            contentType: 'application/json',
+            success: (htmlContent) => {
+                $("#toast-container").append(htmlContent);
+                $("#notification-toast-" + notification.id).toast('show');
+            }
+        })
+    }
+
+    const markAsRead = (id) => {
+        $.ajax({
+            data: { id: id },
+            method: 'put',
+            url: '@readNotificationUrl',
+            success: function () {
+                $("#notification-toast-" + notification.id).toast('hide');
+            }
+        });
+    }
+</script>
