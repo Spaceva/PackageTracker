@@ -11,12 +11,24 @@ public static class ServiceCollectionExtensions
 {
     public static void AddTelegram(this IServiceCollection services, IConfiguration configuration)
     {
+        var currentSettings = configuration.GetSection("Telegram").Get<TelegramBotSettings>();
+
+        if (IsNotValid(currentSettings))
+        {
+            return;
+        }
+
+        services.Configure<TelegramBotSettings>(configuration.GetSection("Telegram"));
+
         services.AddSingleton<ITelegramChatBot, PackageTrackerTelegramBot>();
 
         services.AddHostedService<TelegramBotHostingService>();
 
-        services.Configure<TelegramBotSettings>(configuration.GetSection("Telegram"));
-
         services.AddMediatR(Assembly.GetExecutingAssembly());
+    }
+
+    private static bool IsNotValid(TelegramBotSettings? currentSettings)
+    {
+        return currentSettings is null || string.IsNullOrWhiteSpace(currentSettings.Token) || string.IsNullOrWhiteSpace(currentSettings.ChannelId);
     }
 }

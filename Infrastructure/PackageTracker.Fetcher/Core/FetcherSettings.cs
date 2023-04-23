@@ -6,7 +6,7 @@ internal class FetcherSettings : IRepeatedBackgroundSettings
 {
     public TimeSpan TimeBetweenEachExecution { get; set; }
 
-    public TrackedPackages Packages { get; set; } = default!;
+    public TrackedPackages? Packages { get; set; } = default!;
 
     public class TrackedPackages
     {

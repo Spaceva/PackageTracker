@@ -33,6 +33,11 @@ internal class FetcherBackgroundService : RepeatedBackgroundService
 
     protected override async Task RunIterationAsync(CancellationToken stoppingToken)
     {
+        if(fetcherSettings.CurrentValue.Packages is null)
+        {
+            return;
+        }
+
         await Parallel.ForEachAsync(fetcherSettings.CurrentValue.Packages.Npm, stoppingToken, FetchPackageNpm);
         await Parallel.ForEachAsync(fetcherSettings.CurrentValue.Packages.Nuget, stoppingToken, FetchPackageNuget);
     }
