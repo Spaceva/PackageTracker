@@ -1,0 +1,15 @@
+﻿@model PackageTracker.Presentation.MVCApp.Models.NotificiationToastViewModel
+<div id="notification-toast-@Model.Id" class="toast mb-2" role="alert" aria-live="assertive" aria-atomic="true">
+    <div class="toast-header bg-info">
+        <strong class="me-auto">@Model.Title</strong>
+        <small class="text-muted">@Model.Date</small>
+        <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+    </div>
+    <div class="toast-body">
+        @Html.Raw(Model.Message)
+        <div class="mt-2 pt-2 border-top align-content-end">
+            <button type="button" class="btn btn-success btn-sm" onclick="markAsRead('@Model.Id')" data-bs-dismiss="toast"><i class="fa-solid fa-envelope-circle-check"></i> Marquer comme lu</button>
+            <button type="button" class="btn btn-outline-dark btn-sm" data-bs-dismiss="toast"><i class="fa-solid fa-circle-xmark"></i> Fermer</button>
+        </div>
+    </div>
+</div>

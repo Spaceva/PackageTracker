@@ -1,0 +1,71 @@
+﻿@using PackageTracker.Messages.Queries;
+@model PackageTracker.Presentation.MVCApp.Models.PackageWithVersionsViewModel
+@{
+    ViewData["Title"] = $"Details - {Model.Name}";
+    var modelHasLatestReleaseVersion = Model.LatestReleaseVersion is not null;
+}
+
+@if (!modelHasLatestReleaseVersion)
+{
+    <div class="alert alert-warning" role="alert">This package is still in development.</div>
+}
+
+<h1><i class="fa-solid fa-cube"></i> <a target="_blank" href="@Model.Link">@Model.Name</a></h1>
+<div class="row mb-3">
+    <div class="col">
+        <div class="card">
+            <div class="card-header">
+                <i class="fa-solid fa-folder-open"></i> Type
+            </div>
+            <div class="card-body">
+                <p class="card-text">
+                    <img src="~/assets/@(Model.Type.ToLower()).png" alt="@(Model.Type)" width="16"> @(Model.Type.ToUpper())
+                </p>
+            </div>
+        </div>
+    </div>
+    @if (modelHasLatestReleaseVersion)
+    {
+        <div class="col">
+            <div class="card">
+                <div class="card-header">
+                    <i class="fa-solid fa-code-pull-request"></i> Latest Release Version
+                </div>
+                <div class="card-body">
+                    <p class="card-text">
+                        v@(Model.LatestReleaseVersion)
+                    </p>
+                </div>
+            </div>
+        </div>
+    }
+    <div class="col">
+        <div class="card">
+            <div class="card-header@(modelHasLatestReleaseVersion ? string.Empty: " bg-warning")">
+                <i class="fa-solid fa-code-branch"></i> Latest Version
+            </div>
+            <div class="card-body">
+                <p class="card-text">
+                    v@(Model.LatestVersion)
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-header">
+        <i class="fa-solid fa-code-commit"></i> Versions
+    </div>
+    <div class="card-body">
+        <ul class="list-group">
+            @foreach (var versionKvp in Model.Versions)
+            {
+                var version = versionKvp.Key;
+                var link = versionKvp.Value;
+                var highlight = (version == Model.LatestReleaseVersion ? "active" : string.Empty);
+                <li class="list-group-item @highlight">@(link is not null ? Html.Raw(link) : version)</li>
+            }
+        </ul>
+    </div>
+</div>

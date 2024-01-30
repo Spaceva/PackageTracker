@@ -1,0 +1,80 @@
+﻿@using PackageTracker.Messages.Queries;
+@using PackageTracker.WebHost.Controllers
+@model IEnumerable<PackageTracker.Presentation.MVCApp.Models.PackageViewModel>
+@{
+    ViewData["Title"] = "Packages";
+    var deletePackageUrl = Url.Action(nameof(PackageController.Delete), nameof(PackageController).Replace(nameof(Controller), string.Empty));
+}
+
+<table class="table table-sm table-bordered table-hover align-content-center text-center">
+    <caption>Packages</caption>
+    <thead>
+        <tr class="bg-info">
+            <th><i class="fa-solid fa-folder-open"></i> Type</th>
+            <th><i class="fa-solid fa-tag"></i> Name</th>
+            <th><i class="fa-solid fa-code-pull-request"></i> Latest Release Version</th>
+            <th><i class="fa-solid fa-code-branch"></i> Latest Version</th>
+            <th><i class="fa-solid fa-gear"></i> Actions</th>
+        </tr>
+    </thead>
+    <tbody class="table-group-divider">
+        @foreach (var package in Model)
+        {
+            var rowId = Guid.NewGuid();
+            <tr id="package_row_@rowId">
+                <td>
+                    <img src="~/assets/@(package.Type.ToLower()).png" alt="@(package.Type)" width="32"> <a target="_blank" href="@package.Link">@(package.Type)</a>
+                </td>
+                <td class="align-content-start text-start">
+                    <a asp-action="Details" asp-controller="Package" asp-route-id="@(package.Name)">@(package.Name)</a>
+                </td>
+
+                @if (package.LatestReleaseVersion == package.LatestVersion)
+                {
+                    <td colspan="2">
+                        <strong>@(package.LatestVersion)</strong>
+                    </td>
+                }
+                else
+                {
+                    <td>
+                        <strong>@(package.LatestReleaseVersion)</strong>
+                    </td>
+                    <td>
+                        <i>@(package.LatestVersion)</i>
+                    </td>
+                }
+                <td>
+                    <button id="delete_package_btn_@rowId" type="button"
+                            class="btn btn-sm btn-danger"
+                            onclick="deletePackage('@package.Name','@package.Type','@package.Link','@rowId')">
+                        <i id="delete_package_icon_@rowId" class="fa-solid fa-trash-can"></i>
+                        <span id="delete_package_spinner_@rowId" class="spinner-border spinner-border-sm" role="status" aria-hidden="true" style="display: none;"></span>
+                    </button>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+<script type="text/javascript">
+    const deletePackage = (packageName, packageType, packageLink, rowId) => {
+        $(`#delete_package_icon_${rowId}`).hide();
+        $(`#delete_package_spinner_${rowId}`).show();
+        $(`#delete_package_btn_${rowId}`).attr('disabled', 'disabled');
+        $.ajax({
+            type: "POST",
+            url: '@(deletePackageUrl)',
+            data: JSON.stringify({ name: packageName, type: packageType, link: packageLink }),
+            contentType: "application/json",
+            success: () => {
+                toastContent("Package supprimé", `Le package ${packageName}' (${packageType}) a été supprimé.`, 'success');
+                $(`#package_row_${rowId}`).remove();
+            },
+            error: (data) => {
+                toastContent("Package non supprimé", `Erreur HTTP ${data.status} : Le package ${packageName}' (${packageType}) n'a <b>pas</b> été supprimé.`, 'danger');
+                $(`#delete_package_icon_${rowId}`).show();
+                $(`#delete_package_spinner_${rowId}`).hide();
+                $(`#delete_package_${rowId}`).removeAttr('disabled');
+            }
+        })
+    }</script>

@@ -1,28 +1,20 @@
-﻿namespace PackageTracker.Domain.Packages;
+﻿namespace PackageTracker.Domain.Package;
 
-using PackageTracker.Domain.Packages.Model;
+using PackageTracker.Domain.Package.Model;
 
 public interface IPackagesRepository
 {
-    Task<Package> GetByNameAsync(string packageName);
+    Task<Package> GetByNameAsync(string packageName, CancellationToken cancellationToken = default);
 
-    Task<Package?> TryGetByNameAsync(string packageName);
+    Task<Package?> TryGetByNameAsync(string packageName, CancellationToken cancellationToken = default);
 
-    Task<IReadOnlyCollection<Package>> GetAllPackagesAsync(IReadOnlyCollection<PackageType>? packageTypes = null);
+    Task DeleteByNameAsync(string packageName, CancellationToken cancellationToken = default);
 
-    Task AddPackageAsync(Package package);
+    Task<IReadOnlyCollection<Package>> GetAllAsync(string? name = null, IReadOnlyCollection<PackageType>? packageTypes = null, CancellationToken cancellationToken = default);
 
-    Task AddPackagesAsync(IReadOnlyCollection<Package> packages);
+    Task AddAsync(Package package, CancellationToken cancellationToken = default);
 
-    Task RemovePackageAsync(string packageName);
+    Task UpdateAsync(Package package, CancellationToken cancellationToken = default);
 
-    Task UpdatePackageAsync(Package package);
-
-    Task<PackageVersion?> GetPackageVersionAsync(string packageName, string versionLabel);
-
-    Task<IReadOnlyCollection<PackageVersion>> GetPackageVersionsAsync(string packageName);
-
-    Task AddPackageVersionAsync(string packageName, PackageVersion packageVersion);
-
-    Task RemovePackageVersionAsync(string packageName, string versionLabel);
+    Task<PackageVersion> GetVersionAsync(string packageName, string versionLabel, CancellationToken cancellationToken = default);
 }

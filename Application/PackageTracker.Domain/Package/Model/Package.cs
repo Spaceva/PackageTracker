@@ -1,64 +1,38 @@
-﻿using PackageTracker.Domain.Extensions;
-
-namespace PackageTracker.Domain.Packages.Model;
+﻿namespace PackageTracker.Domain.Package.Model;
 
 public abstract class Package
 {
+    private readonly PackageVersionComparer _packageVersionComparer = new ();
+
     public string Name { get; set; } = default!;
 
-    public ICollection<PackageVersion> Versions { get; set; } = default!;
+    public ICollection<PackageVersion> Versions { get; set; } = new List<PackageVersion>();
 
     public abstract PackageType Type { get; }
 
+    public string RegistryUrl { get; set; } = default!;
+
+    public string Link { get; set; } = default!;
+
     public string? LatestReleaseVersion
-     => Versions.Where(v => Constants.RegularExpressions.ReleaseVersionNumber.IsMatch(v.Label))
-                        .Select(v => Constants.RegularExpressions.ReleaseVersionNumber.MatchTo<VersionLabel>(v.Label))
-                        .OrderByDescending(v => v.OrderingLabel)
-                        .Select(v => v.Label)
-                        .FirstOrDefault();
+     => Versions.Where(v => v.IsRelease)
+                .OrderDescendingUsing(_packageVersionComparer)
+                .Select(v => v.ToString())
+                .FirstOrDefault();
 
-    public string LatestVersion
-    => Versions.Where(v => Constants.RegularExpressions.AnyVersionNumber.IsMatch(v.Label))
-                       .Select(v => Constants.RegularExpressions.AnyVersionNumber.MatchTo<VersionLabel>(v.Label))
-                       .OrderByDescending(v => v.OrderingLabel)
-                       .Select(v => v.Label)
-                       .First();
+    public IReadOnlyCollection<string> VersionLabelsDescending()
+     => Versions.OrderDescendingUsing(_packageVersionComparer)
+                .Select(v => v.ToString())
+                .ToArray();
 
-    public IReadOnlyCollection<string> VersionLabelsDescending
-     => Versions.Select(v => Constants.RegularExpressions.AnyVersionNumber.MatchTo<VersionLabel>(v.Label))
-                        .OrderByDescending(v => v.OrderingLabel)
-                        .Select(v => v.Label)
-                        .ToArray();
+    public string? LatestVersion => VersionLabelsDescending().FirstOrDefault();
 
-    public string Link
-     => Type switch
-     {
-         PackageType.Nuget => $"{Constants.RegistryUrls.NUGET_PACKAGE}/{Name}",
-         PackageType.Npm => $"{Constants.RegistryUrls.NPM_PACKAGE}/{Name}",
-         _ => "",
-     };
-
-    private class VersionLabel
+    public void ReplaceVersionsWith(IReadOnlyCollection<PackageVersion> versions)
     {
-        public string Major { get; set; } = default!;
-        public string Minor { get; set; } = default!;
-        public string Patch { get; set; } = default!;
-        public string Label => $"{Major}.{Minor}.{Patch}";
-        public int OrderingMajor => int.Parse(Major);
-        public int OrderingMinor => int.Parse(Minor);
-        public string OrderingPatch
+        Versions.Clear();
+        foreach (var version in versions)
         {
-            get
-            {
-                if (int.TryParse(Patch, out int patchInt))
-                {
-                    return $"{patchInt:0000000}";
-                }
-
-                return Patch;
-            }
+            Versions.Add(version);
         }
-
-        public string OrderingLabel => $"{OrderingMajor:0000}.{OrderingMinor:0000}.{OrderingPatch}";
     }
 }

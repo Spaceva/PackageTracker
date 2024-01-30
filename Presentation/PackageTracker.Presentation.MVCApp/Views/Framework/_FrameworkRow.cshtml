@@ -1,0 +1,79 @@
+﻿@using PackageTracker.Domain.Framework.Model;
+@using Humanizer;
+
+@model PackageTracker.Domain.Framework.Model.Framework;
+@{
+    var badgeColor = Model.Status switch
+    {
+        FrameworkStatus.Preview => "info",
+        FrameworkStatus.EndOfLife => "danger",
+        FrameworkStatus.Active => "success",
+        FrameworkStatus.LongTermSupport => "success",
+        _ => "secondary"
+    };
+
+    Func<TimeSpan, string> colorChooser = (time) => time.TotalDays switch
+    {
+        > 365 => "text-dark",
+        > 120 => "text-primary",
+        > 30 => "text-warning",
+        _ => "text-danger",
+    };
+}
+<tr>
+    <td>
+        <img src="~/assets/@(Model.Name.Replace(".","DOT").Replace("Framework",string.Empty).Trim().ToLower()).png" alt="@(Model.Name)" tooltip="@(Model.Name)" width="32">
+    </td>
+    <td>
+        <strong>@Model.Name</strong>
+    </td>
+    <td>@Model.Channel</td>
+    <td><div>@Model.Version</div><div>@Model.CodeName</div></td>
+    <td>@Html.Raw(Model.ReleaseDate.HasValue ? $"<span>{Model.ReleaseDate.Value.ToLongDateString()}</span>" : "<i>(non renseigné)</i>")</td>
+    <td>
+        @if (Model.EndOfLife.HasValue)
+        {
+            if (Model.Status != FrameworkStatus.EndOfLife)
+            {
+                <span>@Model.EndOfLife.Value.ToLongDateString()</span>
+            }
+            else
+            {
+                <i class="text-secondary">(Preview pre-release)</i>
+            }
+        }
+        else
+        {
+            <i class="text-secondary">(non renseigné)</i>
+        }
+    </td>
+    <td>
+        @if (Model.EndOfLife.HasValue)
+        {
+            var delta = Model.EndOfLife.Value - DateTime.Now;
+            if (delta > TimeSpan.Zero)
+            {
+                if (Model.Status != FrameworkStatus.EndOfLife)
+                {
+
+                    <span class="@colorChooser(delta)">Dans @delta.Humanize()</span>
+                }
+                else
+                {
+                    <i class="text-secondary">(Preview pre-release)</i>
+                }
+            }
+            else
+            {
+                <span class="text-danger">Il y a @delta.Humanize()</span>
+            }
+        }
+        else
+        {
+            <i class="text-secondary">(non renseigné)</i>
+        }
+    </td>
+    <td>
+        <div><span class="badge rounded-pill bg-@badgeColor">@Model.Status.ToString()</span></div>
+    </td>
+</tr>

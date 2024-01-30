@@ -1,0 +1,237 @@
+﻿@using PackageTracker.Domain.Application.Model;
+@using PackageTracker.Domain.Framework.Model;
+@using PackageTracker.Presentation.MVCApp.Controllers;
+@model IEnumerable<ApplicationDetailViewModel>
+@{
+    ViewData["Title"] = "Applications";
+    ViewData.Add("RowClassIndex", 0);
+    var exportToCSVUrl = Url.Action(nameof(ApplicationController.CSV), nameof(ApplicationController).Replace(nameof(Controller), string.Empty));
+    var deleteApplicationUrl = Url.Action(nameof(ApplicationController.Delete), nameof(ApplicationController).Replace(nameof(Controller), string.Empty));
+    var markDecommissionnedApplicationUrl = Url.Action(nameof(ApplicationController.MarkDecommissionned), nameof(ApplicationController).Replace(nameof(Controller), string.Empty));
+    var unmarkDecommissionnedApplicationUrl = Url.Action(nameof(ApplicationController.UnmarkDecommissionned), nameof(ApplicationController).Replace(nameof(Controller), string.Empty));
+    var unmarkDeadLinkApplicationUrl = Url.Action(nameof(ApplicationController.UnmarkDeadLink), nameof(ApplicationController).Replace(nameof(Controller), string.Empty));
+    var trackPackageUrl = Url.Action(nameof(PackageController.TrackPackage), nameof(PackageController).Replace(nameof(Controller), string.Empty));
+}
+<div class="card mb-3">
+    <div class="card-header">
+        Filtres
+    </div>
+    <div class="card-body">
+        <form asp-action="search">
+            <div class="mb-1">
+                <label class="form-label" for="ApplicationName"><i class="fa-solid fa-tag"></i> Nom de l'application:</label>
+                <input class="form-control" type="text" name="ApplicationName" />
+            </div>
+            <div class="mb-1">
+                <label class="form-label" for="ApplicationTypes"><i class="fa-solid fa-language"></i> Type d'application:</label>
+                <select class="form-control" name="ApplicationTypes">
+                    <option value="">Tous</option>
+                    <option value="@ApplicationType.Angular">Angular</option>
+                    <option value="@ApplicationType.DotNet">DotNet</option>
+                    <option value="@ApplicationType.Php">PHP</option>
+                </select>
+            </div>
+            <div class="mb-1">
+                <label class="form-label" for="RepositoryTypes"><i class="fa-solid fa-cloud"></i> Type de repository:</label>
+                <select class="form-control" name="RepositoryTypes">
+                    <option value="">Tous</option>
+                    <option value="@RepositoryType.Gitlab">Gitlab</option>
+                    <option value="@RepositoryType.AzureDevOps">Azure Dev Ops</option>
+                </select>
+            </div>
+            <div class="mb-1">
+                <div class="form-check">
+                    <input class="form-check-input" type="checkbox" name="ShowOnlyTracked" value="true" />
+                    <label class="form-check-label" for="ShowOnlyTracked"><i class="fa-solid fa-id-card-clip"></i> Afficher uniquement les packages trackés</label>
+                </div>
+            </div>
+            <div class="mb-1">
+                <label class="form-label" for="LastCommitAfter"><i class="fa-regular fa-clock"></i> Dernier commit après</label>
+                <input class="form-control" type="datetime-local" name="LastCommitAfter" />
+            </div>
+            <div class="mb-1">
+                <label class="form-label" for="LastCommitBefore"><i class="fa-regular fa-clock"></i> Dernier commit avant</label>
+                <input class="form-control" type="datetime-local" name="LastCommitBefore" />
+            </div>
+            <div class="mb-1">
+                <div class="form-check">
+                    <input class="form-check-input" type="checkbox" name="ApplyCommitFilterOnAllBranchs" value="true" />
+                    <label class="form-check-label" for="ApplyCommitFilterOnAllBranchs"><i class="fa-solid fa-reply-all"></i> Appliquer à toutes les branches</label>
+                </div>
+            </div>
+            <div class="mb-1">
+                <label class="form-label" for="FrameworkStatus"><i class="fa-solid fa-battery-half"></i> Statut du framework:</label>
+                <select class="form-control" name="FrameworkStatus">
+                    <option value="">Tous</option>
+                    <option value="@FrameworkStatus.Preview">Preview</option>
+                    <option value="@FrameworkStatus.Active">Actif/STS</option>
+                    <option value="@FrameworkStatus.LongTermSupport">LTS</option>
+                    <option value="@FrameworkStatus.EndOfLife">Obsolète</option>
+                </select>
+            </div>
+            <div class="mb-1">
+                <div class="form-check">
+                    <input class="form-check-input" type="checkbox" name="ApplyFrameworkStatusFilterOnAllModules" value="true" />
+                    <label class="form-check-label" for="ApplyFrameworkStatusFilterOnAllModules"><i class="fa-solid fa-reply-all"></i> Appliquer à tous les modules</label>
+                </div>
+            </div>
+            <div class="mb-1">
+                <div class="form-check">
+                    <input class="form-check-input" type="checkbox" name="ShowSoonDecommissioned" value="true" />
+                    <label class="form-check-label" for="ShowSoonDecommissioned"><i class="fa-solid fa-plug-circle-exclamation"></i> Afficher les applications en cours de décommissionnement</label>
+                </div>
+            </div>
+            <div class="mb-1">
+                <div class="form-check">
+                    <input class="form-check-input" type="checkbox" name="ShowDeadLink" value="true" />
+                    <label class="form-check-label" for="ShowDeadLink"><i class="fa-solid fa-link-slash"></i> Afficher les applications en lien mort</label>
+                </div>
+            </div>
+            <div class="d-flex flex-row justify-content-center align-items-center mb-1 mt-1">
+                <input type="hidden" name="ShowOnlyTracked" value="false" />
+                <input type="hidden" name="ApplyCommitFilterOnAllBranchs" value="false" />
+                <input type="hidden" name="ApplyFrameworkStatusFilterOnAllModules" value="false" />
+                <button type="submit" class="btn btn-primary"><i class="fa-solid fa-magnifying-glass"></i> Rechercher</button>
+            </div>
+        </form>
+    </div>
+</div>
+@if (Model.Any())
+{
+    <div class="d-flex flex-row justify-content-center align-items-center m-2">
+        <button type="button" onclick="csv()" class="btn btn-success btn-sm align-self-center"><i class="fa-solid fa-file-export"></i> Exporter le tableau ci-dessous</button>
+    </div>
+    <table class="table table-sm table-bordered align-content-center text-center">
+        <thead class="bg-info">
+            <tr>
+                <th scope="col"><i class="fa-solid fa-tag"></i> Application</th>
+                <th scope="col"><i class="fa-solid fa-code-branch"></i> Branch</th>
+                <th scope="col"><i class="fa-solid fa-folder-open"></i> Module</th>
+                <th scope="col">Framework</th>
+                <th scope="col">Package</th>
+                <th scope="col">Version</th>
+                <th scope="col">Status</th>
+            </tr>
+        </thead>
+        <tbody class="table-group-divider">
+            @foreach (var application in Model)
+            {
+                await Html.RenderPartialAsync("_ApplicationRow", application, ViewData);
+                ViewData["RowClassIndex"] = (int)(ViewData["RowClassIndex"]!) + 1;
+            }
+        </tbody>
+    </table>
+}
+<script type="text/javascript">
+    const csv = () => {
+        const content = '@(Json.Serialize(Model))';
+        $.ajax({
+            type: "POST",
+            url: '@(exportToCSVUrl)',
+            data: content,
+            contentType: "application/json; charset=utf-8",
+            success: (data, status, xhr) => {
+                const encodedUri = 'data:application/csv;charset=utf-8,' + encodeURIComponent(data);
+                const link = document.createElement("a");
+                link.setAttribute("href", encodedUri);
+                link.setAttribute("download", "download.csv");
+                link.innerHTML = "Download";
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+            },
+            dataType: "text",
+        })
+    }
+
+    const deleteApplication = (application, applicationRowId) => {
+        $.ajax({
+            type: "POST",
+            url: '@(deleteApplicationUrl)',
+            data: JSON.stringify(application),
+            contentType: "application/json",
+            success: () => {
+                toastContent("Application supprimée", `L'application ${application.Name}' (${application.Type}) a été supprimée.`, 'success');
+                $(`tr[name='${applicationRowId}']`).remove();
+            },
+            error: (data) => {
+                toastContent("Application non supprimée", `Erreur HTTP ${data.status} : L'application ${application.Name}' (${application.Type}) n'a <b>pas</b> été supprimée.`, 'danger');
+            }
+        })
+    }
+
+    const markApplicationAsDecommissionned = (application, applicationRowId) => {
+        $.ajax({
+            type: "POST",
+            url: '@(markDecommissionnedApplicationUrl)',
+            data: JSON.stringify(application),
+            contentType: "application/json",
+            success: () => {
+                toastContent("Application mise à jour", `L'application ${application.Name}' (${application.Type}) a été marquée en cours de décommissionnement.`, 'success');
+                $(`#${applicationRowId}_marker_IsSoonDecommissioned`).show();
+                $(`#${applicationRowId}_btnOn_IsSoonDecommissioned`).hide();
+                $(`#${applicationRowId}_btnOff_IsSoonDecommissioned`).show();
+            },
+            error: (data) => {
+                toastContent("Application non marquée", `Erreur HTTP ${data.status} : L'application ${application.Name}' (${application.Type}) n'a <b>pas</b> été marquée en cours de décommissionnement.`, 'danger');
+            }
+        })
+    }
+
+    const unmarkApplicationAsDecommissionned = (application, applicationRowId) => {
+        $.ajax({
+            type: "POST",
+            url: '@(unmarkDecommissionnedApplicationUrl)',
+            data: JSON.stringify(application),
+            contentType: "application/json",
+            success: () => {
+                toastContent("Application mise à jour", `L'application ${application.Name}' (${application.Type}) n'est plus marquée en cours de décommissionnement.`, 'success');
+                $(`#${applicationRowId}_marker_IsSoonDecommissioned`).hide();
+                $(`#${applicationRowId}_btnOn_IsSoonDecommissioned`).show();
+                $(`#${applicationRowId}_btnOff_IsSoonDecommissioned`).hide();
+            },
+            error: (data) => {
+                toastContent("Application toujours marquée", `Erreur HTTP ${data.status} : L'application ${application.Name}' (${application.Type}) n'a <b>pas</b> été mise à jour.`, 'danger');
+            }
+        })
+    }
+
+    const unmarkApplicationAsDeadlink = (application, applicationRowId) => {
+        $.ajax({
+            type: "POST",
+            url: '@(unmarkDeadLinkApplicationUrl)',
+            data: JSON.stringify(application),
+            contentType: "application/json",
+            success: () => {
+                toastContent("Application mise à jour", `L'application ${application.Name}' (${application.Type}) n'est plus marquée en lien mort.`, 'success');
+                $(`#${applicationRowId}_marker_IsDeadLink`).hide();
+                $(`#${applicationRowId}_btnOff_IsDeadLink`).hide();
+            },
+            error: (data) => {
+                toastContent("Application toujours en lien mort", `Erreur HTTP ${data.status} : L'application ${application.Name}' (${application.Type}) n'a <b>pas</b> été mise à jour.`, 'danger');
+            }
+        })
+    }
+
+    const trackPackage = (packageName, packageType, packageIdRow) => {
+        $(`#tracking_btn_${packageIdRow}`).attr('disabled', 'disabled');
+        $(`#tracking_icon_${packageIdRow}`).hide();
+        $(`#tracking_spinner_${packageIdRow}`).show();
+        $.ajax({
+            type: "POST",
+            url: '@(trackPackageUrl)',
+            data: JSON.stringify({ packageName: packageName, packageType: packageType }),
+            contentType: "application/json",
+            success: (data) => {
+                toastContent("Package suivi", `Le package ${packageName}' (${packageType}) est maintenant suivi.`, 'success');
+                $(`#tracking_${packageIdRow}`).html("<i class=\"fa-solid fa-circle-info\"></i>");
+            },
+            error: (data) => {
+                toastContent("Package non suivi", `Erreur HTTP ${data.status} : Le package ${packageName}' (${packageType}) n'est <b>pas</b> suivi.`, 'danger');
+                $(`#tracking_btn_${packageIdRow}`).removeAttr('disabled');
+                $(`#tracking_icon_${packageIdRow}`).show();
+                $(`#tracking_spinner_${packageIdRow}`).hide();
+            }
+        })
+    }
+</script>

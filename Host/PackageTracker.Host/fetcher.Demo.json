@@ -1,0 +1,34 @@
+{
+  "Fetcher": {
+    "ProxyUrl": "",
+    "TimeBetweenEachExecution": "00:05:00",
+    "Packages": {
+      "Public": {
+        "Npm": [
+          "@angular/cli",
+          "typescript",
+          "rxjs",
+          "eslint",
+          "karma",
+          "jasmine-core"
+        ],
+        "Nuget": [
+          "AutoFixture",
+          "FluentAssertions",
+          "Mapster",
+          "NSubstitute",
+          "Quartz"
+        ]
+      },
+      "Privates": [
+        {
+          "FetcherName": "MyNugetServer",
+          "RepositoryLink": "http://my-private-server/",
+          "PackagesName": [
+            ""
+          ]
+        }
+      ]
+    }
+  }
+}

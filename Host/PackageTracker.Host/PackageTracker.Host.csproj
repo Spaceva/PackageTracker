@@ -1,0 +1,40 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+	<PropertyGroup>
+		<OutputType>Exe</OutputType>
+		<TargetFramework>net8.0</TargetFramework>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<Nullable>enable</Nullable>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<PackageReference Include="AutoMapper" Version="12.0.1" />
+		<PackageReference Include="AutoMapper.Extensions.Microsoft.DependencyInjection" Version="12.0.1" />
+		<PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="8.0.0" />
+		<PackageReference Include="Serilog.AspNetCore" Version="8.0.0" />
+		<PackageReference Include="Swashbuckle.AspNetCore.Swagger" Version="6.5.0" />
+		<PackageReference Include="Swashbuckle.AspNetCore.SwaggerGen" Version="6.5.0" />
+		<PackageReference Include="Swashbuckle.AspNetCore.SwaggerUI" Version="6.5.0" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<ProjectReference Include="..\..\Application\PackageTracker.ApplicationModuleParsers\PackageTracker.ApplicationModuleParsers.csproj" />
+		<ProjectReference Include="..\..\Application\PackageTracker.Domain\PackageTracker.Domain.csproj" />
+		<ProjectReference Include="..\..\Application\PackageTracker.Handlers\PackageTracker.Handlers.csproj" />
+		<ProjectReference Include="..\..\Application\PackageTracker.Messages\PackageTracker.Messages.csproj" />
+		<ProjectReference Include="..\..\Infrastructure\PackageTracker.Database.EntityFramework\PackageTracker.Database.EntityFramework.csproj" />
+		<ProjectReference Include="..\..\Infrastructure\PackageTracker.Export.Confluence\PackageTracker.Export.Confluence.csproj" />
+		<ProjectReference Include="..\..\Infrastructure\PackageTracker.Fetcher.PublicRegistries\PackageTracker.Fetcher.PublicRegistries.csproj" />
+		<ProjectReference Include="..\..\Infrastructure\PackageTracker.Fetcher\PackageTracker.Fetcher.csproj" />
+		<ProjectReference Include="..\..\Infrastructure\PackageTracker.Infrastructure\PackageTracker.Infrastructure.csproj" />
+		<ProjectReference Include="..\..\Infrastructure\PackageTracker.Monitor.EndOfLife\PackageTracker.Monitor.EndOfLife.csproj" />
+		<ProjectReference Include="..\..\Infrastructure\PackageTracker.Monitor.Github\PackageTracker.Monitor.Github.csproj" />
+		<ProjectReference Include="..\..\Infrastructure\PackageTracker.Monitor\PackageTracker.Monitor.csproj" />
+		<ProjectReference Include="..\..\Infrastructure\PackageTracker.Scanner.AzureDevOps\PackageTracker.Scanner.AzureDevOps.csproj" />
+		<ProjectReference Include="..\..\Infrastructure\PackageTracker.Scanner.Gitlab\PackageTracker.Scanner.Gitlab.csproj" />
+		<ProjectReference Include="..\..\Infrastructure\PackageTracker.Scanner\PackageTracker.Scanner.csproj" />
+		<ProjectReference Include="..\..\Presentation\PackageTracker.Presentation.MVCApp\PackageTracker.Presentation.MVCApp.csproj" />
+		<ProjectReference Include="..\..\Presentation\PackageTracker.Presentation.WebApi\PackageTracker.Presentation.WebApi.csproj" />
+	</ItemGroup>
+
+</Project>

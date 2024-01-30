@@ -1,0 +1,26 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+	<PropertyGroup>
+		<TargetFramework>net8.0</TargetFramework>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<Nullable>enable</Nullable>
+		<AssemblyVersion>1.0.0</AssemblyVersion>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<PackageReference Include="Dapplo.Confluence" Version="1.0.36" />
+		<PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="8.0.0" />
+		<PackageReference Include="Microsoft.Extensions.FileProviders.Embedded" Version="8.0.0" />
+		<PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" Version="8.0.0" />
+		<PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="8.0.0" />
+		<PackageReference Include="Microsoft.Extensions.Options" Version="8.0.0" />
+		<PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" Version="8.0.0" />
+		<PackageReference Include="GitLabApiClient" Version="1.8.0" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<ProjectReference Include="..\..\Application\PackageTracker.Messages\PackageTracker.Messages.csproj" />
+		<ProjectReference Include="..\PackageTracker.Infrastructure\PackageTracker.Infrastructure.csproj" />
+	</ItemGroup>
+
+</Project>

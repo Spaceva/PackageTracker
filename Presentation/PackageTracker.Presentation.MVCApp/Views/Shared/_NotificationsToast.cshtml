@@ -1,0 +1,80 @@
+﻿@using PackageTracker.Presentation.MVCApp.Controllers;
+@{
+    var checkUnreadNotificationsUrl = Url.Action(nameof(NotificationsController.Unread), nameof(NotificationsController).Replace(nameof(Controller), string.Empty));
+    var basicToastUrl = Url.Action(nameof(HomeController.Toast), nameof(HomeController).Replace(nameof(Controller), string.Empty));
+    var notificationToastUrl = Url.Action(nameof(NotificationsController.Toast), nameof(NotificationsController).Replace(nameof(Controller), string.Empty));
+    var readNotificationUrl = Url.Action(nameof(NotificationsController.Read), nameof(NotificationsController).Replace(nameof(Controller), string.Empty));
+}
+
+<div aria-live="polite" aria-atomic="true" style="position: absolute; top: 0; right: 0;">
+    <div id="toast-container"></div>
+</div>
+
+<script type="text/javascript">
+    setTimeout(() => {
+        $.get({
+            url: '@(checkUnreadNotificationsUrl)',
+            success: (unreadNotifications) => {
+                for (notification of unreadNotifications.slice(0, 8)) {
+                    printNotification(notification);
+                }
+            }
+        })
+    }, 5000);
+
+    const printNotification = (notification) => {
+        if ($("#notification-toast-" + notification.id).length) {
+            return;
+        }
+        const content = notification.content;
+        const date = notification.dateTime;
+        $.post({
+            url: '@notificationToastUrl',
+            data: JSON.stringify(notification),
+            contentType: 'application/json',
+            success: (htmlContent) => {
+                $("#toast-container").append(htmlContent);
+                $("#notification-toast-" + notification.id).toast('show');
+            }
+        })
+    }
+
+    const toastContent = (title, message, cssClass) => {
+        const id = makeId();
+        if ($("#notification-toast-" + id).length) {
+            return;
+        }
+        $.post({
+            url: '@basicToastUrl',
+            data: JSON.stringify({ id: id, title: title, message: message, cssClass: cssClass }),
+            contentType: 'application/json',
+            success: (htmlContent) => {
+                $("#toast-container").append(htmlContent);
+                $("#basic-toast-" + id).toast('show');
+            }
+        })
+    }
+
+    const markAsRead = (id) => {
+        $.ajax({
+            data: { id: id },
+            method: 'put',
+            url: '@readNotificationUrl',
+            success: function () {
+                $("#notification-toast-" + notification.id).toast('hide');
+            }
+        });
+    }
+
+    const makeId = () => {
+        let result = '';
+        const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+        const charactersLength = characters.length;
+        let counter = 0;
+        while (counter < 16) {
+            result += characters.charAt(Math.floor(Math.random() * charactersLength));
+            counter += 1;
+        }
+        return result;
+    }
+</script>

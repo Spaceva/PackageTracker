@@ -1,7 +1,8 @@
-﻿namespace PackageTracker.Domain.Packages.Model;
+﻿namespace PackageTracker.Domain.Package.Model;
 
 public enum PackageType
 {
     Npm,
-    Nuget
+    Nuget,
+    Packagist
 }

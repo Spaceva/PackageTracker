@@ -1,0 +1,19 @@
+{
+  "Confluence": {
+    "ProxyUrl": "",
+    "TimeBetweenEachExecution": "HH:MM:SS",
+    "Domain": "",
+    "Username": "",
+    "AccessToken": "",
+    "Pages": {
+      "AngularObsolescence": 0,
+      "SDKs": 0,
+      "DotNetTemplates": 0,
+      "DotNetApplications": 0
+    },
+    "Gitlab": {
+      "Domain": "",
+      "AccessToken": ""
+    }
+  }
+}

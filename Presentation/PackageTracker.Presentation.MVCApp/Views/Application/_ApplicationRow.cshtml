@@ -1,0 +1,145 @@
+﻿@using PackageTracker.Domain.Framework.Model;
+@model PackageTracker.Presentation.MVCApp.Models.ApplicationDetailViewModel;
+@{
+    var previousBranch = "";
+    var previousModule = "";
+    var rowClasses = new[] { "table-light", "table-secondary" };
+    var rowClassIndex = (int)(ViewData["RowClassIndex"]!);
+    var applicationRowId = $"{Model.ApplicationName}-{Model.ApplicationType}-{rowClassIndex}".Replace(".", "_").Replace("-", "_");
+}
+@for (var index = 0; index < Model.Packages.Count; index++)
+{
+    var row = Model.Packages.ElementAt(index);
+    var packageIdRow = $"{(row.PackageName ?? string.Empty)!.Replace("@", string.Empty).Replace("/", "-")}-{row.PackageType}";
+    var isNewBranch = !previousBranch.Equals(row.BranchName);
+    var isNewModule = !previousModule.Equals(row.ModuleName);
+    var rowClass = rowClasses[rowClassIndex % 2];
+    var updateColor = row.UpdateColor();
+    var badgeColor = row.MainFrameworkStatus switch
+    {
+        "Preview" => "info",
+        "EndOfLife" => "danger",
+        "Active" => "success",
+        "LongTermSupport" => "success",
+        _ => "secondary"
+    };
+    var lastCommitDate = row.BranchLastCommitDate?.ToString("dd/MM/yyyy HH:mm:ss") ?? "Inconnu";
+    var lastCommitDelta = DateTime.UtcNow - (row.BranchLastCommitDate ?? DateTime.MinValue);
+    var lastCommitDateBadgeColor = lastCommitDelta.TotalHours switch
+    {
+        <= 12 => "success",
+        <= 72 => "primary",
+        <= 168 => "info",
+        <= 672 => "warning",
+        <= 876000 => "danger",
+        _ => "secondary"
+    };
+
+    <tr class="@rowClass" name="@applicationRowId">
+        @if (index == 0)
+        {
+            <td class="@rowClass" rowspan="@Model.Packages.Count">
+                <div>
+                    <a href="@Model.ApplicationRepositoryLink"> @Model.ApplicationName</a>
+                </div>
+                <div>
+                    @Model.ApplicationPath
+                </div>
+                <div>
+                    <a asp-controller="Application" asp-action="@Model.ApplicationRepositoryType"> <img src="~/assets/@(Model.ApplicationRepositoryType.ToLower()).png" alt="@(Model.ApplicationRepositoryType)" width="32"></a>
+                    <a asp-controller="Application" asp-action="@Model.ApplicationType"> <img src="~/assets/@(Model.ApplicationType.ToLower()).png" alt="@(Model.ApplicationType)" width="32"></a>
+                    <i data-toggle="tooltip" data-placement="top" title="Application en cours de décommissionnement" class="fa-solid fa-plug-circle-xmark" id="@(applicationRowId)_marker_IsSoonDecommissioned" @Html.Raw(Model.ApplicationIsSoonDecommissioned ? string.Empty : "style=\"display: none;\"")></i>
+                    <i data-toggle="tooltip" data-placement="top" title="Application avec un lien mort" class="fa-solid fa-link-slash" id="@(applicationRowId)_marker_IsDeadLink" @Html.Raw(Model.ApplicationIsDeadLink ? string.Empty : "style=\"display: none;\"")></i>
+                </div>
+                <div>
+                    <button type="button" class="btn btn-danger w-100" data-bs-toggle="modal" data-bs-target="#@(applicationRowId)_delete">
+                        <i class="fa-regular fa-trash-can"></i> Supprimer
+                    </button>
+                    <br />
+                    <button type="button" class="btn btn-warning w-100" id="@(applicationRowId)_btnOn_IsSoonDecommissioned"
+                            onclick="markApplicationAsDecommissionned({@(nameof(ApplicationViewModel.Name)):'@Model.ApplicationName',@(nameof(ApplicationViewModel.RepositoryLink)):'@Model.ApplicationRepositoryLink',@(nameof(ApplicationViewModel.Type)):'@Model.ApplicationType'},'@applicationRowId')"
+                    @Html.Raw(Model.ApplicationIsSoonDecommissioned ? "style=\"display: none;\"" : string.Empty)>
+                        <i class="fa-solid fa-plug-circle-xmark"></i> Marquer en cours de décommissionnement
+                    </button>
+                    <button type="button" class="btn btn-primary w-100" id="@(applicationRowId)_btnOff_IsSoonDecommissioned"
+                            onclick="unmarkApplicationAsDecommissionned({@(nameof(ApplicationViewModel.Name)):'@Model.ApplicationName',@(nameof(ApplicationViewModel.RepositoryLink)):'@Model.ApplicationRepositoryLink',@(nameof(ApplicationViewModel.Type)):'@Model.ApplicationType'},'@applicationRowId')"
+                    @Html.Raw(Model.ApplicationIsSoonDecommissioned ? string.Empty : "style=\"display: none;\"")>
+                        <i class="fa-solid fa-plug-circle-plus"></i> Annuler le marquage
+                    </button>
+                    <br />
+                    <button type="button" class="btn btn-primary w-100" id="@(applicationRowId)_btnOff_IsDeadLink"
+                            onclick="unmarkApplicationAsDeadlink({@(nameof(ApplicationViewModel.Name)):'@Model.ApplicationName',@(nameof(ApplicationViewModel.RepositoryLink)):'@Model.ApplicationRepositoryLink',@(nameof(ApplicationViewModel.Type)):'@Model.ApplicationType'},'@applicationRowId')"
+                    @Html.Raw(Model.ApplicationIsDeadLink ? string.Empty : "style=\"display: none;\"")>
+                        <i class="fa-solid fa-link"></i> Annuler le lien mort
+                    </button>
+
+                    <div class="modal fade" id="@(applicationRowId)_delete" tabindex="-1" aria-labelledby="@(applicationRowId)_delete" aria-hidden="true">
+                        <div class="modal-dialog modal-dialog-centered">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h1 class="modal-title fs-5" id="@(applicationRowId)Label">Confirmation de suppression</h1>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                </div>
+                                <div class="modal-body">
+                                    &Ecirc;tes-vous s&ucirc;r de vouloir supprimer <b>@Model.ApplicationName</b> ?
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-danger" data-bs-dismiss="modal" onclick="deleteApplication({@(nameof(ApplicationViewModel.Name)):'@Model.ApplicationName',@(nameof(ApplicationViewModel.RepositoryLink)):'@Model.ApplicationRepositoryLink',@(nameof(ApplicationViewModel.Type)):'@Model.ApplicationType'},'@applicationRowId')">Confirmer</button>
+                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </td>
+        }
+        @if (isNewBranch)
+        {
+            previousBranch = row.BranchName;
+            var totalRowForThisBranch = Model.Packages.Count(p => p.BranchName.Equals(row.BranchName));
+            <td class="@rowClass" rowspan="@totalRowForThisBranch">
+                <div><a href="@row.BranchRepositoryLink">@row.BranchName</a></div>
+                <div>Dernier commit: <span class="badge rounded-pill bg-@lastCommitDateBadgeColor">@lastCommitDate</span></div>
+            </td>
+        }
+        @if (isNewBranch || isNewModule)
+        {
+            previousModule = row.ModuleName;
+            var totalRowForThisModule = Model.Packages.Count(p => p.BranchName.Equals(row.BranchName) && p.ModuleName.Equals(row.ModuleName));
+            <td class="@rowClass" rowspan="@totalRowForThisModule">@row.ModuleName</td>
+            <td class="@rowClass" rowspan="@totalRowForThisModule">
+                <div>@row.MainFrameworkVersion</div>
+                <div><span class="badge rounded-pill bg-@badgeColor">@row.MainFrameworkStatus</span></div>
+            </td>
+        }
+        <td class="@rowClass" style="text-align: left!important; font-size: small;">
+            @if (row.PackageType is not null)
+            {
+                <img src="~/assets/@(row.PackageType.ToLower()).png" alt="@(row.PackageType)" width="16">
+            }
+            @if (row.PackageName is not null)
+            {
+                <a href="@(row.PackageLink??"#")">@row.PackageName</a>
+            }
+        </td>
+        <td class="@rowClass">@(row.PackageVersion ?? string.Empty)</td>
+        <td class="@rowClass" id="tracking_@packageIdRow">
+            @if (row.IsPackageTracked)
+            {
+                <i class="fa-solid fa-circle-info"></i>
+            }
+            else if (!string.IsNullOrWhiteSpace(row.PackageName))
+            {
+                <button id="tracking_btn_@packageIdRow" type="button"
+                        class="btn btn-sm btn-primary"
+                        onclick="trackPackage('@row.PackageName','@row.PackageType','@packageIdRow')">
+                    <i id="tracking_icon_@packageIdRow" class="fa-solid fa-boxes-packing"></i>
+                    <span id="tracking_spinner_@packageIdRow" class="spinner-border spinner-border-sm" role="status" aria-hidden="true" style="display: none;"></span>
+                </button>
+            }
+            @Html.Raw(row.IsUnknownPackageVersion ? "<i class=\"fa-solid fa-circle-question\" style=\"color: orange;\"></i>" : string.Empty)
+            @Html.Raw(row.IsLatestReleaseVersion ? "<i class=\"fa-solid fa-circle-check\" style=\"color: green;\"></i>" : string.Empty)
+            @Html.Raw(row.CanBeUpdated ? $"<i data-toggle=\"tooltip\" data-placement=\"top\" title=\"Latest version is {row.PackageLatestReleaseVersion ?? "unknown."}\" class=\"fa-solid fa-circle-up\" style=\"color: {updateColor};\"></i>" : string.Empty)
+        </td>
+    </tr>
+}

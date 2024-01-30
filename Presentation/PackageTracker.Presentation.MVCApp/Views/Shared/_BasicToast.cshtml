@@ -1,0 +1,10 @@
+﻿@model PackageTracker.Presentation.MVCApp.Models.BasicToastViewModel
+<div id="basic-toast-@Model.Id" class="toast" role="alert" aria-live="assertive" aria-atomic="true">
+    <div class="toast-header bg-@Model.CSSClass">
+        <strong class="me-auto text-body">@Model.Title</strong>
+        <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+    </div>
+    <div class="toast-body">
+        @Html.Raw(Model.Message)
+    </div>
+</div>

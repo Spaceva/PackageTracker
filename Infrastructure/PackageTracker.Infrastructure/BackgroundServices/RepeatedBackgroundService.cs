@@ -1,18 +1,12 @@
-﻿using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
+﻿using Microsoft.Extensions.Logging;
 
 namespace PackageTracker.Infrastructure.BackgroundServices;
 
-public abstract class RepeatedBackgroundService : BackgroundService
+public abstract class RepeatedBackgroundService(ILogger logger) : IScopedBackgroundService
 {
-    protected ILogger Logger { get; }
+    protected ILogger Logger => logger;
 
-    public RepeatedBackgroundService(ILogger logger)
-    {
-        Logger = logger;
-    }
-
-    protected override async Task ExecuteAsync(CancellationToken stoppingToken)
+    public async Task RunAsync(CancellationToken stoppingToken)
     {
         try
         {
@@ -56,14 +50,19 @@ public abstract class RepeatedBackgroundService : BackgroundService
 
     protected abstract Task RunIterationAsync(CancellationToken stoppingToken);
 
-    protected abstract Task HandleRunErrorAsync(Exception exception, CancellationToken stoppingToken);
-
     protected abstract TimeSpan TimeBetweenEachExecution();
+
+    protected virtual Task HandleRunErrorAsync(Exception exception, CancellationToken stoppingToken)
+    {
+        Logger.LogError(exception, "An error occured");
+        return Task.CompletedTask;
+    }
 
     protected async Task WaitForNextExecution(CancellationToken stoppingToken)
     {
-        Logger.LogInformation("Paused for {TimeBetweenEachExecution}.", TimeBetweenEachExecution());
-        await Task.Delay(TimeBetweenEachExecution(), stoppingToken);
+        var timeBetweenEachExecution = TimeBetweenEachExecution();
+        Logger.LogInformation("Paused for {TimeBetweenEachExecution}.", timeBetweenEachExecution);
+        await Task.Delay(timeBetweenEachExecution, stoppingToken);
         Logger.LogInformation("Restarting.");
     }
 }

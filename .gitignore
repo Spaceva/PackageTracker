@@ -328,6 +328,13 @@ ASALocalRun/
 # MFractors (Xamarin productivity tool) working folder 
 .mfractor/
 
-Logs/
-/Host/PackageTracker.Host/appsettings.Development.json
-/Host/PackageTracker.Host/logging.Development.json
+logs/
+/Host/PackageTracker.Host/appsettings.json
+/Host/PackageTracker.Host/fetcher.json
+/Host/PackageTracker.Host/logging.json
+/Host/PackageTracker.Host/monitor.json
+/Host/PackageTracker.Host/scanner.json
+/Host/PackageTracker.Host/confluence.json
+/Host/PackageTracker.Host/.config
+/.sonarqube
+/Host/PackageTracker.WebHost/.config

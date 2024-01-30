@@ -1,4 +1,4 @@
-﻿namespace PackageTracker.Domain.Packages.Exceptions;
+﻿namespace PackageTracker.Domain.Package.Exceptions;
 
 public class PackageVersionAlreadyExistsException : Exception
 {

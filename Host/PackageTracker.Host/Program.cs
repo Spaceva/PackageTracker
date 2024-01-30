@@ -1,7 +1,25 @@
-using PackageTracker.Cache;
+﻿using Microsoft.AspNetCore.Http.Extensions;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Routing;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
+using Microsoft.OpenApi.Models;
+using PackageTracker.ApplicationModuleParsers;
+using PackageTracker.Database.EntityFramework;
 using PackageTracker.Fetcher;
+using PackageTracker.Fetcher.PublicRegistries;
 using PackageTracker.Handlers;
-using PackageTracker.Telegram;
+using PackageTracker.Scanner;
+using PackageTracker.Monitor;
+using PackageTracker.Monitor.Github;
+using PackageTracker.Monitor.EndOfLife;
+using PackageTracker.Export.Confluence;
+using PackageTracker.Presentation.WebApi;
+using PackageTracker.Presentation.MVCApp;
 using Serilog;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -16,67 +34,128 @@ application.Run();
 
 static void Configure(WebApplication application)
 {
-    ConfigureMiddleware(application, application.Environment);
+    ConfigurePipeline(application, application.Environment);
+
     ConfigureEndpoints(application);
+
+    ConfigureDatabase(application);
 }
 
 static void AddConfigurations(WebApplicationBuilder builder)
 {
-    ConfigureConfiguration(builder.Configuration, builder.Environment);
-    ConfigureServices(builder.Services, builder.Configuration, builder.Environment);
-    ConfigureLogging(builder.Host);
+    AddConfiguration(builder.Configuration, builder.Environment);
+    AddServices(builder.Services, builder.Configuration);
+    AddLoggingConfiguration(builder.Host);
 }
 
-static void ConfigureLogging(ConfigureHostBuilder host)
+static void AddLoggingConfiguration(ConfigureHostBuilder host)
     => host.UseSerilog(ConfigureSerilog);
 
 static void ConfigureSerilog(HostBuilderContext hostingContext, LoggerConfiguration loggerConfiguration)
 {
     loggerConfiguration.ReadFrom.Configuration(hostingContext.Configuration);
-    Directory.CreateDirectory("App_Data/Logs");
-    Serilog.Debugging.SelfLog.Enable(new StreamWriter("App_Data/Logs/serilog-failures.txt", true));
+    Directory.CreateDirectory("logs");
+    Serilog.Debugging.SelfLog.Enable(new StreamWriter("logs/serilog-failures.txt", true));
 }
 
-static void ConfigureConfiguration(IConfigurationBuilder configuration, IWebHostEnvironment environment)
+static void AddConfiguration(IConfigurationBuilder configuration, IHostEnvironment environment)
  => configuration.AddJsonFile("logging.json", optional: true, reloadOnChange: true)
-                 .AddJsonFile($"logging.{environment.EnvironmentName}.json", optional: true, reloadOnChange: true);
+                 .AddJsonFile($"logging.{environment.EnvironmentName}.json", optional: true, reloadOnChange: true)
+                 .AddFetcherConfiguration(environment)
+                 .AddScannerConfiguration(environment)
+                 .AddMonitorConfiguration(environment)
+                 .AddConfluenceConfiguration(environment);
 
-static void ConfigureServices(IServiceCollection services, IConfiguration configuration, IWebHostEnvironment environment)
+
+static void AddModules(IServiceCollection services, IConfiguration configuration)
 {
-    services.AddHandlers();
+    services.AddMainHandlers().AddApplicationModuleParsers();
+    
+    var modules = configuration.GetSection("Modules");
+    if (modules.GetValue<bool>("Fetcher"))
+    {
+        services.AddFetcher(configuration)
+                .AddPublicRegistriesFetchers();
+    }
 
-    services.AddControllersWithViews();
+    if (modules.GetValue<bool>("Scanner"))
+    {
+        services.AddScanner(configuration);
+    }
+
+    if (modules.GetValue<bool>("Monitor"))
+    {
+        services.AddMonitor(configuration)
+                .AddGithubMonitors()
+                .AddEndOfLifeMonitors();
+    }
+
+    if (modules.GetValue<bool>("ConfluenceExport"))
+    {
+        services.AddConfluenceExport(configuration);
+    }
+}
+
+static void AddServices(IServiceCollection services, IConfiguration configuration)
+{
+    AddModules(services, configuration);
+
+    services.AddEndpointsApiExplorer();
+    services.AddSwaggerGen(options =>
+    {
+        options.SwaggerDoc("v1", new OpenApiInfo
+        {
+            Version = "v1",
+            Title = "PackageTrackers API",
+            Description = "An ASP.NET Web API for managing obsolescence",
+        });
+    });
+
+    services.AddAutoMapper(cfg =>
+    {
+        cfg.ConfigureMVCAppMappers();
+        cfg.ConfigureApiMappers();
+    });
+
+    services.AddWebApiServices();
+
+    services.AddMvcAppServices();
 
     services.AddHealthChecks();
 
-    services.ConfigureFetcher(configuration);
+    services.AddOutputCache();
 
-    services.ConfigureFileCaches(configuration);
+    services.AddEFDatabase(configuration);
 
-    services.AddTelegram(configuration);
+    services.AddExceptionHandler((opt) =>
+    {
+        opt.ExceptionHandler = (context) =>
+        {
+            context.RequestServices.GetRequiredService<ILogger<RequestDelegate>>().LogError("Unhandled exception occured at {Method} {Route}.", context.Request.Method, context.Request.GetDisplayUrl());
+            return Task.CompletedTask;
+        };
+    });
 }
 
-static void ConfigureMiddleware(IApplicationBuilder application, IWebHostEnvironment environment)
+static void ConfigurePipeline(IApplicationBuilder application, IWebHostEnvironment environment)
 {
-    if (environment.IsDevelopment())
-    {
-        application.UseDeveloperExceptionPage();
-    }
-    else
-    {
-        application.UseExceptionHandler("/Home/Error");
-        application.UseHsts();
-    }
+    application.ConfigureMVCAppPipeline(environment);
 
+    application.UseSwagger();
+    application.UseSwaggerUI();
+    application.UseOutputCache();
     application.UseHttpsRedirection();
-    application.UseStaticFiles();
-    application.UseRouting();
+    application.UseExceptionHandler();
 }
 
 static void ConfigureEndpoints(IEndpointRouteBuilder application)
 {
-    application.MapControllerRoute(
-        name: "default",
-        pattern: "{controller=Home}/{action=Index}/{id?}");
-    application.MapHealthChecks("/health");
+    application.ConfigureControllerEndpoints();
+    application.MapGroup("/api").ConfigureApiEndpoints();
+    application.MapHealthChecks("/health").ShortCircuit();
+}
+
+static void ConfigureDatabase(IApplicationBuilder application)
+{
+    application.ApplicationServices.EnsureDatabaseIsUpdatedAsync().Wait();
 }
