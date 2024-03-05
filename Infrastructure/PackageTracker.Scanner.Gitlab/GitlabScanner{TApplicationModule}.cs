@@ -5,7 +5,6 @@ using MediatR;
 using Microsoft.Extensions.Logging;
 using PackageTracker.Domain.Application;
 using PackageTracker.Domain.Application.Model;
-using PackageTracker.Scanner.Gitlab;
 using System.Collections.Concurrent;
 using System.Globalization;
 using System.Net.Http.Json;
@@ -46,7 +45,7 @@ internal abstract class GitlabScanner<TApplicationModule> : GitlabScanner where 
                 {
                     await semaphore.WaitAsync(cancellationToken);
                     var application = await ScanProjectAsync(project, cancellationToken);
-                    if(application is not null)
+                    if (application is not null)
                     {
                         applications.Add(application);
                     }
@@ -108,90 +107,7 @@ internal abstract class GitlabScanner<TApplicationModule> : GitlabScanner where 
         }
         catch (GitLabException ex)
         {
-            Logger.LogWarning("Application {ApplicationName} skipped because of Gitlab Error : {ExceptionMessage}.", project.Name,
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-                ex.Message);
+            Logger.LogWarning("Application {ApplicationName} skipped because of Gitlab Error : {ExceptionMessage}.", project.Name, ex.Message);
         }
         catch (Exception ex)
         {
