@@ -21,7 +21,7 @@ internal class UpdatePackageCommandHandler(IMediator mediator, IPackagesReposito
             return;
         }
 
-        dbPackage.ReplaceVersionsWith(newPackage.Versions.ToArray());
+        dbPackage.ReplaceVersionsWith([.. newPackage.Versions]);
 
         await packagesRepository.UpdateAsync(dbPackage, cancellationToken);
 

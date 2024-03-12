@@ -7,23 +7,20 @@ using PackageTracker.Domain.Package.Model;
 using PackageTracker.Messages.Queries;
 using static PackageTracker.Scanner.ScannerSettings;
 using Application = PackageTracker.Domain.Application.Model.Application;
+using RepositoryType = PackageTracker.Domain.Application.Model.RepositoryType;
 
 namespace PackageTracker.Scanner.GitHub;
 
 internal abstract class GitHubScanner : IApplicationsScanner
 {
-    private static readonly TimeSpan DefaultTokenExpirationWarningThreshold = TimeSpan.FromDays(7);
-
     protected GitHubScanner(TrackedApplication trackedApplication, IMediator mediator, ILogger logger)
     {
-        GitHubClient = new GitHubClient(new ProductHeaderValue($"PackageTracker - Scanner {trackedApplication.ScannerName}"))
+        GitHubClient = new GitHubClient(new ProductHeaderValue($"PackageTracker-Scanner-{trackedApplication.ScannerName}"))
         {
             Credentials = new Credentials(trackedApplication.AccessToken)
         };
 
         MaximumConcurrencyCalls = trackedApplication.MaximumConcurrencyCalls;
-
-        TokenExpirationWarningThreshold = trackedApplication.TokenExpirationWarningThreshold ?? DefaultTokenExpirationWarningThreshold;
 
         Logger = logger;
 
@@ -38,8 +35,6 @@ internal abstract class GitHubScanner : IApplicationsScanner
 
     private protected IGitHubClient GitHubClient { get; }
 
-    private protected TimeSpan TokenExpirationWarningThreshold { get; }
-
     private protected int MaximumConcurrencyCalls { get; }
 
     private protected string OrganizationName { get; }
@@ -52,7 +47,7 @@ internal abstract class GitHubScanner : IApplicationsScanner
         var localApplications = response.Applications;
 
         var repositories = await GitHubClient.Repository.GetAllForOrg(OrganizationName);
-        var remoteApplications = repositories.Where(p => !p.Archived).Select(project => Application(project.Name, project.FullName.Replace("/", ">"), project.Url, [])).ToArray();
+        var remoteApplications = repositories.Where(p => !p.Archived).Select(repo => Application(repo.Name, repo.FullName.Replace("/", ">"), repo.HtmlUrl, [])).ToArray();
 
         var comparer = new ApplicationBasicComparer();
         return [.. localApplications.Where(app => !remoteApplications.Contains(app, comparer))];

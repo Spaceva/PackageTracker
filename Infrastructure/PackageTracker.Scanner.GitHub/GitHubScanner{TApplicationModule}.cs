@@ -26,13 +26,17 @@ internal abstract class GitHubScanner<TApplicationModule> : GitHubScanner where 
         {
             throw new ApiException("Rate limit exceeded", System.Net.HttpStatusCode.TooManyRequests);
         }
+        else if ((double)rateLimits.Rate.Remaining / rateLimits.Rate.Limit < 0.15d)
+        {
+            Logger.LogWarning("Rate limit almost reached: {Remaining} remaining.", rateLimits.Rate.Remaining);
+        }
 
         var applications = new ConcurrentBag<Application>();
         var repositories = await GitHubClient.Repository.GetAllForOrg(OrganizationName);
         using var semaphore = new SemaphoreSlim(MaximumConcurrencyCalls, MaximumConcurrencyCalls);
         try
         {
-            await Parallel.ForEachAsync(repositories.Where(p => !p.Archived), cancellationToken, async (repository, cancellationToken) =>
+            await Parallel.ForEachAsync(repositories.Where(p => !p.Archived && p.Name.Contains("migration")), cancellationToken, async (repository, cancellationToken) =>
             {
                 try
                 {
@@ -72,17 +76,17 @@ internal abstract class GitHubScanner<TApplicationModule> : GitHubScanner where 
             var applicationBranchs = new List<ApplicationBranch>();
             foreach (var branch in branchs)
             {
-                var modules = await ScanBranchAsync(repository, branch.Name, cancellationToken);
+                var modules = await ScanBranchAsync(repository, branch, cancellationToken);
                 if (!modules.Any())
                 {
                     continue;
                 }
 
-                var commitRef = branch.Commit.Ref;
-                var commitInfo = await this.GitHubClient.Git.Commit.Get(repository.Id, commitRef);
+                var commitSha = branch.Commit.Sha;
+                var commitInfo = await this.GitHubClient.Git.Commit.Get(repository.Id, commitSha);
                 var lastCommitDate = commitInfo.Committer.Date;
 
-                applicationBranchs.Add(ApplicationBranch(branch.Name, repository.Url + BranchLinkSuffix(branch.Name), modules.Where(m => m is not null).ToArray(), lastCommitDate.UtcDateTime));
+                applicationBranchs.Add(ApplicationBranch(branch.Name, repository.HtmlUrl + BranchLinkSuffix(branch.Name), modules.Where(m => m is not null).ToArray(), lastCommitDate.UtcDateTime));
             }
 
             if (applicationBranchs.Count == 0)
@@ -90,7 +94,7 @@ internal abstract class GitHubScanner<TApplicationModule> : GitHubScanner where 
                 return null;
             }
 
-            return Application(repository.Name, repository.FullName.Replace("/", ">"), repository.Url, applicationBranchs);
+            return Application(repository.Name, repository.FullName.Replace("/", ">"), repository.HtmlUrl, applicationBranchs);
         }
         catch (TaskCanceledException)
         {
@@ -113,19 +117,20 @@ internal abstract class GitHubScanner<TApplicationModule> : GitHubScanner where 
     }
 
     private static string BranchLinkSuffix(string branchName)
-    => $"-/tree/{branchName}";
-
-    private void CheckTokenExpirationWarning(TimeSpan tokenLifeSpan)
-    {
-        if (tokenLifeSpan < TokenExpirationWarningThreshold)
-        {
-            Logger.LogWarning("Token is expiring soon : {TokenLifeSpan}", tokenLifeSpan.ToString(@"dd\:hh\:mm\:ss"));
-        }
-    }
+    => $"/tree/{branchName}";
 
     private protected abstract ApplicationBranch ApplicationBranch(string branchName, string repositoryLink, IReadOnlyCollection<ApplicationModule> applicationModules, DateTime? lastCommit);
 
-    private protected abstract Task<IReadOnlyCollection<RepositoryContent>> FindModuleFiles(long projectId, string branchName);
+    private protected async Task<IReadOnlyCollection<RepositoryContent>> FindModuleFiles(Repository repository, Branch branch)
+    {
+        var treeResponse = await GitHubClient.Git.Tree.GetRecursive(repository.Id, branch.Commit.Sha);
+        var fileHeaders = treeResponse.Tree.Where(TreeItemMatchPattern);
+        var filesTask = fileHeaders.Select(fh => GitHubClient.Repository.Content.GetAllContentsByRef(repository.Owner.Login, repository.Name, fh.Path, branch.Commit.Sha));
+        var content = await Task.WhenAll(filesTask);
+        return [.. content.Select(a => a[0])];
+    }
+
+    protected abstract bool TreeItemMatchPattern(TreeItem item);
 
     private protected async Task<IReadOnlyCollection<Branch>> FindAllLongTermBranchs(long repositoryId)
     {
@@ -134,9 +139,9 @@ internal abstract class GitHubScanner<TApplicationModule> : GitHubScanner where 
         return branches.Where(b => branchsNames.Contains(b.Name)).ToArray();
     }
 
-    private async Task<IEnumerable<TApplicationModule>> ScanBranchAsync(Repository repository, string branchName, CancellationToken cancellationToken)
+    private async Task<IEnumerable<TApplicationModule>> ScanBranchAsync(Repository repository, Branch branch, CancellationToken cancellationToken)
     {
-        var moduleFiles = await FindModuleFiles(repository.Id, branchName);
+        var moduleFiles = await FindModuleFiles(repository, branch);
         if (moduleFiles.Count == 0)
         {
             return [];
@@ -157,7 +162,7 @@ internal abstract class GitHubScanner<TApplicationModule> : GitHubScanner where 
             }
             catch (Exception ex)
             {
-                Logger.LogWarning("Module {ModuleName} in Branch {BranchName}, Application {ApplicationName} skipped because of {ExceptionType} : {ExceptionMessage}.", moduleFile.Name, branchName, repository.Name, ex.GetType().Name, ex.Message);
+                Logger.LogWarning("Module {ModuleName} in Branch {BranchName}, Application {ApplicationName} skipped because of {ExceptionType} : {ExceptionMessage}.", moduleFile.Name, branch.Name, repository.Name, ex.GetType().Name, ex.Message);
             }
         }
 

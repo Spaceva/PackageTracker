@@ -21,11 +21,10 @@ internal class PublicNpmServerFetcher(IOptionsMonitor<FetcherSettings> fetcherSe
     protected override string PackageRelativeUri(string packageName) => packageName;
 
     internal static ICollection<PackageVersion> NpmPackageVersions(JsonElement jsonElement)
-    => jsonElement.EnumerateObject()
+    => [.. jsonElement.EnumerateObject()
                   .Where(property => RegularExpressions.AnyVersionNumber.IsMatch(property.Name))
                   .Select(property => new PackageVersion(property.Name))
-                  .OrderAscendingUsing(new PackageVersionComparer())
-                  .ToList();
+                  .OrderAscendingUsing(new PackageVersionComparer())];
 
     protected override Package CreatePackage(string packageName, ICollection<PackageVersion> packageVersions)
      => new NpmPackage() { Name = packageName, Versions = packageVersions, RegistryUrl = RegistryUrl, Link = $"{RegistryUrl}/{packageName}" };

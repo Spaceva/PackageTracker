@@ -18,7 +18,7 @@ public static class ServiceCollectionExtensions
             var trackedApplication = settings.Value.Applications.SingleOrDefault(s => s.ScannerName.Equals(trackerName, StringComparison.OrdinalIgnoreCase))
             ?? throw new ArgumentException("Unknown ScannerName.");
             var parsers = sp.GetServices<IApplicationModuleParser<AngularModule>>();
-            return null;
+            return new AngularGitHubScanner(trackedApplication, mediator, parsers, loggerFactory.CreateLogger<AngularGitHubScanner>());
         });
 
     public static IScannerRegistrator AddDotNetGitHubScanner(this IScannerRegistrator services, string trackerName)
@@ -30,7 +30,7 @@ public static class ServiceCollectionExtensions
             var trackedApplication = settings.Value.Applications.SingleOrDefault(s => s.ScannerName.Equals(trackerName, StringComparison.OrdinalIgnoreCase))
             ?? throw new ArgumentException("Unknown ScannerName.");
             var parsers = sp.GetServices<IApplicationModuleParser<DotNetAssembly>>();
-            return null;
+            return new DotNetGitHubScanner(trackedApplication, mediator, parsers, loggerFactory.CreateLogger<DotNetGitHubScanner>());
         });
 
     public static IScannerRegistrator AddPhpGitlabScanner(this IScannerRegistrator services, string trackerName)
@@ -42,6 +42,6 @@ public static class ServiceCollectionExtensions
             var trackedApplication = settings.Value.Applications.SingleOrDefault(s => s.ScannerName.Equals(trackerName, StringComparison.OrdinalIgnoreCase))
             ?? throw new ArgumentException("Unknown ScannerName.");
             var parsers = sp.GetServices<IApplicationModuleParser<PhpModule>>();
-            return null;
+            return new PHPGitHubScanner(trackedApplication, mediator, parsers, loggerFactory.CreateLogger<PHPGitHubScanner>());
         });
 }

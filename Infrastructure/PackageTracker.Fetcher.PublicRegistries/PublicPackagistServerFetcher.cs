@@ -20,11 +20,10 @@ internal class PublicPackagistServerFetcher(IOptionsMonitor<FetcherSettings> fet
     protected override string PackageRelativeUri(string packageName) => $"p2/{packageName}.json";
 
     internal static ICollection<PackageVersion> PackagistPackageVersions(JsonElement jsonElement)
-    => jsonElement.EnumerateArray()
+    => [.. jsonElement.EnumerateArray()
                   .Select(subJsonElement => subJsonElement.GetProperty("version"))
                   .Select(element => new PackageVersion(element.GetString()!.Replace("v",string.Empty)))
-                  .OrderAscendingUsing(new PackageVersionComparer())
-                  .ToList();
+                  .OrderAscendingUsing(new PackageVersionComparer())];
 
     protected override Package CreatePackage(string packageName, ICollection<PackageVersion> packageVersions)
      => new PackagistPackage() { Name = packageName, Versions = packageVersions, RegistryUrl = RegistryUrl, Link = $"{RegistryUrl}/{packageName}" };

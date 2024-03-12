@@ -10,7 +10,7 @@ internal class GetUnreadNotificationsQueryHandler(INotificationsRepository notif
         var notifications = await notificationsRepository.GetAllUnreadAsync(cancellationToken);
         return new GetUnreadNotificationsQueryResponse
         {
-            Notifications = notifications.OrderByDescending(n => n.DateTime).ToArray(),
+            Notifications = [.. notifications.OrderByDescending(n => n.DateTime)],
         };
     }
 }
