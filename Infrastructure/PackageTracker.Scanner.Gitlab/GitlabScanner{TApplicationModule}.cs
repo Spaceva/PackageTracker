@@ -1,11 +1,11 @@
 ﻿using GitLabApiClient;
 using GitLabApiClient.Models.Branches.Responses;
 using GitLabApiClient.Models.Projects.Responses;
+using GitLabApiClient.Models.Trees.Responses;
 using MediatR;
 using Microsoft.Extensions.Logging;
 using PackageTracker.Domain.Application;
 using PackageTracker.Domain.Application.Model;
-using PackageTracker.Scanner.Gitlab;
 using System.Collections.Concurrent;
 using System.Globalization;
 using System.Net.Http.Json;
@@ -46,7 +46,7 @@ internal abstract class GitlabScanner<TApplicationModule> : GitlabScanner where 
                 {
                     await semaphore.WaitAsync(cancellationToken);
                     var application = await ScanProjectAsync(project, cancellationToken);
-                    if(application is not null)
+                    if (application is not null)
                     {
                         applications.Add(application);
                     }
@@ -108,90 +108,7 @@ internal abstract class GitlabScanner<TApplicationModule> : GitlabScanner where 
         }
         catch (GitLabException ex)
         {
-            Logger.LogWarning("Application {ApplicationName} skipped because of Gitlab Error : {ExceptionMessage}.", project.Name,
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-                ex.Message);
+            Logger.LogWarning("Application {ApplicationName} skipped because of Gitlab Error : {ExceptionMessage}.", project.Name, ex.Message);
         }
         catch (Exception ex)
         {
@@ -219,7 +136,16 @@ internal abstract class GitlabScanner<TApplicationModule> : GitlabScanner where 
 
     private protected abstract ApplicationBranch ApplicationBranch(string branchName, string repositoryLink, IReadOnlyCollection<ApplicationModule> applicationModules, DateTime? lastCommit);
 
-    private protected abstract Task<IReadOnlyCollection<File>> FindModuleFiles(int projectId, string branchName);
+    private protected abstract bool TreeItemMatchPattern(Tree tree);
+
+    private protected async Task<IReadOnlyCollection<File>> FindModuleFiles(int projectId, string branchName)
+    {
+        var tree = await GitLabClient.Trees.GetAsync(projectId, o => { o.Recursive = true; o.Reference = branchName; });
+        var fileHeaders = tree.Where(TreeItemMatchPattern);
+        var filesTask = fileHeaders.Select(fh => GitLabClient.Files.GetAsync(projectId, fh.Path, branchName));
+        return await Task.WhenAll(filesTask);
+    }
+
 
     private protected async Task<IReadOnlyCollection<Branch>> FindAllLongTermBranchs(int projectId)
     {

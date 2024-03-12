@@ -11,10 +11,10 @@ internal sealed class AngularAzureDevOpsScanner(ScannerSettings.TrackedApplicati
     : AzureDevOpsScanner<AngularModule>(trackedApplication, mediator, moduleParsers, logger, httpProxy)
 {
     private protected override Application Application(string applicationName, string repositoryPath, string repositoryLink, IReadOnlyCollection<ApplicationBranch> applicationBranches)
-     => new AngularApplication { Name = applicationName, Path = repositoryPath, RepositoryLink = repositoryLink, Branchs = applicationBranches.ToList(), RepositoryType = RepositoryType.AzureDevOps };
+     => new AngularApplication { Name = applicationName, Path = repositoryPath, RepositoryLink = repositoryLink, Branchs = [.. applicationBranches], RepositoryType = RepositoryType.AzureDevOps };
 
     private protected override ApplicationBranch ApplicationBranch(string branchName, string repositoryLink, IReadOnlyCollection<ApplicationModule> applicationModules, DateTime? lastCommit)
-    => new AngularApplicationBranch { Name = branchName, RepositoryLink = repositoryLink, Modules = applicationModules.ToList(), LastCommit = lastCommit };
+    => new AngularApplicationBranch { Name = branchName, RepositoryLink = repositoryLink, Modules = [.. applicationModules], LastCommit = lastCommit };
 
     private protected override ApplicationType LookedUpApplicationType => ApplicationType.Angular;
 

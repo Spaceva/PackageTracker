@@ -18,10 +18,9 @@ internal class GetFrameworksQueryHandler(IFrameworkRepository frameworkRepositor
         var frameworks = await frameworkRepository.SearchAsync(request.SearchCriteria, skip, take, cancellationToken);
         return new GetFrameworksQueryResponse
         {
-            Frameworks = frameworks.OrderBy(f => f.Name)
+            Frameworks = [.. frameworks.OrderBy(f => f.Name)
                                    .ThenByDescending(f => int.TryParse(f.Channel, out var channel) ? channel.ToString("00.##") : f.Channel)
-                                   .ThenByDescending(f => f.Version)
-                                   .ToArray()
+                                   .ThenByDescending(f => f.Version)]
         };
     }
 }

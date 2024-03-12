@@ -1,14 +1,16 @@
-﻿namespace PackageTracker.Scanner.Gitlab;
+﻿namespace PackageTracker.Scanner.GitHub;
 
-using GitLabApiClient.Models.Trees.Responses;
 using MediatR;
 using Microsoft.Extensions.Logging;
+using Octokit;
 using PackageTracker.Domain.Application;
 using PackageTracker.Domain.Application.Model;
 using static PackageTracker.Scanner.ScannerSettings;
+using Application = Domain.Application.Model.Application;
+using RepositoryType = Domain.Application.Model.RepositoryType;
 
-internal sealed class AngularGitlabScanner(TrackedApplication trackedApplication, IMediator mediator, IEnumerable<IApplicationModuleParser<AngularModule>> angularModuleParsers, ILogger<AngularGitlabScanner> logger) 
-    : GitlabScanner<AngularModule>(trackedApplication, mediator, angularModuleParsers, logger)
+internal sealed class AngularGitHubScanner(TrackedApplication trackedApplication, IMediator mediator, IEnumerable<IApplicationModuleParser<AngularModule>> angularModuleParsers, ILogger<AngularGitHubScanner> logger) 
+    : GitHubScanner<AngularModule>(trackedApplication, mediator, angularModuleParsers, logger)
 {
     private protected override Application Application(string applicationName, string repositoryPath, string repositoryLink, IReadOnlyCollection<ApplicationBranch> applicationBranches)
      => new AngularApplication { Name = applicationName, Path = repositoryPath, RepositoryLink = repositoryLink, Branchs = [.. applicationBranches], RepositoryType = RepositoryType.Gitlab };
@@ -18,8 +20,8 @@ internal sealed class AngularGitlabScanner(TrackedApplication trackedApplication
 
     private protected override ApplicationType LookedUpApplicationType => ApplicationType.Angular;
 
-    private protected override bool TreeItemMatchPattern(Tree tree)
-     => tree.Name.Equals("package.json", StringComparison.OrdinalIgnoreCase)
-        && !tree.Path.Contains("public", StringComparison.OrdinalIgnoreCase)
-        && !tree.Path.Contains("resource", StringComparison.OrdinalIgnoreCase);
+    protected override bool TreeItemMatchPattern(TreeItem item)
+     => item.Path.EndsWith("package.json", StringComparison.OrdinalIgnoreCase)
+        && !item.Path.Contains("public", StringComparison.OrdinalIgnoreCase)
+        && !item.Path.Contains("resource", StringComparison.OrdinalIgnoreCase);
 }

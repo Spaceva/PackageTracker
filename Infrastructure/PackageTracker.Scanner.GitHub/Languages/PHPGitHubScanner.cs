@@ -1,14 +1,16 @@
-﻿namespace PackageTracker.Scanner.Gitlab;
+﻿namespace PackageTracker.Scanner.GitHub;
 
-using GitLabApiClient.Models.Trees.Responses;
 using MediatR;
 using Microsoft.Extensions.Logging;
+using Octokit;
 using PackageTracker.Domain.Application;
 using PackageTracker.Domain.Application.Model;
 using static PackageTracker.Scanner.ScannerSettings;
+using Application = Domain.Application.Model.Application;
+using RepositoryType = Domain.Application.Model.RepositoryType;
 
-internal sealed class PhpGitlabScanner(TrackedApplication trackedApplication, IMediator mediator, IEnumerable<IApplicationModuleParser<PhpModule>> phpModuleParsers, ILogger<PhpGitlabScanner> logger) 
-    : GitlabScanner<PhpModule>(trackedApplication, mediator, phpModuleParsers, logger)
+internal sealed class PHPGitHubScanner(TrackedApplication trackedApplication, IMediator mediator, IEnumerable<IApplicationModuleParser<PhpModule>> phpModuleParsers, ILogger<PHPGitHubScanner> logger)
+    : GitHubScanner<PhpModule>(trackedApplication, mediator, phpModuleParsers, logger)
 {
     private protected override Application Application(string applicationName, string repositoryPath, string repositoryLink, IReadOnlyCollection<ApplicationBranch> applicationBranches)
      => new PhpApplication { Name = applicationName, Path = repositoryPath, RepositoryLink = repositoryLink, Branchs = [.. applicationBranches], RepositoryType = RepositoryType.Gitlab };
@@ -18,8 +20,8 @@ internal sealed class PhpGitlabScanner(TrackedApplication trackedApplication, IM
 
     private protected override ApplicationType LookedUpApplicationType => ApplicationType.Php;
 
-    private protected override bool TreeItemMatchPattern(Tree tree)
-     => tree.Name.Equals("composer.json", StringComparison.OrdinalIgnoreCase) 
-        && !tree.Path.Contains("public", StringComparison.OrdinalIgnoreCase) 
-        && !tree.Path.Contains("resource", StringComparison.OrdinalIgnoreCase);
+    protected override bool TreeItemMatchPattern(TreeItem item)
+     => item.Path.EndsWith("composer.json", StringComparison.OrdinalIgnoreCase)
+        && !item.Path.Contains("public", StringComparison.OrdinalIgnoreCase)
+        && !item.Path.Contains("resource", StringComparison.OrdinalIgnoreCase);
 }

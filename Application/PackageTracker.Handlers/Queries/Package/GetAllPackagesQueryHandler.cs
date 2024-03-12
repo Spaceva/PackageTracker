@@ -11,10 +11,9 @@ internal class GetAllPackagesQueryHandler(IPackagesRepository packagesRepository
         var packages = await packagesRepository.GetAllAsync(request.SearchCriteria.Name, request.SearchCriteria.Types, cancellationToken: cancellationToken);
         return new GetPackagesQueryResponse
         {
-            Packages = packages
+            Packages = [.. packages
                         .OrderBy(p => p.Type)
-                        .ThenBy(p => p.Name)
-                        .ToArray()
+                        .ThenBy(p => p.Name)]
         };
     }
 }

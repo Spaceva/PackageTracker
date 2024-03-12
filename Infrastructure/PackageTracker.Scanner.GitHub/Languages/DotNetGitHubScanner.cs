@@ -1,14 +1,16 @@
-﻿namespace PackageTracker.Scanner.Gitlab;
+﻿namespace PackageTracker.Scanner.GitHub;
 
-using GitLabApiClient.Models.Trees.Responses;
 using MediatR;
 using Microsoft.Extensions.Logging;
+using Octokit;
 using PackageTracker.Domain.Application;
 using PackageTracker.Domain.Application.Model;
 using static PackageTracker.Scanner.ScannerSettings;
+using Application = Domain.Application.Model.Application;
+using RepositoryType = Domain.Application.Model.RepositoryType;
 
-internal sealed class DotNetGitlabScanner(TrackedApplication trackedApplication, IMediator mediator, IEnumerable<IApplicationModuleParser<DotNetAssembly>> dotNetAssemblyParsers, ILogger<DotNetGitlabScanner> logger)
-    : GitlabScanner<DotNetAssembly>(trackedApplication, mediator, dotNetAssemblyParsers, logger)
+internal sealed class DotNetGitHubScanner(TrackedApplication trackedApplication, IMediator mediator, IEnumerable<IApplicationModuleParser<DotNetAssembly>> dotNetAssemblyParsers, ILogger<DotNetGitHubScanner> logger)
+    : GitHubScanner<DotNetAssembly>(trackedApplication, mediator, dotNetAssemblyParsers, logger)
 {
     private protected override Application Application(string applicationName, string repositoryPath, string repositoryLink, IReadOnlyCollection<ApplicationBranch> applicationBranches)
      => new DotNetApplication { Name = applicationName, Path = repositoryPath, RepositoryLink = repositoryLink, Branchs = [.. applicationBranches], RepositoryType = RepositoryType.Gitlab };
@@ -18,6 +20,6 @@ internal sealed class DotNetGitlabScanner(TrackedApplication trackedApplication,
 
     private protected override ApplicationType LookedUpApplicationType => ApplicationType.DotNet;
 
-    private protected override bool TreeItemMatchPattern(Tree tree)
-     => tree.Name.EndsWith(".csproj", StringComparison.OrdinalIgnoreCase);
+    protected override bool TreeItemMatchPattern(TreeItem item)
+     => item.Path.EndsWith(".csproj", StringComparison.OrdinalIgnoreCase);
 }

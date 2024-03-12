@@ -12,10 +12,10 @@ internal sealed class DotNetAzureDevOpsScanner(ScannerSettings.TrackedApplicatio
     : AzureDevOpsScanner<DotNetAssembly>(trackedApplication, mediator, moduleParsers, logger, httpProxy)
 {
     private protected override Application Application(string applicationName, string repositoryPath, string repositoryLink, IReadOnlyCollection<ApplicationBranch> applicationBranches)
-     => new DotNetApplication { Name = applicationName, Path = repositoryPath, RepositoryLink = repositoryLink, Branchs = applicationBranches.ToList(), RepositoryType = RepositoryType.AzureDevOps };
+     => new DotNetApplication { Name = applicationName, Path = repositoryPath, RepositoryLink = repositoryLink, Branchs = [.. applicationBranches], RepositoryType = RepositoryType.AzureDevOps };
 
     private protected override ApplicationBranch ApplicationBranch(string branchName, string repositoryLink, IReadOnlyCollection<ApplicationModule> applicationModules, DateTime? lastCommit)
-    => new DotNetApplicationBranch { Name = branchName, RepositoryLink = repositoryLink, Modules = applicationModules.ToList(), LastCommit = lastCommit };
+    => new DotNetApplicationBranch { Name = branchName, RepositoryLink = repositoryLink, Modules = [.. applicationModules], LastCommit = lastCommit };
 
     private protected override ApplicationType LookedUpApplicationType => ApplicationType.DotNet;
 
