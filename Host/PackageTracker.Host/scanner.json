@@ -1,0 +1,7 @@
+{
+  "Scanner": {
+    "ProxyUrl": "",
+    "TimeBetweenEachExecution": "01:00:00",
+    "Applications": []
+  }
+}

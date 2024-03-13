@@ -329,12 +329,5 @@ ASALocalRun/
 .mfractor/
 
 logs/
-/Host/PackageTracker.Host/appsettings.json
-/Host/PackageTracker.Host/fetcher.json
-/Host/PackageTracker.Host/logging.json
-/Host/PackageTracker.Host/monitor.json
-/Host/PackageTracker.Host/scanner.json
-/Host/PackageTracker.Host/confluence.json
-/Host/PackageTracker.Host/.config
-/.sonarqube
-/Host/PackageTracker.WebHost/.config
+.sonarqube/
+.config

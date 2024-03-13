@@ -5,10 +5,7 @@
     "Domain": "",
     "Username": "",
     "AccessToken": "",
-    "Pages": {
-      "Page1Name": 0,
-      "Page2Name": 0
-    },
+    "Pages": { },
     "Gitlab": {
       "Domain": "",
       "AccessToken": ""

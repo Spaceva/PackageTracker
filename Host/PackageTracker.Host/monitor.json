@@ -1,0 +1,16 @@
+{
+  "Monitor": {
+    "ProxyUrl": "",
+    "TimeBetweenEachExecution": "01:00:00",
+    "Frameworks": [
+      {
+        "MonitorName": "NodeJSGithubMonitor",
+        "Url": "https://api.github.com/repos/nodejs/Release/contents/schedule.json"
+      },
+      {
+        "MonitorName": "DotNetGithubMonitor",
+        "Url": "https://api.github.com/repos/dotnet/core/contents/release-notes/releases-index.json"
+      }
+    ]
+  }
+}
