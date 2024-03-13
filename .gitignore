@@ -331,3 +331,9 @@ ASALocalRun/
 logs/
 .sonarqube/
 .config
+/Host/PackageTracker.Host/appsettings.json
+/Host/PackageTracker.Host/fetcher.json
+/Host/PackageTracker.Host/logging.json
+/Host/PackageTracker.Host/monitor.json
+/Host/PackageTracker.Host/scanner.json
+/Host/PackageTracker.Host/confluence.json
