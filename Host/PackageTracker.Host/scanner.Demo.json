@@ -13,6 +13,11 @@
         "ScannerName": "MyCustomAzureDevops",
         "RepositoryRootLink": "https://custom.visualstudio.com/",
         "AccessToken": ""
+      },
+      {
+        "ScannerName": "MyCustomGitHubOrganization",
+        "RepositoryRootLink": "https://github.com/MyOrganizationName",
+        "AccessToken": ""
       }
     ]
   }

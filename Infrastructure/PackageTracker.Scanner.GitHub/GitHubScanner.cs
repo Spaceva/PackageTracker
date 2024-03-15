@@ -13,6 +13,8 @@ namespace PackageTracker.Scanner.GitHub;
 
 internal abstract class GitHubScanner : IApplicationsScanner
 {
+    private const string GITHUB_MAIN_HOST = "https://github.com/";
+
     protected GitHubScanner(TrackedApplication trackedApplication, IMediator mediator, ILogger logger)
     {
         GitHubClient = new GitHubClient(new ProductHeaderValue($"PackageTracker-Scanner-{trackedApplication.ScannerName}"))
@@ -26,7 +28,7 @@ internal abstract class GitHubScanner : IApplicationsScanner
 
         Mediator = mediator;
 
-        OrganizationName = trackedApplication.RepositoryRootLink;
+        OrganizationName = trackedApplication.RepositoryRootLink.Replace(GITHUB_MAIN_HOST, string.Empty);
     }
 
     private protected IMediator Mediator { get; }
