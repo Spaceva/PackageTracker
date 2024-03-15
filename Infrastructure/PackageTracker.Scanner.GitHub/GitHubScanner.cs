@@ -15,7 +15,7 @@ internal abstract class GitHubScanner : IApplicationsScanner
 {
     private const string GITHUB_MAIN_HOST = "https://github.com/";
 
-    protected GitHubScanner(TrackedApplication trackedApplication, IMediator mediator, ILogger logger)
+    protected GitHubScanner(Func<IGitHubClient, string, Task<IReadOnlyList<Repository>>> getRepositoriesDelegate, TrackedApplication trackedApplication, IMediator mediator, ILogger logger)
     {
         GitHubClient = new GitHubClient(new ProductHeaderValue($"PackageTracker-Scanner-{trackedApplication.ScannerName}"))
         {
@@ -28,7 +28,9 @@ internal abstract class GitHubScanner : IApplicationsScanner
 
         Mediator = mediator;
 
-        OrganizationName = trackedApplication.RepositoryRootLink.Replace(GITHUB_MAIN_HOST, string.Empty);
+        OrganizationOrUserName = trackedApplication.RepositoryRootLink.Replace(GITHUB_MAIN_HOST, string.Empty);
+
+        GetRepositories = getRepositoriesDelegate;
     }
 
     private protected IMediator Mediator { get; }
@@ -39,16 +41,18 @@ internal abstract class GitHubScanner : IApplicationsScanner
 
     private protected int MaximumConcurrencyCalls { get; }
 
-    private protected string OrganizationName { get; }
+    private protected string OrganizationOrUserName { get; }
+
+    private protected Func<IGitHubClient, string, Task<IReadOnlyList<Repository>>> GetRepositories { get; }
 
     public abstract Task<IReadOnlyCollection<Application>> ScanRemoteAsync(CancellationToken cancellationToken);
 
     public async Task<IReadOnlyCollection<Application>> FindDeadLinksAsync(CancellationToken cancellationToken)
     {
-        var response = await Mediator.Send(new GetApplicationsQuery { SearchCriteria = new ApplicationSearchCriteria { ApplicationTypes = [LookedUpApplicationType], RepositoryTypes = [RepositoryType.Gitlab], ShowDeadLink = true } }, cancellationToken);
+        var response = await Mediator.Send(new GetApplicationsQuery { SearchCriteria = new ApplicationSearchCriteria { ApplicationTypes = [LookedUpApplicationType], RepositoryTypes = [RepositoryType.GitHub], ShowDeadLink = true } }, cancellationToken);
         var localApplications = response.Applications;
 
-        var repositories = await GitHubClient.Repository.GetAllForOrg(OrganizationName);
+        var repositories = await GetRepositories(GitHubClient, OrganizationOrUserName);
         var remoteApplications = repositories.Where(p => !p.Archived).Select(repo => Application(repo.Name, repo.FullName.Replace("/", ">"), repo.HtmlUrl, [])).ToArray();
 
         var comparer = new ApplicationBasicComparer();

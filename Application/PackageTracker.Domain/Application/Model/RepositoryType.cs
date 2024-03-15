@@ -3,6 +3,7 @@
 public enum RepositoryType
 {
     Unknown,
+    GitHub,
     Gitlab,
     AzureDevOps
 }

@@ -11,8 +11,8 @@ namespace PackageTracker.Scanner.GitHub;
 
 internal abstract class GitHubScanner<TApplicationModule> : GitHubScanner where TApplicationModule : ApplicationModule
 {
-    protected GitHubScanner(TrackedApplication trackedApplication, IMediator mediator, IEnumerable<IApplicationModuleParser<TApplicationModule>> moduleParsers, ILogger logger)
-        : base(trackedApplication, mediator, logger)
+    protected GitHubScanner(Func<IGitHubClient, string, Task<IReadOnlyList<Repository>>> getRepositoriesDelegate, TrackedApplication trackedApplication, IMediator mediator, IEnumerable<IApplicationModuleParser<TApplicationModule>> moduleParsers, ILogger logger)
+        : base(getRepositoriesDelegate, trackedApplication, mediator, logger)
     {
         ModuleParsers = moduleParsers;
     }
@@ -32,11 +32,11 @@ internal abstract class GitHubScanner<TApplicationModule> : GitHubScanner where 
         }
 
         var applications = new ConcurrentBag<Application>();
-        var repositories = await GitHubClient.Repository.GetAllForOrg(OrganizationName);
+        var repositories = await GetRepositories(GitHubClient, OrganizationOrUserName);
         using var semaphore = new SemaphoreSlim(MaximumConcurrencyCalls, MaximumConcurrencyCalls);
         try
         {
-            await Parallel.ForEachAsync(repositories.Where(p => !p.Archived && p.Name.Contains("migration")), cancellationToken, async (repository, cancellationToken) =>
+            await Parallel.ForEachAsync(repositories, cancellationToken, async (repository, cancellationToken) =>
             {
                 try
                 {

@@ -76,11 +76,13 @@ static void AddModules(IServiceCollection services, IConfiguration configuration
     {
         services.AddFetcher(configuration)
                 .AddPublicRegistriesFetchers();
+        // Add your fetcher registrations here
     }
 
     if (modules.GetValue<bool>("Scanner"))
     {
         services.AddScanner(configuration);
+        // Add your scanner registrations here
     }
 
     if (modules.GetValue<bool>("Monitor"))
@@ -88,11 +90,13 @@ static void AddModules(IServiceCollection services, IConfiguration configuration
         services.AddMonitor(configuration)
                 .AddGithubMonitors()
                 .AddEndOfLifeMonitors();
+        // Add your monitor registrations here
     }
 
     if (modules.GetValue<bool>("ConfluenceExport"))
     {
         services.AddConfluenceExport(configuration);
+        // Add your confluence exports registrations here
     }
 }
 

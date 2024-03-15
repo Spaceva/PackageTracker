@@ -9,11 +9,11 @@ using static PackageTracker.Scanner.ScannerSettings;
 using Application = Domain.Application.Model.Application;
 using RepositoryType = Domain.Application.Model.RepositoryType;
 
-internal sealed class PHPGitHubScanner(TrackedApplication trackedApplication, IMediator mediator, IEnumerable<IApplicationModuleParser<PhpModule>> phpModuleParsers, ILogger<PHPGitHubScanner> logger)
-    : GitHubScanner<PhpModule>(trackedApplication, mediator, phpModuleParsers, logger)
+internal sealed class PHPGitHubScanner(Func<IGitHubClient, string, Task<IReadOnlyList<Repository>>> getRepositoriesDelegate, TrackedApplication trackedApplication, IMediator mediator, IEnumerable<IApplicationModuleParser<PhpModule>> phpModuleParsers, ILogger<PHPGitHubScanner> logger)
+    : GitHubScanner<PhpModule>(getRepositoriesDelegate, trackedApplication, mediator, phpModuleParsers, logger)
 {
     private protected override Application Application(string applicationName, string repositoryPath, string repositoryLink, IReadOnlyCollection<ApplicationBranch> applicationBranches)
-     => new PhpApplication { Name = applicationName, Path = repositoryPath, RepositoryLink = repositoryLink, Branchs = [.. applicationBranches], RepositoryType = RepositoryType.Gitlab };
+     => new PhpApplication { Name = applicationName, Path = repositoryPath, RepositoryLink = repositoryLink, Branchs = [.. applicationBranches], RepositoryType = RepositoryType.GitHub };
 
     private protected override ApplicationBranch ApplicationBranch(string branchName, string repositoryLink, IReadOnlyCollection<ApplicationModule> applicationModules, DateTime? lastCommit)
     => new PhpApplicationBranch { Name = branchName, RepositoryLink = repositoryLink, Modules = [.. applicationModules], LastCommit = lastCommit };

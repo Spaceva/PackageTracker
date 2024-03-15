@@ -9,11 +9,11 @@ using static PackageTracker.Scanner.ScannerSettings;
 using Application = Domain.Application.Model.Application;
 using RepositoryType = Domain.Application.Model.RepositoryType;
 
-internal sealed class AngularGitHubScanner(TrackedApplication trackedApplication, IMediator mediator, IEnumerable<IApplicationModuleParser<AngularModule>> angularModuleParsers, ILogger<AngularGitHubScanner> logger) 
-    : GitHubScanner<AngularModule>(trackedApplication, mediator, angularModuleParsers, logger)
+internal sealed class AngularGitHubScanner(Func<IGitHubClient, string, Task<IReadOnlyList<Repository>>> getRepositoriesDelegate, TrackedApplication trackedApplication, IMediator mediator, IEnumerable<IApplicationModuleParser<AngularModule>> angularModuleParsers, ILogger<AngularGitHubScanner> logger) 
+    : GitHubScanner<AngularModule>(getRepositoriesDelegate, trackedApplication, mediator, angularModuleParsers, logger)
 {
     private protected override Application Application(string applicationName, string repositoryPath, string repositoryLink, IReadOnlyCollection<ApplicationBranch> applicationBranches)
-     => new AngularApplication { Name = applicationName, Path = repositoryPath, RepositoryLink = repositoryLink, Branchs = [.. applicationBranches], RepositoryType = RepositoryType.Gitlab };
+     => new AngularApplication { Name = applicationName, Path = repositoryPath, RepositoryLink = repositoryLink, Branchs = [.. applicationBranches], RepositoryType = RepositoryType.GitHub };
 
     private protected override ApplicationBranch ApplicationBranch(string branchName, string repositoryLink, IReadOnlyCollection<ApplicationModule> applicationModules, DateTime? lastCommit)
     => new AngularApplicationBranch { Name = branchName, RepositoryLink = repositoryLink, Modules = [.. applicationModules], LastCommit = lastCommit };
