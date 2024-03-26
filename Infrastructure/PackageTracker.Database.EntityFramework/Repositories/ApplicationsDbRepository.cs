@@ -81,8 +81,9 @@ internal class ApplicationsDbRepository(IServiceScopeFactory serviceScopeFactory
         query = applications.AsQueryable().FilterByFrameworkStatus(searchCriteria).ApplyPagination(a => a.Name, skip, take);
         return [.. query];
     }
+    
     private static Task EnrichApplicationAsync(Application application, PackageTrackerDbContext dbContext, bool showOnlyTrackedPackages = false, CancellationToken cancellationToken = default)
-        => EnrichApplicationsAsync(new[] { application }, dbContext, showOnlyTrackedPackages, cancellationToken);
+        => EnrichApplicationsAsync([application], dbContext, showOnlyTrackedPackages, cancellationToken);
 
     private static async Task EnrichApplicationsAsync(IReadOnlyCollection<Application> applications, PackageTrackerDbContext dbContext, bool showOnlyTrackedPackages = false, CancellationToken cancellationToken = default)
     {
@@ -137,22 +138,22 @@ internal class ApplicationsDbRepository(IServiceScopeFactory serviceScopeFactory
     {
         if (module is DotNetAssembly dotNetAssembly)
         {
-            _ = frameworks.TryGetValue((DotNetAssembly.FrameworkName, dotNetAssembly.DotNetVersion + ".0"), out var framework)
-                || frameworks.TryGetValue((DotNetAssembly.FrameworkNameLegacy, dotNetAssembly.DotNetVersion.Replace("Framework", string.Empty).Trim()), out framework)
-                || frameworks.TryGetValue((DotNetAssembly.FrameworkNameStandard, dotNetAssembly.DotNetVersion.Replace("Standard", string.Empty).Trim()), out framework);
+            _ = frameworks.TryGetValue((DotNetAssembly.FrameworkName, dotNetAssembly.FrameworkVersion + ".0"), out var framework)
+                || frameworks.TryGetValue((DotNetAssembly.FrameworkNameLegacy, dotNetAssembly.FrameworkVersion.Replace("Framework", string.Empty).Trim()), out framework)
+                || frameworks.TryGetValue((DotNetAssembly.FrameworkNameStandard, dotNetAssembly.FrameworkVersion.Replace("Standard", string.Empty).Trim()), out framework);
             return framework;
         }
 
         if (module is AngularModule angularModule)
         {
-            frameworks.TryGetValue((AngularModule.FrameworkName, angularModule.AngularVersion), out var framework);
+            frameworks.TryGetValue((AngularModule.FrameworkName, angularModule.FrameworkVersion), out var framework);
             return framework;
         }
 
         if (module is PhpModule phpModule)
         {
-            _ = frameworks.TryGetValue((PhpModule.FrameworkName, phpModule.PhpVersion), out var framework)
-                || frameworks.TryGetValue((PhpModule.FrameworkName, new PackageVersion(phpModule.PhpVersion).ToStringMajorMinor()), out framework);
+            _ = frameworks.TryGetValue((PhpModule.FrameworkName, phpModule.FrameworkVersion), out var framework)
+                || frameworks.TryGetValue((PhpModule.FrameworkName, new PackageVersion(phpModule.FrameworkVersion).ToStringMajorMinor()), out framework);
             return framework;
         }
 

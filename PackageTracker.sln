@@ -64,7 +64,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PackageTracker.Presentation
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PackageTracker.Host", "Host\PackageTracker.Host\PackageTracker.Host.csproj", "{0D98D1DB-C60B-4F51-B6F5-C1E10A682004}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PackageTracker.Scanner.GitHub", "Infrastructure\PackageTracker.Scanner.GitHub\PackageTracker.Scanner.GitHub.csproj", "{1975885E-CACE-4C4B-8BCA-E5689BF163FA}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PackageTracker.Scanner.GitHub", "Infrastructure\PackageTracker.Scanner.GitHub\PackageTracker.Scanner.GitHub.csproj", "{1975885E-CACE-4C4B-8BCA-E5689BF163FA}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PackageTracker.Database.MongoDb", "Infrastructure\PackageTracker.Database.MongoDb\PackageTracker.Database.MongoDb.csproj", "{ECA64174-78FC-46A6-98D2-E390AECEA165}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -148,6 +150,10 @@ Global
 		{1975885E-CACE-4C4B-8BCA-E5689BF163FA}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{1975885E-CACE-4C4B-8BCA-E5689BF163FA}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{1975885E-CACE-4C4B-8BCA-E5689BF163FA}.Release|Any CPU.Build.0 = Release|Any CPU
+		{ECA64174-78FC-46A6-98D2-E390AECEA165}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{ECA64174-78FC-46A6-98D2-E390AECEA165}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{ECA64174-78FC-46A6-98D2-E390AECEA165}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{ECA64174-78FC-46A6-98D2-E390AECEA165}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -177,6 +183,7 @@ Global
 		{C9307A2B-AD4D-4A3E-A63A-62E5208B091F} = {FBC0DE73-D2EB-4020-9734-D18B2FD7A9A5}
 		{0D98D1DB-C60B-4F51-B6F5-C1E10A682004} = {B2AA9C98-AE71-4301-8297-34BF4DCBD56A}
 		{1975885E-CACE-4C4B-8BCA-E5689BF163FA} = {A3FDB388-D6A6-4B2B-98D8-82177EF5E163}
+		{ECA64174-78FC-46A6-98D2-E390AECEA165} = {E0EDD194-1949-4936-BA97-075826BD9B9E}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {88515F1C-4F05-443B-A5A5-6F0DED2BF9AB}

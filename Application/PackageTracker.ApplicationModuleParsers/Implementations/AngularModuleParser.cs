@@ -29,7 +29,7 @@ internal class AngularModuleParser(IPackagesRepository packagesRepository, ILogg
         var packagesTask = dependencies.Select(l => ApplicationPackage(l.Name, l.Version, cancellationToken));
         var packages = await Task.WhenAll(packagesTask);
 
-        return new AngularModule { Name = fileName, AngularVersion = angularVersion, Packages = packages };
+        return new AngularModule { Name = fileName, FrameworkVersion = angularVersion, Packages = packages };
     }
 
     private static (string Name, string Version)[] Dependencies(string content)

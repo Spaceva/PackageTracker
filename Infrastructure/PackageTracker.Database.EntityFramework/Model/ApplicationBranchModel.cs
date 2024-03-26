@@ -9,7 +9,7 @@ internal class ApplicationBranchModel
 
     public ApplicationType ApplicationType { get; set; }
 
-    public ICollection<ApplicationModuleModel> Modules { get; set; } = new List<ApplicationModuleModel>();
+    public ICollection<ApplicationModuleModel> Modules { get; set; } = [];
 
     public DateTime? LastCommit { get; set; }
 }

@@ -9,7 +9,6 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.OpenApi.Models;
 using PackageTracker.ApplicationModuleParsers;
-using PackageTracker.Database.EntityFramework;
 using PackageTracker.Fetcher;
 using PackageTracker.Fetcher.PublicRegistries;
 using PackageTracker.Handlers;
@@ -21,6 +20,8 @@ using PackageTracker.Export.Confluence;
 using PackageTracker.Presentation.WebApi;
 using PackageTracker.Presentation.MVCApp;
 using Serilog;
+using PackageTracker.Database.MongoDb;
+using PackageTracker.Scanner.GitHub;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -81,7 +82,8 @@ static void AddModules(IServiceCollection services, IConfiguration configuration
 
     if (modules.GetValue<bool>("Scanner"))
     {
-        services.AddScanner(configuration);
+        services.AddScanner(configuration)
+                .AddDotNetGitHubOrganizationScanner("Spaceva");
         // Add your scanner registrations here
     }
 
@@ -129,7 +131,7 @@ static void AddServices(IServiceCollection services, IConfiguration configuratio
 
     services.AddOutputCache();
 
-    services.AddEFDatabase(configuration);
+    services.AddMongoDatabase(configuration);
 
     services.AddExceptionHandler((opt) =>
     {
@@ -161,5 +163,5 @@ static void ConfigureEndpoints(IEndpointRouteBuilder application)
 
 static void ConfigureDatabase(IApplicationBuilder application)
 {
-    application.ApplicationServices.EnsureDatabaseIsUpdatedAsync().Wait();
+    // application.ApplicationServices.EnsureDatabaseIsUpdatedAsync().Wait();
 }

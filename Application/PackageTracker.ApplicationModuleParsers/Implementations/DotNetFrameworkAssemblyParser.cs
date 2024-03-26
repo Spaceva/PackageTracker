@@ -46,7 +46,7 @@ internal class DotNetFrameworkAssemblyParser(IPackagesRepository packagesReposit
 
         var librairiesVersions = await Task.WhenAll(librairiesTasks);
 
-        return new DotNetAssembly { Name = fileName, DotNetVersion = dotnetVersion, Packages = [.. librairiesVersions.OrderBy(p => p.PackageName)] };
+        return new DotNetAssembly { Name = fileName, FrameworkVersion = dotnetVersion, Packages = [.. librairiesVersions.OrderBy(p => p.PackageName)] };
     }
 
     private static (string Name, string Version) ParseLibraryElement(string value)

@@ -31,17 +31,17 @@ internal static class ApplicationDetailViewModelMapper
             var mainFrameworkVersion = "N/A";
             if (module is AngularModule angularModule)
             {
-                mainFrameworkVersion = $"Angular v{angularModule.AngularVersion}";
+                mainFrameworkVersion = $"Angular v{angularModule.FrameworkVersion}";
             }
             else if (module is DotNetAssembly dotNetAssembly)
             {
                 packageType = PackageType.Nuget;
-                mainFrameworkVersion = $".NET {dotNetAssembly.DotNetVersion}";
+                mainFrameworkVersion = $".NET {dotNetAssembly.FrameworkVersion}";
             }
             else if (module is PhpModule phpModule)
             {
                 packageType = PackageType.Packagist;
-                mainFrameworkVersion = $"PHP {phpModule.PhpVersion}";
+                mainFrameworkVersion = $"PHP {phpModule.FrameworkVersion}";
             }
             var mainFrameworkStatus = module.Framework?.Status.ToString() ?? "Unknown";
             if (module.Packages.Count == 0)

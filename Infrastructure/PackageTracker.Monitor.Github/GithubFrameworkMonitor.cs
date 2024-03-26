@@ -63,6 +63,6 @@ internal abstract class GithubFrameworkMonitor : IFrameworkMonitor
 
     protected virtual void Dispose(bool isDisposing)
     {
-        this.HttpClient.Dispose();
+        HttpClient.Dispose();
     }
 }

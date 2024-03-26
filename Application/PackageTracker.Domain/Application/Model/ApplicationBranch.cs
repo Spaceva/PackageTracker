@@ -6,7 +6,7 @@ public abstract class ApplicationBranch
 {
     public string Name { get; set; } = default!;
 
-    public ICollection<ApplicationModule> Modules { get; set; } = new List<ApplicationModule>();
+    public ICollection<ApplicationModule> Modules { get; set; } = [];
 
     public string? RepositoryLink { get; set; }
 

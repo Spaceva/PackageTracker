@@ -83,7 +83,7 @@ internal abstract class GitHubScanner<TApplicationModule> : GitHubScanner where 
                 }
 
                 var commitSha = branch.Commit.Sha;
-                var commitInfo = await this.GitHubClient.Git.Commit.Get(repository.Id, commitSha);
+                var commitInfo = await GitHubClient.Git.Commit.Get(repository.Id, commitSha);
                 var lastCommitDate = commitInfo.Committer.Date;
 
                 applicationBranchs.Add(ApplicationBranch(branch.Name, repository.HtmlUrl + BranchLinkSuffix(branch.Name), modules.Where(m => m is not null).ToArray(), lastCommitDate.UtcDateTime));
@@ -134,7 +134,7 @@ internal abstract class GitHubScanner<TApplicationModule> : GitHubScanner where 
 
     private protected async Task<IReadOnlyCollection<Branch>> FindAllLongTermBranchs(long repositoryId)
     {
-        var branches = await this.GitHubClient.Repository.Branch.GetAll(repositoryId);
+        var branches = await GitHubClient.Repository.Branch.GetAll(repositoryId);
         var branchsNames = branches.Select(b => b.Name).Intersect(Scanner.Constants.Git.ValidBranches);
         return branches.Where(b => branchsNames.Contains(b.Name)).ToArray();
     }

@@ -13,10 +13,10 @@ internal class AzureDevOpsHttpClient : IDisposable
 
     public AzureDevOpsHttpClient(string repositoryRootLink, string accessToken, IHttpProxy? httpProxy)
     {
-        this.httpClient = HttpClientFactory.Build(httpProxy, repositoryRootLink);
-        this.httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Basic", Convert.ToBase64String(Encoding.ASCII.GetBytes(string.Format("{0}:{1}", "Basic", accessToken))));
-        this.httpClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("*/*"));
-        this.httpClient.DefaultRequestHeaders.CacheControl = new CacheControlHeaderValue() { NoCache = true };
+        httpClient = HttpClientFactory.Build(httpProxy, repositoryRootLink);
+        httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Basic", Convert.ToBase64String(Encoding.ASCII.GetBytes(string.Format("{0}:{1}", "Basic", accessToken))));
+        httpClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("*/*"));
+        httpClient.DefaultRequestHeaders.CacheControl = new CacheControlHeaderValue() { NoCache = true };
     }
 
     public async Task<IReadOnlyCollection<Repository>> ListRepositoriesAsync(CancellationToken cancellationToken)
@@ -81,6 +81,6 @@ internal class AzureDevOpsHttpClient : IDisposable
 
     protected virtual void Dispose(bool isDisposing)
     {
-        this.httpClient?.Dispose();
+        httpClient?.Dispose();
     }
 }
