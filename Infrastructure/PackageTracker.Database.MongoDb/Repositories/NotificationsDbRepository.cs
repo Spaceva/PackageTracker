@@ -34,7 +34,7 @@ internal class NotificationsDbRepository(MongoDbContext dbContext, ILogger<Notif
     public async Task MarkAsReadAsync(IReadOnlyCollection<Guid> ids, CancellationToken cancellationToken = default)
     {
         var values = ids.Select(id => id.ToString());
-        await Collection.UpdateManyAsync(Filter.AnyIn(nameof(NotificationDbModel.Id), values), Builders<NotificationDbModel>.Update.Set(f => f.IsRead, true), cancellationToken: cancellationToken);
+        await Collection.UpdateManyAsync(Filter.In(nameof(NotificationDbModel.Id), values), Builders<NotificationDbModel>.Update.Set(f => f.IsRead, true), cancellationToken: cancellationToken);
     }
 
     public async Task SaveAsync(Notification notification, CancellationToken cancellationToken = default)

@@ -7,7 +7,7 @@ using PackageTracker.Domain.Framework.Model;
 using PackageTracker.Infrastructure;
 
 namespace PackageTracker.Database.EntityFramework;
-internal class FrameworkDbRepository(IServiceScopeFactory serviceScopeFactory) : IFrameworkRepository
+internal class FrameworkDbRepository([FromKeyedServices(MemoryCache.Constants.SERVICEKEY)] IFrameworkRepository? cacheRepository, IServiceScopeFactory serviceScopeFactory) : IFrameworkRepository
 {
     public async Task<Framework> GetByVersionAsync(string name, string version, CancellationToken cancellationToken = default)
         => await TryGetByVersionAsync(name, version, cancellationToken) ?? throw new FrameworkNotFoundException();

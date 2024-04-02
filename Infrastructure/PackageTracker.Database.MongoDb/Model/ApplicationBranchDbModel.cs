@@ -2,7 +2,7 @@
 using System.Web;
 
 namespace PackageTracker.Database.MongoDb.Model;
-internal class ApplicationBranchDbModel : ApplicationBranch
+internal class ApplicationBranchDbModel
 {
     public ApplicationBranchDbModel(ApplicationBranch applicationBranch)
     {
@@ -11,6 +11,13 @@ internal class ApplicationBranchDbModel : ApplicationBranch
         LastCommit = applicationBranch.LastCommit;
         Modules = [.. applicationBranch.Modules.Select(m => new ApplicationModuleDbModel(m))];
     }
+    public string Name { get; set; } = default!;
+
+    public ICollection<ApplicationModuleDbModel> Modules { get; set; } = [];
+
+    public string? RepositoryLink { get; set; }
+
+    public DateTime? LastCommit { get; set; }
 
     internal ApplicationBranch ToDomain(ApplicationType applicationType)
     {
@@ -26,7 +33,7 @@ internal class ApplicationBranchDbModel : ApplicationBranch
         applicationBranch.Name = Name;
         applicationBranch.RepositoryLink = HttpUtility.UrlDecode(RepositoryLink);
         applicationBranch.LastCommit = LastCommit;
-        applicationBranch.Modules = [.. Modules.OfType<ApplicationModuleDbModel>().Select(m => m.ToDomain(applicationType))];
+        applicationBranch.Modules = [.. Modules.Select(m => m.ToDomain(applicationType))];
         return applicationBranch;
     }
 }

@@ -1,7 +1,8 @@
 ﻿using PackageTracker.Domain.Application.Model;
+using PackageTracker.Domain.Framework.Model;
 
 namespace PackageTracker.Database.MongoDb.Model;
-internal class ApplicationModuleDbModel : ApplicationModule
+internal class ApplicationModuleDbModel
 {
     public ApplicationModuleDbModel(ApplicationModule applicationModule)
     {
@@ -10,6 +11,14 @@ internal class ApplicationModuleDbModel : ApplicationModule
         Packages = applicationModule.Packages;
         FrameworkVersion = applicationModule.FrameworkVersion;
     }
+
+    public string Name { get; set; } = default!;
+
+    public ICollection<ApplicationPackage> Packages { get; set; } = [];
+
+    public Framework? Framework { get; set; }
+
+    public string FrameworkVersion { get; set; } = default!;
 
     internal ApplicationModule ToDomain(ApplicationType applicationType)
     {

@@ -10,10 +10,11 @@ using PackageTracker.Domain.Package;
 namespace PackageTracker.Database.MongoDb;
 public static class ServiceCollectionExtensions
 {
-    public static void AddMongoDatabase(this IServiceCollection services, IConfiguration configuration)
+    public static IServiceCollection AddMongoDatabase(this IServiceCollection services, IConfiguration configuration)
     {
         services.AddSingleton(new MongoDbContext(configuration.GetConnectionString("Database")!));
         services.AddDbRepositories();
+        return services;
     }
 
     private static void AddDbRepositories(this IServiceCollection services)

@@ -14,6 +14,7 @@ public abstract class RepeatedBackgroundService(ILogger logger) : IScopedBackgro
             {
                 try
                 {
+                    Logger.LogInformation("Starting...");
                     await RunIterationAsync(stoppingToken);
                 }
                 catch (TaskCanceledException)
@@ -28,17 +29,17 @@ public abstract class RepeatedBackgroundService(ILogger logger) : IScopedBackgro
                 {
                     await HandleRunErrorAsync(ex, stoppingToken);
                 }
-                
+
                 await WaitForNextExecution(stoppingToken);
             }
         }
         catch (TaskCanceledException)
         {
-            Logger.LogInformation("{Name} being stopped.", GetType().Name);
+            Logger.LogInformation("Stopped.");
         }
         catch (OperationCanceledException)
         {
-            Logger.LogInformation("{Name} being stopped.", GetType().Name);
+            Logger.LogInformation("Stopped");
         }
         finally
         {

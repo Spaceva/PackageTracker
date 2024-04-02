@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Options;
 using Microsoft.Extensions.Logging;
 using Microsoft.OpenApi.Models;
 using PackageTracker.ApplicationModuleParsers;
@@ -19,9 +20,11 @@ using PackageTracker.Monitor.EndOfLife;
 using PackageTracker.Export.Confluence;
 using PackageTracker.Presentation.WebApi;
 using PackageTracker.Presentation.MVCApp;
-using Serilog;
 using PackageTracker.Database.MongoDb;
-using PackageTracker.Scanner.GitHub;
+using PackageTracker.Database.MemoryCache;
+using PackageTracker.Host.Configuration;
+using PackageTracker.Database.EntityFramework;
+using Serilog;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -39,7 +42,7 @@ static void Configure(WebApplication application)
 
     ConfigureEndpoints(application);
 
-    ConfigureDatabase(application);
+    StartDatabase(application);
 }
 
 static void AddConfigurations(WebApplicationBuilder builder)
@@ -71,7 +74,7 @@ static void AddConfiguration(IConfigurationBuilder configuration, IHostEnvironme
 static void AddModules(IServiceCollection services, IConfiguration configuration)
 {
     services.AddMainHandlers().AddApplicationModuleParsers();
-    
+
     var modules = configuration.GetSection("Modules");
     if (modules.GetValue<bool>("Fetcher"))
     {
@@ -82,8 +85,7 @@ static void AddModules(IServiceCollection services, IConfiguration configuration
 
     if (modules.GetValue<bool>("Scanner"))
     {
-        services.AddScanner(configuration)
-                .AddDotNetGitHubOrganizationScanner("Spaceva");
+        services.AddScanner(configuration);
         // Add your scanner registrations here
     }
 
@@ -131,7 +133,7 @@ static void AddServices(IServiceCollection services, IConfiguration configuratio
 
     services.AddOutputCache();
 
-    services.AddMongoDatabase(configuration);
+    ConfigureDatabase(services, configuration);
 
     services.AddExceptionHandler((opt) =>
     {
@@ -141,6 +143,32 @@ static void AddServices(IServiceCollection services, IConfiguration configuratio
             return Task.CompletedTask;
         };
     });
+}
+
+static void ConfigureDatabase(IServiceCollection services, IConfiguration configuration)
+{
+    var section = configuration.GetRequiredSection(PersistenceSettings.ConfigurationSection);
+    services.Configure<PersistenceSettings>(section);
+    var persistenceSettings = section.Get<PersistenceSettings>();
+    ArgumentNullException.ThrowIfNull(persistenceSettings);
+
+    if (persistenceSettings.Type.Equals(PackageTracker.Database.EntityFramework.Constants.PersistenceType))
+    {
+        services.AddEFDatabase(configuration);
+    }
+    else if (persistenceSettings.Type.Equals(PackageTracker.Database.MongoDb.Constants.PersistenceType))
+    {
+        services.AddMongoDatabase(configuration);
+    }
+    else
+    {
+        throw new ArgumentOutOfRangeException(nameof(configuration), "Unknown Persistence Type");
+    }
+
+    if (persistenceSettings.UseMemoryCache)
+    {
+        services.WithMemoryCache();
+    }
 }
 
 static void ConfigurePipeline(IApplicationBuilder application, IWebHostEnvironment environment)
@@ -161,7 +189,22 @@ static void ConfigureEndpoints(IEndpointRouteBuilder application)
     application.MapHealthChecks("/health").ShortCircuit();
 }
 
-static void ConfigureDatabase(IApplicationBuilder application)
+static void StartDatabase(IApplicationBuilder application)
 {
-    // application.ApplicationServices.EnsureDatabaseIsUpdatedAsync().Wait();
+    var loggerFactory = application.ApplicationServices.GetRequiredService<ILoggerFactory>();
+    var logger = loggerFactory.CreateLogger("Database");
+    
+    var settings = application.ApplicationServices.GetRequiredService<IOptions<PersistenceSettings>>();
+    if (settings is null || settings.Value is null)
+    {
+        logger.LogInformation("No database settings found.");
+        return;
+    }
+
+    var settingsValue = settings.Value;
+    logger.LogInformation("Database Type: {DatabaseType}, Use of Memory Cache: {UseMemoryCache}.", settingsValue.Type, settingsValue.UseMemoryCache ? "Yes" : "No");
+    if (settingsValue.Type.Equals(PackageTracker.Database.EntityFramework.Constants.PersistenceType))
+    {
+        application.ApplicationServices.EnsureDatabaseIsUpdatedAsync().Wait();
+    }
 }

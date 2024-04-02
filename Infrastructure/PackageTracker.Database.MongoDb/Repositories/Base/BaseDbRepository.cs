@@ -47,4 +47,11 @@ internal abstract class BaseDbRepository<TMongoEntity>(MongoDbContext dbContext,
 
         return entity;
     }
+
+    public async Task<IEnumerable<TResult>> ExecutePipelineAsync<TResult>(PipelineDefinition<TMongoEntity, TResult> pipeline, CancellationToken cancellationToken = default)
+    {
+        var cursor = await Collection.AggregateAsync(pipeline, cancellationToken: cancellationToken);
+
+        return await cursor.ToListAsync(cancellationToken);
+    }
 }

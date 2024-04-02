@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using MongoDB.Driver;
 using PackageTracker.Database.MongoDb.Core;
 using PackageTracker.Database.MongoDb.Model;
@@ -8,11 +9,15 @@ using PackageTracker.Domain.Framework.Exceptions;
 using PackageTracker.Domain.Framework.Model;
 
 namespace PackageTracker.Database.MongoDb.Repositories;
-internal class FrameworksDbRepository(MongoDbContext dbContext, ILogger<FrameworkDbModel> logger) : BaseDbRepository<FrameworkDbModel>(dbContext, logger), IFrameworkRepository
+internal class FrameworksDbRepository([FromKeyedServices(MemoryCache.Constants.SERVICEKEY)] IFrameworkRepository? cacheRepository, MongoDbContext dbContext, ILogger<FrameworkDbModel> logger) : BaseDbRepository<FrameworkDbModel>(dbContext, logger), IFrameworkRepository
 {
     public async Task DeleteByVersionAsync(string name, string version, CancellationToken cancellationToken = default)
     {
         await DeleteByQueryAsync(Filter.Eq(f => f.Name, name) & Filter.Eq(f => f.Version, version), cancellationToken);
+        if (cacheRepository is not null)
+        {
+            await cacheRepository.DeleteByVersionAsync(name, version, cancellationToken);
+        }
     }
 
     public async Task<Framework> GetByVersionAsync(string name, string version, CancellationToken cancellationToken = default)
@@ -24,6 +29,10 @@ internal class FrameworksDbRepository(MongoDbContext dbContext, ILogger<Framewor
     {
         var frameworkDb = new FrameworkDbModel(framework);
         await UpdateAsync(Filter.Eq(f => f.Name, framework.Name) & Filter.Eq(f => f.Version, framework.Version), frameworkDb, cancellationToken);
+        if (cacheRepository is not null)
+        {
+            await cacheRepository.SaveAsync(framework, cancellationToken);
+        }
     }
 
     public async Task<IReadOnlyCollection<Framework>> SearchAsync(FrameworkSearchCriteria searchCriteria, int? skip = null, int? take = null, CancellationToken cancellationToken = default)
@@ -33,8 +42,24 @@ internal class FrameworksDbRepository(MongoDbContext dbContext, ILogger<Framewor
 
     public async Task<Framework?> TryGetByVersionAsync(string name, string version, CancellationToken cancellationToken = default)
     {
-        var frameworks = await FindAsync(Filter.Eq(f => f.Name, name) & Filter.Eq(f => f.Version, version), cancellationToken);
-        return frameworks.SingleOrDefault();
+        if (cacheRepository is null)
+        {
+            return await TryGetByVersionNoCacheAsync(name, version, cancellationToken);
+        }
+
+        var framework = await cacheRepository.TryGetByVersionAsync(name, version, cancellationToken);
+        if (framework is not null)
+        {
+            return framework;
+        }
+
+        framework = await TryGetByVersionNoCacheAsync(name, version, cancellationToken);
+        if (framework is not null)
+        {
+            await cacheRepository.SaveAsync(framework, cancellationToken);
+        }
+
+        return framework;
     }
 
     private static FilterDefinition<FrameworkDbModel> SearchCriteria(FrameworkSearchCriteria? searchCriteria)
@@ -62,12 +87,12 @@ internal class FrameworksDbRepository(MongoDbContext dbContext, ILogger<Framewor
 
         if (searchCriteria.Channel is not null && searchCriteria.Channel.Count > 0)
         {
-            filter &= Filter.AnyIn(nameof(FrameworkDbModel.Channel), searchCriteria.Channel);
+            filter &= Filter.In(nameof(FrameworkDbModel.Channel), searchCriteria.Channel);
         }
 
         if (searchCriteria.Status is not null && searchCriteria.Status.Count > 0)
         {
-            filter &= Filter.AnyIn(nameof(FrameworkDbModel.Status), searchCriteria.Status);
+            filter &= Filter.In(nameof(FrameworkDbModel.Status), searchCriteria.Status);
         }
 
         if (searchCriteria.ReleaseDateMinimum.HasValue)
@@ -91,5 +116,11 @@ internal class FrameworksDbRepository(MongoDbContext dbContext, ILogger<Framewor
         }
 
         return filter;
+    }
+
+    private async Task<Framework?> TryGetByVersionNoCacheAsync(string name, string version, CancellationToken cancellationToken = default)
+    {
+        var frameworks = await FindAsync(Filter.Eq(f => f.Name, name) & Filter.Eq(f => f.Version, version), cancellationToken);
+        return frameworks.SingleOrDefault();
     }
 }

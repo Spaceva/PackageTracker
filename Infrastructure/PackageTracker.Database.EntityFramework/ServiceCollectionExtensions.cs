@@ -10,10 +10,11 @@ using PackageTracker.Infrastructure;
 namespace PackageTracker.Database.EntityFramework;
 public static class ServiceCollectionExtensions
 {
-    public static void AddEFDatabase(this IServiceCollection services, IConfiguration configuration)
+    public static IServiceCollection AddEFDatabase(this IServiceCollection services, IConfiguration configuration)
     {
         services.AddSqlServer<PackageTrackerDbContext>(configuration.GetConnectionString("Database"));
         services.AddDbRepositories();
+        return services;
     }
 
     public static async Task EnsureDatabaseIsUpdatedAsync(this IServiceProvider serviceProvider)
