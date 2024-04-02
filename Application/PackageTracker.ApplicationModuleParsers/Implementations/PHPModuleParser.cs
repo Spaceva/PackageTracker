@@ -30,7 +30,7 @@ internal class PhpModuleParser(IPackagesRepository packagesRepository, ILogger<P
         var packagesTask = dependencies.Select(l => ApplicationPackage(l.Name, l.Version, cancellationToken));
         var packages = await Task.WhenAll(packagesTask);
 
-        return new PhpModule { Name = fileName, PhpVersion = phpVersion, Packages = packages };
+        return new PhpModule { Name = fileName, FrameworkVersion = phpVersion, Packages = packages };
     }
 
     private static (string Name, string Version)[] Dependencies(string content)

@@ -6,7 +6,7 @@ using PackageTracker.Domain.Package.Model;
 using PackageTracker.Infrastructure;
 
 namespace PackageTracker.Database.EntityFramework;
-internal class PackagesDbRepository(IServiceScopeFactory serviceScopeFactory) : IPackagesRepository
+internal class PackagesDbRepository([FromKeyedServices(MemoryCache.Constants.SERVICEKEY)] IPackagesRepository? cacheRepository, IServiceScopeFactory serviceScopeFactory) : IPackagesRepository
 {
     public async Task AddAsync(Package package, CancellationToken cancellationToken = default)
     {

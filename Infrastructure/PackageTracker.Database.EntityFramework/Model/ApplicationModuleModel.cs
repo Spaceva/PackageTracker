@@ -7,7 +7,7 @@ internal class ApplicationModuleModel
 
     public ApplicationType ModuleType { get; set; }
 
-    public string MainFrameworkVersion { get; set; } = default!;
+    public string FrameworkVersion { get; set; } = default!;
 
-    public ICollection<ApplicationPackageModel> Packages { get; set; } = new List<ApplicationPackageModel>();
+    public ICollection<ApplicationPackageModel> Packages { get; set; } = [];
 }

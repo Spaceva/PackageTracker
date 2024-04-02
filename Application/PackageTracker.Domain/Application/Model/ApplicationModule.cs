@@ -6,7 +6,9 @@ public abstract class ApplicationModule
 {
     public string Name { get; set; } = default!;
 
-    public ICollection<ApplicationPackage> Packages { get; set; } = new List<ApplicationPackage>();
+    public ICollection<ApplicationPackage> Packages { get; set; } = [];
 
     public Framework? Framework { get; set; }
+
+    public string FrameworkVersion { get; set; } = default!;
 }

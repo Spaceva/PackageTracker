@@ -8,7 +8,7 @@ public abstract class Application
 
     public string RepositoryLink { get; set; } = default!;
 
-    public virtual ICollection<ApplicationBranch> Branchs { get; set; } = new List<ApplicationBranch>();
+    public virtual ICollection<ApplicationBranch> Branchs { get; set; } = [];
 
     public abstract ApplicationType Type { get; }
 

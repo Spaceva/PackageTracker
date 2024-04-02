@@ -5,6 +5,4 @@ public class DotNetAssembly : ApplicationModule
     public const string FrameworkName = ".NET";
     public const string FrameworkNameLegacy = ".NET Framework";
     public const string FrameworkNameStandard = ".NET Standard";
-
-    public string DotNetVersion { get; set; } = default!;
 }

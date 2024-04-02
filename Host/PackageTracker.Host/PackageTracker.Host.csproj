@@ -44,6 +44,8 @@
 		<ProjectReference Include="..\..\Application\PackageTracker.Handlers\PackageTracker.Handlers.csproj" />
 		<ProjectReference Include="..\..\Application\PackageTracker.Messages\PackageTracker.Messages.csproj" />
 		<ProjectReference Include="..\..\Infrastructure\PackageTracker.Database.EntityFramework\PackageTracker.Database.EntityFramework.csproj" />
+		<ProjectReference Include="..\..\Infrastructure\PackageTracker.Database.MemoryCache\PackageTracker.Database.MemoryCache.csproj" />
+		<ProjectReference Include="..\..\Infrastructure\PackageTracker.Database.MongoDb\PackageTracker.Database.MongoDb.csproj" />
 		<ProjectReference Include="..\..\Infrastructure\PackageTracker.Export.Confluence\PackageTracker.Export.Confluence.csproj" />
 		<ProjectReference Include="..\..\Infrastructure\PackageTracker.Fetcher.PublicRegistries\PackageTracker.Fetcher.PublicRegistries.csproj" />
 		<ProjectReference Include="..\..\Infrastructure\PackageTracker.Fetcher\PackageTracker.Fetcher.csproj" />

@@ -9,27 +9,25 @@ internal class ApplicationModuleValueConverter : ValueConverter<ApplicationModul
     {
         ApplicationType? applicationType = null;
         var mainFrameworkVersion = "N/A";
+            mainFrameworkVersion = entity.FrameworkVersion;
         if (entity is AngularModule angularModule)
         {
             applicationType = ApplicationType.Angular;
-            mainFrameworkVersion = angularModule.AngularVersion;
         }
         else if (entity is DotNetAssembly dotNetAssembly)
         {
             applicationType = ApplicationType.DotNet;
-            mainFrameworkVersion = dotNetAssembly.DotNetVersion;
         }
         else if (entity is PhpModule phpModule)
         {
             applicationType = ApplicationType.Php;
-            mainFrameworkVersion = phpModule.PhpVersion;
         }
         return new ApplicationModuleModel
         {
             ModuleType = applicationType ?? throw new ArgumentOutOfRangeException(nameof(entity)),
             Name = entity.Name,
             Packages = entity.Packages.Select(x => (ApplicationPackageModel)applicationPackageValueConverter.ConvertToProvider(x)!).ToList(),
-            MainFrameworkVersion = mainFrameworkVersion,
+            FrameworkVersion = mainFrameworkVersion,
         };
     }
 
@@ -45,25 +43,8 @@ internal class ApplicationModuleValueConverter : ValueConverter<ApplicationModul
         ApplicationModule applicationModule = (ApplicationModule)Activator.CreateInstance(applicationModuleType)!;
         applicationModule.Name = model.Name;
         applicationModule.Packages = model.Packages.Select(m => (ApplicationPackage)applicationPackageValueConverter.ConvertFromProvider(m)!).ToList();
-        if (applicationModule is AngularModule angularModule)
-        {
-            angularModule.AngularVersion = model.MainFrameworkVersion;
-            return angularModule;
-        }
-
-        if (applicationModule is DotNetAssembly dotNetAssembly)
-        {
-            dotNetAssembly.DotNetVersion = model.MainFrameworkVersion;
-            return dotNetAssembly;
-        }
-
-        if (applicationModule is PhpModule phpModule)
-        {
-            phpModule.PhpVersion = model.MainFrameworkVersion;
-            return phpModule;
-        }
-
-        throw new ArgumentException("Unknown ModuleType", nameof(model));
+        applicationModule.FrameworkVersion = model.FrameworkVersion;
+        return applicationModule;
     }
 
     public ApplicationModuleValueConverter()

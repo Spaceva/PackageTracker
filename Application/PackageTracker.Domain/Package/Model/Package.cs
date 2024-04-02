@@ -6,7 +6,7 @@ public abstract class Package
 
     public string Name { get; set; } = default!;
 
-    public ICollection<PackageVersion> Versions { get; set; } = new List<PackageVersion>();
+    public ICollection<PackageVersion> Versions { get; set; } = [];
 
     public abstract PackageType Type { get; }
 

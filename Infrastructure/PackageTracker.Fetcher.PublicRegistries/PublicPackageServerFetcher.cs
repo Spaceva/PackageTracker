@@ -23,7 +23,7 @@ internal abstract class PublicPackageServerFetcher(string baseUrl, IOptionsMonit
 
     public async Task<IReadOnlyCollection<Package>> FetchAsync(CancellationToken cancellationToken)
     {
-        var packagesNames = PackagesName(this.FetcherSettings.CurrentValue);
+        var packagesNames = PackagesName(FetcherSettings.CurrentValue);
         return await FetchPackagesAsync(packagesNames, cancellationToken);
     }
 
