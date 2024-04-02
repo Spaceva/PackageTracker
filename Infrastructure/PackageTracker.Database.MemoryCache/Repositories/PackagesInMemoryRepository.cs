@@ -14,7 +14,7 @@ internal class PackagesInMemoryRepository(IMemoryCache memoryCache) : IPackagesR
 
     public Task DeleteByNameAsync(string packageName, CancellationToken cancellationToken = default)
     {
-        memoryCache.Remove(packageName);
+        memoryCache.Remove(Key(packageName));
         return Task.CompletedTask;
     }
 
@@ -36,7 +36,7 @@ internal class PackagesInMemoryRepository(IMemoryCache memoryCache) : IPackagesR
 
     public Task<Package?> TryGetByNameAsync(string packageName, CancellationToken cancellationToken = default)
     {
-        memoryCache.TryGetValue(packageName, out Package? package);
+        memoryCache.TryGetValue(Key(packageName), out Package? package);
         return Task.FromResult(package);
     }
 
@@ -47,5 +47,8 @@ internal class PackagesInMemoryRepository(IMemoryCache memoryCache) : IPackagesR
     }
 
     private static string Key(Package package)
-     => $"{nameof(PackagesInMemoryRepository)}-{package.Name}";
+     => Key(package.Name);
+
+    private static string Key(string packageName)
+     => $"{nameof(PackagesInMemoryRepository)}-{packageName}";
 }
