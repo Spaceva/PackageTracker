@@ -5,5 +5,5 @@ internal class TreeListHttpResponse
 
     public string Url { get; init; } = default!;
 
-    public IReadOnlyCollection<Model.File> TreeEntries { get; init; } = Array.Empty<Model.File>();
+    public IReadOnlyCollection<Model.File> TreeEntries { get; init; } = [];
 }

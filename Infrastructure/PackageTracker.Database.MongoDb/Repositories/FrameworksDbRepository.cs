@@ -11,6 +11,16 @@ using PackageTracker.Domain.Framework.Model;
 namespace PackageTracker.Database.MongoDb.Repositories;
 internal class FrameworksDbRepository([FromKeyedServices(MemoryCache.Constants.SERVICEKEY)] IFrameworkRepository? cacheRepository, MongoDbContext dbContext, ILogger<FrameworkDbModel> logger) : BaseDbRepository<FrameworkDbModel>(dbContext, logger), IFrameworkRepository
 {
+    public async Task<bool> ExistsAsync(string name, string version, CancellationToken cancellationToken = default)
+    {
+        if (cacheRepository is null)
+        {
+            return await ExistsNoCacheAsync(name, version, cancellationToken);
+        }
+
+        return (await cacheRepository.ExistsAsync(name, version, cancellationToken)) || (await ExistsNoCacheAsync(name, version, cancellationToken));
+    }
+
     public async Task DeleteByVersionAsync(string name, string version, CancellationToken cancellationToken = default)
     {
         await DeleteByQueryAsync(Filter.Eq(f => f.Name, name) & Filter.Eq(f => f.Version, version), cancellationToken);
@@ -122,5 +132,10 @@ internal class FrameworksDbRepository([FromKeyedServices(MemoryCache.Constants.S
     {
         var frameworks = await FindAsync(Filter.Eq(f => f.Name, name) & Filter.Eq(f => f.Version, version), cancellationToken);
         return frameworks.SingleOrDefault();
+    }
+
+    private async Task<bool> ExistsNoCacheAsync(string name, string version, CancellationToken cancellationToken = default)
+    {
+        return await AnyAsync(Filter.Eq(f => f.Name, name) & Filter.Eq(f => f.Version, version), cancellationToken);
     }
 }

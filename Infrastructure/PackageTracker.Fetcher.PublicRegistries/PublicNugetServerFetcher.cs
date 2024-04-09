@@ -12,7 +12,7 @@ internal class PublicNugetServerFetcher(IOptionsMonitor<FetcherSettings> fetcher
 {
     public override string RegistryUrl => Constants.PublicRegistryUrls.NUGET_PACKAGE;
 
-    protected override IEnumerable<string> PackagesName(FetcherSettings fetcherSettings) => fetcherSettings.Packages?.Public?.Nuget ?? Array.Empty<string>();
+    protected override IEnumerable<string> PackagesName(FetcherSettings fetcherSettings) => fetcherSettings.Packages?.Public?.Nuget ?? [];
 
     protected override ICollection<PackageVersion> Parse(JsonDocument jsonDocument)
      => NugetPackageVersions(jsonDocument.RootElement.GetProperty("versions"));

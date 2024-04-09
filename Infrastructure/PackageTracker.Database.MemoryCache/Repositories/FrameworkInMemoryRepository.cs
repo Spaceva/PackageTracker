@@ -1,11 +1,18 @@
 ﻿using Microsoft.Extensions.Caching.Memory;
+using PackageTracker.Database.MemoryCache.Cloners;
 using PackageTracker.Domain.Framework;
 using PackageTracker.Domain.Framework.Exceptions;
 using PackageTracker.Domain.Framework.Model;
 
 namespace PackageTracker.Database.MemoryCache.Repositories;
-internal class FrameworkInMemoryRepository(IMemoryCache memoryCache) : IFrameworkRepository
+internal class FrameworkInMemoryRepository(IMemoryCache memoryCache, FrameworkCloner cloner) : IFrameworkRepository
 {
+    public Task<bool> ExistsAsync(string name, string version, CancellationToken cancellationToken = default)
+    {
+        var key = Key(name, version);
+        return Task.FromResult(memoryCache.TryGetValue(key, out var _));
+    }
+
     public Task DeleteByVersionAsync(string name, string version, CancellationToken cancellationToken = default)
     {
         var key = Key(name, version);
@@ -21,7 +28,7 @@ internal class FrameworkInMemoryRepository(IMemoryCache memoryCache) : IFramewor
 
     public Task SaveAsync(Framework framework, CancellationToken cancellationToken = default)
     {
-        memoryCache.Set(Key(framework), framework);
+        memoryCache.Set(Key(framework), cloner.Clone(framework));
         return Task.CompletedTask;
     }
 
@@ -34,7 +41,7 @@ internal class FrameworkInMemoryRepository(IMemoryCache memoryCache) : IFramewor
     {
         var key = Key(name, version);
         memoryCache.TryGetValue(key, out Framework? framework);
-        return Task.FromResult(framework);
+        return Task.FromResult(cloner.Clone(framework));
     }
 
     private static string Key(string name, string version)

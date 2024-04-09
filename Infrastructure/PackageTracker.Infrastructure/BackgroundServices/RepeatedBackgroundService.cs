@@ -2,12 +2,17 @@
 
 namespace PackageTracker.Infrastructure.BackgroundServices;
 
-public abstract class RepeatedBackgroundService(ILogger logger) : IScopedBackgroundService
+public abstract class RepeatedBackgroundService(ILogger logger, TimeSpan? initialDelay = null) : IScopedBackgroundService
 {
     protected ILogger Logger => logger;
 
     public async Task RunAsync(CancellationToken stoppingToken)
     {
+        if (initialDelay is not null)
+        {
+            await Task.Delay(initialDelay.Value, stoppingToken);
+        }
+
         try
         {
             while (!stoppingToken.IsCancellationRequested)

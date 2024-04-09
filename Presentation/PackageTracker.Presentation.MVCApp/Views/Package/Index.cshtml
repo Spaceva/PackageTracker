@@ -47,7 +47,7 @@
                 <td>
                     <button id="delete_package_btn_@rowId" type="button"
                             class="btn btn-sm btn-danger"
-                            onclick="deletePackage('@package.Name','@package.Type','@package.Link','@rowId')">
+                            onclick="deletePackage('@package.Name','@package.Type','@rowId')">
                         <i id="delete_package_icon_@rowId" class="fa-solid fa-trash-can"></i>
                         <span id="delete_package_spinner_@rowId" class="spinner-border spinner-border-sm" role="status" aria-hidden="true" style="display: none;"></span>
                     </button>
@@ -57,14 +57,14 @@
     </tbody>
 </table>
 <script type="text/javascript">
-    const deletePackage = (packageName, packageType, packageLink, rowId) => {
+    const deletePackage = (packageName, packageType, rowId) => {
         $(`#delete_package_icon_${rowId}`).hide();
         $(`#delete_package_spinner_${rowId}`).show();
         $(`#delete_package_btn_${rowId}`).attr('disabled', 'disabled');
         $.ajax({
             type: "POST",
             url: '@(deletePackageUrl)',
-            data: JSON.stringify({ name: packageName, type: packageType, link: packageLink }),
+            data: JSON.stringify({ name: packageName }),
             contentType: "application/json",
             success: () => {
                 toastContent("Package supprimé", `Le package ${packageName}' (${packageType}) a été supprimé.`, 'success');

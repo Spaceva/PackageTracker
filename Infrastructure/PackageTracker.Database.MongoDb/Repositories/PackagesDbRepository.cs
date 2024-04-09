@@ -12,9 +12,19 @@ namespace PackageTracker.Database.MongoDb.Repositories;
 
 internal class PackagesDbRepository([FromKeyedServices(MemoryCache.Constants.SERVICEKEY)] IPackagesRepository? cacheRepository, MongoDbContext dbContext, ILogger<PackagesDbRepository> logger) : BaseDbRepository<PackageDbModel>(dbContext, logger), IPackagesRepository
 {
+    public async Task<bool> ExistsAsync(string packageName, CancellationToken cancellationToken = default)
+    {
+        if (cacheRepository is null)
+        {
+            return await ExistsNoCacheAsync(packageName, cancellationToken);
+        }
+
+        return await cacheRepository.ExistsAsync(packageName, cancellationToken) || await ExistsNoCacheAsync(packageName, cancellationToken);
+    }
+
     public async Task AddAsync(Package package, CancellationToken cancellationToken = default)
     {
-        await base.UpdateAsync(Filter.Eq(p => p.Name, package.Name), new PackageDbModel(package), cancellationToken);
+        await UpdateAsync(Filter.Eq(p => p.Name, package.Name), new PackageDbModel(package), cancellationToken);
         if (cacheRepository is not null)
         {
             await cacheRepository.AddAsync(package, cancellationToken);
@@ -92,7 +102,7 @@ internal class PackagesDbRepository([FromKeyedServices(MemoryCache.Constants.SER
 
     public async Task UpdateAsync(Package package, CancellationToken cancellationToken = default)
     {
-        await base.UpdateAsync(Filter.Eq(p => p.Name, package.Name), new PackageDbModel(package), cancellationToken);
+        await UpdateAsync(Filter.Eq(p => p.Name, package.Name), new PackageDbModel(package), cancellationToken);
         if (cacheRepository is not null)
         {
             await cacheRepository.UpdateAsync(package, cancellationToken);
@@ -110,5 +120,10 @@ internal class PackagesDbRepository([FromKeyedServices(MemoryCache.Constants.SER
         var packagesDb = await FindAsync(Builders<PackageDbModel>.Filter.Eq(p => p.Name, packageName), cancellationToken);
         var packageDb = packagesDb.SingleOrDefault();
         return packageDb?.ToDomain();
+    }
+
+    private async Task<bool> ExistsNoCacheAsync(string packageName, CancellationToken cancellationToken = default)
+    {
+        return await AnyAsync(Builders<PackageDbModel>.Filter.Eq(p => p.Name, packageName), cancellationToken);
     }
 }

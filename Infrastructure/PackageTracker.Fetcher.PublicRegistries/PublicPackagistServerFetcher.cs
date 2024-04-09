@@ -12,7 +12,7 @@ internal class PublicPackagistServerFetcher(IOptionsMonitor<FetcherSettings> fet
 {
     public override string RegistryUrl => Constants.PublicRegistryUrls.PACKAGIST_PACKAGE;
 
-    protected override IEnumerable<string> PackagesName(FetcherSettings fetcherSettings) => fetcherSettings.Packages?.Public?.Packagist ?? Array.Empty<string>();
+    protected override IEnumerable<string> PackagesName(FetcherSettings fetcherSettings) => fetcherSettings.Packages?.Public?.Packagist ?? [];
 
     protected override ICollection<PackageVersion> Parse(JsonDocument jsonDocument)
      => PackagistPackageVersions(jsonDocument.RootElement.GetProperty("packages").EnumerateObject().Single().Value);

@@ -1,5 +1,4 @@
-﻿using System;
-namespace PackageTracker.Host.Configuration;
+﻿namespace PackageTracker.Host.Configuration;
 
 internal class PersistenceSettings
 {

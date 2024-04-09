@@ -2,14 +2,13 @@
 
 using MediatR;
 using PackageTracker.Domain.Notifications;
-using PackageTracker.Domain.Notifications.Model;
 using PackageTracker.Messages.Queries;
 
 internal class GetLatestNotificationsQueryHandler(INotificationsRepository notificationsRepository) : IRequestHandler<GetLatestNotificationsQuery, GetLatestNotificationsQueryResponse>
 {
     public async Task<GetLatestNotificationsQueryResponse> Handle(GetLatestNotificationsQuery request, CancellationToken cancellationToken)
     {
-        var notifications = (await notificationsRepository.GetAllAsync(cancellationToken)) ?? Array.Empty<Notification>();
+        var notifications = (await notificationsRepository.GetAllAsync(cancellationToken)) ?? [];
         var pageSize = request.PageSize ?? notifications.Count;
         var skippedItems = request.PageNumber.HasValue && request.PageSize.HasValue ? (request.PageNumber.Value - 1) * request.PageSize.Value : 0;
         return new GetLatestNotificationsQueryResponse

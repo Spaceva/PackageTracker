@@ -1,6 +1,5 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using MongoDB.Driver;
 using PackageTracker.Database.MongoDb.Core;
 using PackageTracker.Database.MongoDb.Model;
 using PackageTracker.Database.MongoDb.Repositories.Base;
@@ -15,6 +14,11 @@ using System.Web;
 namespace PackageTracker.Database.MongoDb.Repositories;
 internal class ApplicationsDbRepository([FromKeyedServices(MemoryCache.Constants.SERVICEKEY)] IPackagesRepository? packagesRepository, [FromKeyedServices(MemoryCache.Constants.SERVICEKEY)] IFrameworkRepository? frameworksRepository, MongoDbContext dbContext, ILogger<ApplicationsDbRepository> logger) : BaseDbRepository<ApplicationDbModel>(dbContext, logger), IApplicationsRepository
 {
+    public async Task<bool> ExistsAsync(string name, ApplicationType applicationType, string repositoryLink, CancellationToken cancellationToken = default)
+    {
+        return await AnyAsync(Filter.Eq(a => a.Name, name) & Filter.Eq(a => a.AppType, applicationType.ToString()) & Filter.Eq(a => a.RepositoryLink, HttpUtility.UrlEncode(repositoryLink)), cancellationToken);
+    }
+
     public async Task DeleteAsync(string name, ApplicationType applicationType, string repositoryLink, CancellationToken cancellationToken = default)
     {
         await DeleteByQueryAsync(Filter.Eq(a => a.Name, name) & Filter.Eq(a => a.AppType, applicationType.ToString()) & Filter.Eq(a => a.RepositoryLink, HttpUtility.UrlEncode(repositoryLink)), cancellationToken);
@@ -32,13 +36,13 @@ internal class ApplicationsDbRepository([FromKeyedServices(MemoryCache.Constants
 
     public async Task<IReadOnlyCollection<Application>> SearchAsync(ApplicationSearchCriteria searchCriteria, int? skip = null, int? take = null, CancellationToken cancellationToken = default)
     {
-        var results = await FindAsync(SearchCriteria(searchCriteria), cancellationToken);
+        var results = await FindAsync(searchCriteria.ToFilterDefinition(), cancellationToken);
 
         IReadOnlyCollection<Application> applications = [.. results.Select(app => app.ToDomain())];
 
         if (packagesRepository is null || frameworksRepository is null)
         {
-            var enricher = new ApplicationNoCacheEnricher(dbContext, searchCriteria.ShowOnlyTracked);
+            var enricher = new ApplicationNoCacheEnricher(DbContext, searchCriteria.ShowOnlyTracked);
             await enricher.EnrichApplicationsAsync(applications, cancellationToken);
         }
         else
@@ -52,7 +56,7 @@ internal class ApplicationsDbRepository([FromKeyedServices(MemoryCache.Constants
 
     public async Task<Application?> TryGetAsync(string name, ApplicationType applicationType, string repositoryLink, CancellationToken cancellationToken = default)
     {
-        var applicationDb = (await GetAsync(Filter.Eq(a => a.Name, name) & Filter.Eq(a => a.AppType, applicationType.ToString()) & Filter.Eq(a => a.RepositoryLink, HttpUtility.UrlEncode(repositoryLink)), cancellationToken));
+        var applicationDb = await GetAsync(Filter.Eq(a => a.Name, name) & Filter.Eq(a => a.AppType, applicationType.ToString()) & Filter.Eq(a => a.RepositoryLink, HttpUtility.UrlEncode(repositoryLink)), cancellationToken);
         if (applicationDb is null)
         {
             return null;
@@ -62,7 +66,7 @@ internal class ApplicationsDbRepository([FromKeyedServices(MemoryCache.Constants
 
         if (packagesRepository is null || frameworksRepository is null)
         {
-            var enricher = new ApplicationNoCacheEnricher(dbContext);
+            var enricher = new ApplicationNoCacheEnricher(DbContext);
             await enricher.EnrichApplicationAsync(application, cancellationToken);
         }
         else
@@ -72,65 +76,5 @@ internal class ApplicationsDbRepository([FromKeyedServices(MemoryCache.Constants
         }
 
         return application;
-    }
-
-    private static FilterDefinition<ApplicationDbModel> SearchCriteria(ApplicationSearchCriteria? searchCriteria)
-    {
-        FilterDefinition<ApplicationDbModel> searchFilterDefinition = FilterDefinition<ApplicationDbModel>.Empty;
-        if (searchCriteria is null)
-        {
-            return searchFilterDefinition;
-        }
-
-        if (searchCriteria.ApplicationTypes is not null && searchCriteria.ApplicationTypes.Count > 0)
-        {
-            searchFilterDefinition &= Filter.In(nameof(ApplicationDbModel.AppType).ToCamelCase(), searchCriteria.ApplicationTypes.Select(a => a.ToString()));
-        }
-
-        if (searchCriteria.RepositoryTypes is not null && searchCriteria.RepositoryTypes.Count > 0)
-        {
-            searchFilterDefinition &= Filter.In(nameof(ApplicationDbModel.RepositoryType).ToCamelCase(), searchCriteria.RepositoryTypes);
-        }
-
-        if (searchCriteria.ApplicationName is not null && searchCriteria.ApplicationName.Length > 0)
-        {
-            searchFilterDefinition &= Filter.Regex(a => a.Name, new MongoDB.Bson.BsonRegularExpression("/" + searchCriteria.ApplicationName + "/"));
-        }
-
-        if (!searchCriteria.ShowSoonDecommissioned)
-        {
-            searchFilterDefinition &= Filter.Where(app => !app.IsSoonDecommissioned);
-        }
-
-        if (!searchCriteria.ShowDeadLink)
-        {
-            searchFilterDefinition &= Filter.Where(app => !app.IsDeadLink);
-        }
-
-        if (searchCriteria.LastCommitAfter.HasValue)
-        {
-            if (searchCriteria.ApplyCommitFilterOnAllBranchs)
-            {
-                searchFilterDefinition &= Filter.Not(Filter.ElemMatch(app => app.Branchs, Builders<ApplicationBranchDbModel>.Filter.Lt(b => b.LastCommit!, searchCriteria.LastCommitAfter)));
-            }
-            else
-            {
-                searchFilterDefinition &= Filter.ElemMatch(app => app.Branchs, Builders<ApplicationBranchDbModel>.Filter.Gte(b => b.LastCommit!, searchCriteria.LastCommitAfter));
-            }
-        }
-
-        if (searchCriteria.LastCommitBefore.HasValue)
-        {
-            if (searchCriteria.ApplyCommitFilterOnAllBranchs)
-            {
-                searchFilterDefinition &= Filter.Not(Filter.ElemMatch(app => app.Branchs, Builders<ApplicationBranchDbModel>.Filter.Gt(b => b.LastCommit!, searchCriteria.LastCommitBefore)));
-            }
-            else
-            {
-                searchFilterDefinition &= Filter.ElemMatch(app => app.Branchs, Builders<ApplicationBranchDbModel>.Filter.Lte(b => b.LastCommit!, searchCriteria.LastCommitBefore));
-            }
-        }
-
-        return searchFilterDefinition;
     }
 }

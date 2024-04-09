@@ -2,7 +2,7 @@
 
 public class GetLatestNotificationsQueryResponse
 {
-    public IReadOnlyCollection<NotificationDto> Notifications { get; init; } = Array.Empty<NotificationDto>();
+    public IReadOnlyCollection<NotificationDto> Notifications { get; init; } = [];
 
     public class NotificationDto
     {

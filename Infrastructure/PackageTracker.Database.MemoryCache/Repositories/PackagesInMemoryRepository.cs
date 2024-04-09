@@ -1,16 +1,20 @@
 ﻿using Microsoft.Extensions.Caching.Memory;
+using PackageTracker.Database.MemoryCache.Cloners;
 using PackageTracker.Domain.Package;
 using PackageTracker.Domain.Package.Exceptions;
 using PackageTracker.Domain.Package.Model;
 
 namespace PackageTracker.Database.MemoryCache.Repositories;
-internal class PackagesInMemoryRepository(IMemoryCache memoryCache) : IPackagesRepository
+internal class PackagesInMemoryRepository(IMemoryCache memoryCache, PackageCloner cloner) : IPackagesRepository
 {
-    public Task AddAsync(Package package, CancellationToken cancellationToken = default)
+    public Task<bool> ExistsAsync(string packageName, CancellationToken cancellationToken = default)
     {
-        memoryCache.Set(Key(package), package);
-        return Task.CompletedTask;
+        var key = Key(packageName);
+        return Task.FromResult(memoryCache.TryGetValue(key, out _));
     }
+
+    public Task AddAsync(Package package, CancellationToken cancellationToken = default)
+     => UpdateAsync(package, cancellationToken);
 
     public Task DeleteByNameAsync(string packageName, CancellationToken cancellationToken = default)
     {
@@ -37,12 +41,12 @@ internal class PackagesInMemoryRepository(IMemoryCache memoryCache) : IPackagesR
     public Task<Package?> TryGetByNameAsync(string packageName, CancellationToken cancellationToken = default)
     {
         memoryCache.TryGetValue(Key(packageName), out Package? package);
-        return Task.FromResult(package);
+        return Task.FromResult(cloner.Clone(package));
     }
 
     public Task UpdateAsync(Package package, CancellationToken cancellationToken = default)
     {
-        memoryCache.Set(Key(package), package);
+        memoryCache.Set(Key(package), cloner.Clone(package));
         return Task.CompletedTask;
     }
 

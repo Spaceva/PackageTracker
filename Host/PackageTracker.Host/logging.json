@@ -6,7 +6,8 @@
       "Override": {
         "Microsoft.Hosting.Lifetime": "Information",
         "Microsoft.AspNetCore": "Warning",
-        "Microsoft.EntityFrameworkCore": "Warning"
+        "Microsoft.EntityFrameworkCore": "Warning",
+        "PackageTracker.Scanner": "Debug"
       }
     },
     "WriteTo:Console": {

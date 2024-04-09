@@ -27,6 +27,7 @@ internal abstract class AzureDevOpsScanner<TApplicationModule>(TrackedApplicatio
         {
             await Parallel.ForEachAsync(repositories, cancellationToken, async (repository, cancellationToken) =>
             {
+                Logger.LogDebug("Scanning {ScannerType} Repository '{RepositoryName}' ...", RepositoryType.AzureDevOps, repository.Name);
                 var application = await ScanRepositoryAsync(repository, cancellationToken);
                 if (application is not null)
                 {

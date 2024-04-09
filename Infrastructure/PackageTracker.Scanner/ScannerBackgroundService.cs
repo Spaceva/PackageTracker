@@ -8,7 +8,7 @@ using PackageTracker.Messages.Events;
 
 namespace PackageTracker.Scanner;
 
-internal class ScannerBackgroundService(IEnumerable<IApplicationsScanner> applicationsScanners, IOptionsMonitor<ScannerSettings> scannerSettings, IMediator mediator, ILogger<ScannerBackgroundService> logger) : RepeatedBackgroundService(logger)
+internal class ScannerBackgroundService(IEnumerable<IApplicationsScanner> applicationsScanners, IOptionsMonitor<ScannerSettings> scannerSettings, IMediator mediator, ILogger<ScannerBackgroundService> logger) : RepeatedBackgroundService(logger, TimeSpan.FromSeconds(5))
 {
     protected override Task CloseServiceAsync()
     {

@@ -4,5 +4,5 @@ namespace PackageTracker.Messages.Queries;
 
 public class GetPackagesQueryResponse
 {
-    public IReadOnlyCollection<Package> Packages { get; init; } = Array.Empty<Package>();
+    public IReadOnlyCollection<Package> Packages { get; init; } = [];
 }

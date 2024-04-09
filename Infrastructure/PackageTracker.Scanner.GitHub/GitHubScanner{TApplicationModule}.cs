@@ -4,20 +4,15 @@ using Octokit;
 using PackageTracker.Domain.Application;
 using PackageTracker.Domain.Application.Model;
 using System.Collections.Concurrent;
-using static PackageTracker.Scanner.ScannerSettings;
 using Application = PackageTracker.Domain.Application.Model.Application;
 
 namespace PackageTracker.Scanner.GitHub;
 
-internal abstract class GitHubScanner<TApplicationModule> : GitHubScanner where TApplicationModule : ApplicationModule
+internal abstract class GitHubScanner<TApplicationModule>(Func<IGitHubClient, string, Task<IReadOnlyList<Repository>>> getRepositoriesDelegate, ScannerSettings.TrackedApplication trackedApplication, IMediator mediator, IEnumerable<IApplicationModuleParser<TApplicationModule>> moduleParsers, ILogger logger)
+    : GitHubScanner(getRepositoriesDelegate, trackedApplication, mediator, logger)
+    where TApplicationModule : ApplicationModule
 {
-    protected GitHubScanner(Func<IGitHubClient, string, Task<IReadOnlyList<Repository>>> getRepositoriesDelegate, TrackedApplication trackedApplication, IMediator mediator, IEnumerable<IApplicationModuleParser<TApplicationModule>> moduleParsers, ILogger logger)
-        : base(getRepositoriesDelegate, trackedApplication, mediator, logger)
-    {
-        ModuleParsers = moduleParsers;
-    }
-
-    private protected IEnumerable<IApplicationModuleParser<TApplicationModule>> ModuleParsers { get; }
+    private protected IEnumerable<IApplicationModuleParser<TApplicationModule>> ModuleParsers => moduleParsers;
 
     public override async Task<IReadOnlyCollection<Application>> ScanRemoteAsync(CancellationToken cancellationToken)
     {
@@ -41,6 +36,7 @@ internal abstract class GitHubScanner<TApplicationModule> : GitHubScanner where 
                 try
                 {
                     await semaphore.WaitAsync(cancellationToken);
+                    Logger.LogDebug("Scanning {ScannerType} Repository '{RepositoryName}' ...", Domain.Application.Model.RepositoryType.GitHub, repository.Name);
                     var application = await ScanRepositoryAsync(repository, cancellationToken);
                     if (application is not null)
                     {
@@ -135,7 +131,7 @@ internal abstract class GitHubScanner<TApplicationModule> : GitHubScanner where 
     private protected async Task<IReadOnlyCollection<Branch>> FindAllLongTermBranchs(long repositoryId)
     {
         var branches = await GitHubClient.Repository.Branch.GetAll(repositoryId);
-        var branchsNames = branches.Select(b => b.Name).Intersect(Scanner.Constants.Git.ValidBranches);
+        var branchsNames = branches.Select(b => b.Name).Intersect(Constants.Git.ValidBranches);
         return branches.Where(b => branchsNames.Contains(b.Name)).ToArray();
     }
 

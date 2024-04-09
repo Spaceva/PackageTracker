@@ -7,27 +7,30 @@ internal class ApplicationModuleValueConverter : ValueConverter<ApplicationModul
     private static readonly ApplicationPackageValueConverter applicationPackageValueConverter = new();
     private static ApplicationModuleModel ToModel(ApplicationModule entity)
     {
-        ApplicationType? applicationType = null;
-        var mainFrameworkVersion = "N/A";
-            mainFrameworkVersion = entity.FrameworkVersion;
-        if (entity is AngularModule angularModule)
+        ApplicationType applicationType;
+        if (entity is AngularModule)
         {
             applicationType = ApplicationType.Angular;
         }
-        else if (entity is DotNetAssembly dotNetAssembly)
+        else if (entity is DotNetAssembly)
         {
             applicationType = ApplicationType.DotNet;
         }
-        else if (entity is PhpModule phpModule)
+        else if (entity is PhpModule)
         {
             applicationType = ApplicationType.Php;
         }
+        else
+        {
+            throw new ArgumentOutOfRangeException(nameof(entity), "Unknown type");
+        }
+        
         return new ApplicationModuleModel
         {
-            ModuleType = applicationType ?? throw new ArgumentOutOfRangeException(nameof(entity)),
+            ModuleType = applicationType,
             Name = entity.Name,
             Packages = entity.Packages.Select(x => (ApplicationPackageModel)applicationPackageValueConverter.ConvertToProvider(x)!).ToList(),
-            FrameworkVersion = mainFrameworkVersion,
+            FrameworkVersion = entity.FrameworkVersion,
         };
     }
 

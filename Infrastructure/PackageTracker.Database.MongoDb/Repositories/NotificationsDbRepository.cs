@@ -39,6 +39,6 @@ internal class NotificationsDbRepository(MongoDbContext dbContext, ILogger<Notif
 
     public async Task SaveAsync(Notification notification, CancellationToken cancellationToken = default)
     {
-        await base.UpdateAsync(Filter.Eq(n => n.NotificationId, notification.Id), new NotificationDbModel(notification), cancellationToken);
+        await UpdateAsync(Filter.Eq(n => n.NotificationId, notification.Id), new NotificationDbModel(notification), cancellationToken);
     }
 }

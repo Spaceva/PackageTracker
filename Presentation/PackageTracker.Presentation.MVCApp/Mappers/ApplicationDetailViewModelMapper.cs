@@ -43,6 +43,7 @@ internal static class ApplicationDetailViewModelMapper
                 packageType = PackageType.Packagist;
                 mainFrameworkVersion = $"PHP {phpModule.FrameworkVersion}";
             }
+
             var mainFrameworkStatus = module.Framework?.Status.ToString() ?? "Unknown";
             if (module.Packages.Count == 0)
             {

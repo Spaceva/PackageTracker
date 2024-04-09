@@ -1,5 +1,6 @@
 ﻿using MediatR;
 using PackageTracker.Domain.Framework;
+using PackageTracker.Domain.Framework.Exceptions;
 using PackageTracker.Messages.Commands;
 using PackageTracker.Messages.Events;
 
@@ -9,6 +10,11 @@ internal class DeleteFrameworkCommandHandler(IMediator mediator, IFrameworkRepos
 {
     public async Task Handle(DeleteFrameworkCommand request, CancellationToken cancellationToken)
     {
+        if (!await frameworkRepository.ExistsAsync(request.Name, request.Version, cancellationToken))
+        {
+            throw new FrameworkNotFoundException();
+        }
+
         await frameworkRepository.DeleteByVersionAsync(request.Name, request.Version, cancellationToken);
 
         var notification = new FrameworkDeletedEvent() { Name = request.Name, Version = request.Version };

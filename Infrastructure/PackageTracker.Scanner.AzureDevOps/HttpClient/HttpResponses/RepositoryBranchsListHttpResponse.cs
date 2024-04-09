@@ -6,5 +6,5 @@ internal class RepositoryBranchsListHttpResponse
 {
     public int Count { get; init; }
 
-    public IReadOnlyCollection<RepositoryBranch> Value { get; init; } = Array.Empty<RepositoryBranch>();
+    public IReadOnlyCollection<RepositoryBranch> Value { get; init; } = [];
 }

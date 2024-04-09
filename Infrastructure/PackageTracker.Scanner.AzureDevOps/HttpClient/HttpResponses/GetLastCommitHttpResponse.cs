@@ -3,7 +3,7 @@ internal class GetLastCommitHttpResponse
 {
     public int? Count { get; init; }
 
-    public IReadOnlyCollection<Commit> Value { get; init; } = Array.Empty<Commit>();
+    public IReadOnlyCollection<Commit> Value { get; init; } = [];
 
     public DateTime? LastCommitDate => Value.FirstOrDefault()?.Committer?.Date;
 

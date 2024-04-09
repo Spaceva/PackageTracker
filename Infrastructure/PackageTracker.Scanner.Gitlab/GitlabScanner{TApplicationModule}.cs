@@ -9,20 +9,15 @@ using PackageTracker.Domain.Application.Model;
 using System.Collections.Concurrent;
 using System.Globalization;
 using System.Net.Http.Json;
-using static PackageTracker.Scanner.ScannerSettings;
 using File = GitLabApiClient.Models.Files.Responses.File;
 
 namespace PackageTracker.Scanner.Gitlab;
 
-internal abstract class GitlabScanner<TApplicationModule> : GitlabScanner where TApplicationModule : ApplicationModule
+internal abstract class GitlabScanner<TApplicationModule>(ScannerSettings.TrackedApplication trackedApplication, IMediator mediator, IEnumerable<IApplicationModuleParser<TApplicationModule>> moduleParsers, ILogger logger)
+    : GitlabScanner(trackedApplication, mediator, logger)
+    where TApplicationModule : ApplicationModule
 {
-    protected GitlabScanner(TrackedApplication trackedApplication, IMediator mediator, IEnumerable<IApplicationModuleParser<TApplicationModule>> moduleParsers, ILogger logger)
-        : base(trackedApplication, mediator, logger)
-    {
-        ModuleParsers = moduleParsers;
-    }
-
-    private protected IEnumerable<IApplicationModuleParser<TApplicationModule>> ModuleParsers { get; }
+    private protected IEnumerable<IApplicationModuleParser<TApplicationModule>> ModuleParsers => moduleParsers;
 
     public override async Task<IReadOnlyCollection<Application>> ScanRemoteAsync(CancellationToken cancellationToken)
     {
@@ -40,22 +35,28 @@ internal abstract class GitlabScanner<TApplicationModule> : GitlabScanner where 
         using var semaphore = new SemaphoreSlim(MaximumConcurrencyCalls, MaximumConcurrencyCalls);
         try
         {
-            await Parallel.ForEachAsync(projects.Where<Project>(p => !p.Archived), cancellationToken, (Func<Project, CancellationToken, ValueTask>)(async (project, cancellationToken) =>
+            await Parallel.ForEachAsync(projects.Where<Project>(p => !p.Archived), cancellationToken, async (project, cancellationToken) =>
             {
                 try
                 {
                     await semaphore.WaitAsync(cancellationToken);
+                    Logger.LogDebug("Scanning {ScannerType} Repository '{RepositoryName}' ...", RepositoryType.Gitlab, project.Name);
                     var application = await ScanProjectAsync(project, cancellationToken);
                     if (application is not null)
                     {
                         applications.Add(application);
                     }
                 }
+                catch (Exception ex)
+                {
+                    Logger.LogDebug("Scan failed for {ScannerType} Repository '{RepositoryName}' : {ExceptionMessage}", RepositoryType.Gitlab, project.Name, ex.Message);
+                    throw;
+                }
                 finally
                 {
                     semaphore.Release();
                 }
-            }));
+            });
         }
         catch (TaskCanceledException)
         {
@@ -150,7 +151,7 @@ internal abstract class GitlabScanner<TApplicationModule> : GitlabScanner where 
     private protected async Task<IReadOnlyCollection<Branch>> FindAllLongTermBranchs(int projectId)
     {
         var branches = await GitLabClient.Branches.GetAsync(projectId, o => { });
-        var branchsNames = branches.Select(b => b.Name).Intersect(Scanner.Constants.Git.ValidBranches);
+        var branchsNames = branches.Select(b => b.Name).Intersect(Constants.Git.ValidBranches);
         return branches.Where(b => branchsNames.Contains(b.Name)).ToArray();
     }
 
@@ -159,7 +160,7 @@ internal abstract class GitlabScanner<TApplicationModule> : GitlabScanner where 
         var moduleFiles = await FindModuleFiles(project.Id, branchName);
         if (moduleFiles.Count == 0)
         {
-            return Array.Empty<TApplicationModule>();
+            return [];
         }
 
         var modules = new List<TApplicationModule>();

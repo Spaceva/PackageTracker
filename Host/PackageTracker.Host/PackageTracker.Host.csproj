@@ -57,6 +57,7 @@
 		<ProjectReference Include="..\..\Infrastructure\PackageTracker.Scanner.GitHub\PackageTracker.Scanner.GitHub.csproj" />
 		<ProjectReference Include="..\..\Infrastructure\PackageTracker.Scanner.Gitlab\PackageTracker.Scanner.Gitlab.csproj" />
 		<ProjectReference Include="..\..\Infrastructure\PackageTracker.Scanner\PackageTracker.Scanner.csproj" />
+		<ProjectReference Include="..\..\Presentation\PackageTracker.Presentation.ExceptionHandlers\PackageTracker.Presentation.ExceptionHandlers.csproj" />
 		<ProjectReference Include="..\..\Presentation\PackageTracker.Presentation.MVCApp\PackageTracker.Presentation.MVCApp.csproj" />
 		<ProjectReference Include="..\..\Presentation\PackageTracker.Presentation.WebApi\PackageTracker.Presentation.WebApi.csproj" />
 	</ItemGroup>

@@ -1,5 +1,6 @@
 ﻿using MediatR;
 using PackageTracker.Domain.Application;
+using PackageTracker.Domain.Application.Exceptions;
 using PackageTracker.Messages.Commands;
 using PackageTracker.Messages.Events;
 
@@ -9,6 +10,11 @@ internal class DeleteApplicationCommandHandler(IMediator mediator, IApplications
 {
     public async Task Handle(DeleteApplicationCommand request, CancellationToken cancellationToken)
     {
+        if (!await applicationsRepository.ExistsAsync(request.Name, request.Type, request.RepositoryLink, cancellationToken))
+        {
+            throw new ApplicationNotFoundException();
+        }
+
         await applicationsRepository.DeleteAsync(request.Name, request.Type, request.RepositoryLink, cancellationToken);
 
         var notification = ApplicationDeletedEvent(request);

@@ -6,5 +6,5 @@ internal class MainIndexFile
 {
 
     [JsonPropertyName("releases-index")]
-    public IReadOnlyCollection<MainReleasesIndex> ReleasesIndex { get; init; } = Array.Empty<MainReleasesIndex>();
+    public IReadOnlyCollection<MainReleasesIndex> ReleasesIndex { get; init; } = [];
 }

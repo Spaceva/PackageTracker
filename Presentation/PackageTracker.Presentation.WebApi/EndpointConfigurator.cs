@@ -12,6 +12,7 @@ public static class EndpointConfigurator
     {
         route.RequireRateLimiting(new ApiRateLimiter());
         route.CacheOutput(opt => opt.Expire(TimeSpan.FromSeconds(30)));
+        route.WithRequestTimeout(TimeSpan.FromSeconds(30));
 
         route.MapGroup("/packages").MapPackagesApiEndpoints().WithTags("Packages");
         route.MapGroup("/frameworks").MapFrameworksApiEndpoints().WithTags("Frameworks");

@@ -5,6 +5,8 @@ using PackageTracker.Domain.Framework.Model;
 
 public interface IFrameworkRepository
 {
+    Task<bool> ExistsAsync(string name, string version, CancellationToken cancellationToken = default);
+
     Task<Framework> GetByVersionAsync(string name, string version, CancellationToken cancellationToken = default);
 
     Task<Framework?> TryGetByVersionAsync(string name, string version, CancellationToken cancellationToken = default);

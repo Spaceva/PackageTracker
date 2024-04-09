@@ -4,6 +4,6 @@ public static partial class Constants
 {
     public static class Git
     {
-        public static IEnumerable<string> ValidBranches => new[] { "master", "main" };
+        public static IEnumerable<string> ValidBranches => ["master", "main"];
     }
 }

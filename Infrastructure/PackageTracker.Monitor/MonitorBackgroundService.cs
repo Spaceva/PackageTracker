@@ -8,7 +8,7 @@ using PackageTracker.Messages.Events;
 
 namespace PackageTracker.Monitor;
 
-internal class MonitorBackgroundService(IEnumerable<IFrameworkMonitor> frameworkMonitors, IOptionsMonitor<MonitorSettings> monitorSettings, IMediator mediator, ILogger<MonitorBackgroundService> logger) : RepeatedBackgroundService(logger)
+internal class MonitorBackgroundService(IEnumerable<IFrameworkMonitor> frameworkMonitors, IOptionsMonitor<MonitorSettings> monitorSettings, IMediator mediator, ILogger<MonitorBackgroundService> logger) : RepeatedBackgroundService(logger, TimeSpan.FromSeconds(1))
 {
     protected override Task CloseServiceAsync()
     {

@@ -9,9 +9,11 @@ internal abstract class BaseDbRepository<TMongoEntity>(MongoDbContext dbContext,
 {
     protected static readonly FilterDefinitionBuilder<TMongoEntity> Filter = Builders<TMongoEntity>.Filter;
 
-    protected readonly IMongoCollection<TMongoEntity> Collection = dbContext.GetCollection<TMongoEntity>();
+    protected IMongoCollection<TMongoEntity> Collection => dbContext.GetCollection<TMongoEntity>();
 
-    protected readonly ILogger Logger = logger;
+    protected ILogger Logger => logger;
+
+    protected MongoDbContext DbContext => dbContext;
 
     public async Task<long> CountAsync(FilterDefinition<TMongoEntity>? predicate, CancellationToken cancellationToken)
     {
@@ -53,5 +55,12 @@ internal abstract class BaseDbRepository<TMongoEntity>(MongoDbContext dbContext,
         var cursor = await Collection.AggregateAsync(pipeline, cancellationToken: cancellationToken);
 
         return await cursor.ToListAsync(cancellationToken);
+    }
+
+    public async Task<bool> AnyAsync(FilterDefinition<TMongoEntity> predicate, CancellationToken cancellationToken = default)
+    {
+        var count = await Collection.CountDocumentsAsync(predicate, new CountOptions { Limit = 1 }, cancellationToken);
+
+        return count > 0;
     }
 }

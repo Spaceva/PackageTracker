@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc.ApiExplorer;
 using PackageTracker.Domain.Framework.Model;
 using PackageTracker.Presentation.WebApi.DTOs.Framework;
 using PackageTracker.Presentation.WebApi.Mappers.MapperActions;
+using System.Web;
 
 namespace PackageTracker.Presentation.WebApi.Mappers;
 
@@ -14,12 +15,14 @@ internal class FrameworkLinkMapperAction(IApiDescriptionGroupCollectionProvider 
         var allEndpoint = FindEndpoint(FrameworksApiEndpoints.GetAllEndpointName);
         var allActiveEndpoint = FindEndpoint(FrameworksApiEndpoints.GetAllActiveEndpointName);
         var nameEndpoint = FindEndpoint(FrameworksApiEndpoints.GetByNameEndpointName);
+        var deleteEndpoint = FindEndpoint(FrameworksApiEndpoints.DeleteEndpointName);
 
         destination.Links = [
             Link(searchEndpoint, "search"),
             Link(allEndpoint, "collection"),
             Link(allActiveEndpoint, "collection/active"),
-            ParameteredLink(source, nameEndpoint, "self", s => s.Name)
+            ParameteredLink(source, nameEndpoint, "self", s => HttpUtility.UrlEncode(s.Name)),
+            Link(deleteEndpoint, "delete"),
         ];
     }
 }

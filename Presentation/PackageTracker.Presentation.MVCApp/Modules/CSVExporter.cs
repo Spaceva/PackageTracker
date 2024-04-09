@@ -5,7 +5,7 @@ using System.Text;
 
 namespace PackageTracker.Presentation.MVCApp.Modules;
 
-public class CsvExporter
+public static class CsvExporter
 {
     private static readonly FrozenSet<PropertyInfo> baseApplicationsHeader = typeof(ApplicationDetailViewModel).GetProperties().Where(p => !p.Name.Equals(nameof(ApplicationDetailViewModel.Packages))).ToFrozenSet();
     private static readonly FrozenSet<PropertyInfo> packageApplicationsHeader = typeof(ApplicationDetailViewModel.ApplicationPackage).GetProperties().ToFrozenSet();

@@ -6,5 +6,4 @@ public class TrackPackageViewModel
 {
     public required string PackageName { get; init; }
     public required PackageType PackageType { get; init; }
-
 }

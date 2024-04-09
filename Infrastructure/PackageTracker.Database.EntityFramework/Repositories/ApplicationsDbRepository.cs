@@ -12,6 +12,13 @@ using PackageTracker.Infrastructure;
 namespace PackageTracker.Database.EntityFramework;
 internal class ApplicationsDbRepository([FromKeyedServices(MemoryCache.Constants.SERVICEKEY)] IPackagesRepository? packagesRepository, [FromKeyedServices(MemoryCache.Constants.SERVICEKEY)] IFrameworkRepository? frameworksRepository, IServiceScopeFactory serviceScopeFactory) : IApplicationsRepository
 {
+    public async Task<bool> ExistsAsync(string name, ApplicationType applicationType, string repositoryLink, CancellationToken cancellationToken = default)
+    {
+        using var scope = serviceScopeFactory.CreateScope();
+        using var dbContext = scope.ServiceProvider.GetRequiredService<PackageTrackerDbContext>();
+        return await dbContext.Applications.AnyAsync(a => a.Name.Equals($"{name} ({applicationType})") && a.RepositoryLink.Equals(repositoryLink), cancellationToken);
+    }
+
     public async Task SaveAsync(Application application, CancellationToken cancellationToken = default)
     {
         using var scope = serviceScopeFactory.CreateScope();

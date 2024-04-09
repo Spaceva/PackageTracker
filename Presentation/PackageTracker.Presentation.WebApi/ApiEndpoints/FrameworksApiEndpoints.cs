@@ -6,9 +6,11 @@ using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Routing;
 using PackageTracker.Domain.Framework;
 using PackageTracker.Domain.Framework.Model;
+using PackageTracker.Messages.Commands;
 using PackageTracker.Messages.Queries;
 using PackageTracker.Presentation.WebApi.DTOs.Framework;
 using PackageTracker.Presentation.WebApi.Mappers;
+using System.Web;
 
 namespace PackageTracker.Presentation.WebApi;
 
@@ -17,14 +19,16 @@ internal static class FrameworksApiEndpoints
     public const string GetAllEndpointName = "Get All Frameworks";
     public const string GetAllActiveEndpointName = "Get All Active Frameworks";
     public const string GetByNameEndpointName = "Get Framework by Name";
+    public const string DeleteEndpointName = "Delete Framework";
     public const string SearchEndpointName = "Search Frameworks";
-    
+
     public static IEndpointConventionBuilder MapFrameworksApiEndpoints(this RouteGroupBuilder route)
     {
         route.MapGet("/", GetAll).WithDisplayName(GetAllEndpointName);
         route.MapGet("/active", GetAllActive).WithDisplayName(GetAllActiveEndpointName);
         route.MapGet("/{name}", GetByName).WithDisplayName(GetByNameEndpointName);
         route.MapPost("/search", Search).WithDisplayName(SearchEndpointName);
+        route.MapPost("/delete", Delete).WithDisplayName(DeleteEndpointName);
         return route;
     }
 
@@ -44,7 +48,7 @@ internal static class FrameworksApiEndpoints
 
     private static async Task<Ok<IReadOnlyCollection<FrameworkDto>>> GetByName(string name, IMediator mediator, IMapper mapper, CancellationToken cancellationToken)
     {
-        var queryResponse = await mediator.Send(new GetFrameworksQuery { SearchCriteria = new FrameworkSearchCriteria() { Name = name } }, cancellationToken);
+        var queryResponse = await mediator.Send(new GetFrameworksQuery { SearchCriteria = new FrameworkSearchCriteria() { Name = HttpUtility.UrlDecode(name) } }, cancellationToken);
         return TypedResults.Ok(mapper.MapCollection<Framework, FrameworkDto>(queryResponse.Frameworks));
     }
 
@@ -52,5 +56,11 @@ internal static class FrameworksApiEndpoints
     {
         var queryResponse = await mediator.Send(new GetFrameworksQuery { SearchCriteria = new FrameworkSearchCriteria { Status = [FrameworkStatus.Active, FrameworkStatus.LongTermSupport] } }, cancellationToken);
         return TypedResults.Ok(mapper.MapCollection<Framework, FrameworkDto>(queryResponse.Frameworks));
+    }
+
+    private static async Task<Ok> Delete(DeleteFrameworkCommand deleteFrameworkCommand, IMediator mediator, CancellationToken cancellationToken)
+    {
+        await mediator.Send(deleteFrameworkCommand, cancellationToken);
+        return TypedResults.Ok();
     }
 }

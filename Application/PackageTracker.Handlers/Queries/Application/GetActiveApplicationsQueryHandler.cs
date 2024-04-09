@@ -10,7 +10,7 @@ internal class GetActiveApplicationsQueryHandler(IApplicationsRepository applica
     {
         var applications = await applicationsRepository.SearchAsync(new ApplicationSearchCriteria
         {
-            ApplicationTypes = new[] { request.ApplicationType },
+            ApplicationTypes = [request.ApplicationType],
             ApplicationName = request.ApplicationName,
             LastCommitAfter = DateTime.UtcNow.AddMonths(-9),
         }, cancellationToken: cancellationToken);

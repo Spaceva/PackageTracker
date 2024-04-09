@@ -9,7 +9,7 @@ public class ChannelDetail
     public string ChannelVersion { get; init; } = default!;
 
     [JsonPropertyName("releases")]
-    public IReadOnlyCollection<Release> Releases { get; init; } = Array.Empty<Release>();
+    public IReadOnlyCollection<Release> Releases { get; init; } = [];
 
     public class Release
     {

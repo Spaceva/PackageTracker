@@ -68,7 +68,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PackageTracker.Scanner.GitH
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PackageTracker.Database.MongoDb", "Infrastructure\PackageTracker.Database.MongoDb\PackageTracker.Database.MongoDb.csproj", "{ECA64174-78FC-46A6-98D2-E390AECEA165}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PackageTracker.Database.MemoryCache", "Infrastructure\PackageTracker.Database.MemoryCache\PackageTracker.Database.MemoryCache.csproj", "{4A2D2EF2-832F-46AB-8CE2-53123B18E8D3}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PackageTracker.Database.MemoryCache", "Infrastructure\PackageTracker.Database.MemoryCache\PackageTracker.Database.MemoryCache.csproj", "{4A2D2EF2-832F-46AB-8CE2-53123B18E8D3}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PackageTracker.Presentation.ExceptionHandlers", "Presentation\PackageTracker.Presentation.ExceptionHandlers\PackageTracker.Presentation.ExceptionHandlers.csproj", "{D01A293B-A65C-4873-894E-BB966E1B2131}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -160,6 +162,10 @@ Global
 		{4A2D2EF2-832F-46AB-8CE2-53123B18E8D3}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{4A2D2EF2-832F-46AB-8CE2-53123B18E8D3}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{4A2D2EF2-832F-46AB-8CE2-53123B18E8D3}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D01A293B-A65C-4873-894E-BB966E1B2131}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D01A293B-A65C-4873-894E-BB966E1B2131}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D01A293B-A65C-4873-894E-BB966E1B2131}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D01A293B-A65C-4873-894E-BB966E1B2131}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -191,6 +197,7 @@ Global
 		{1975885E-CACE-4C4B-8BCA-E5689BF163FA} = {A3FDB388-D6A6-4B2B-98D8-82177EF5E163}
 		{ECA64174-78FC-46A6-98D2-E390AECEA165} = {E0EDD194-1949-4936-BA97-075826BD9B9E}
 		{4A2D2EF2-832F-46AB-8CE2-53123B18E8D3} = {E0EDD194-1949-4936-BA97-075826BD9B9E}
+		{D01A293B-A65C-4873-894E-BB966E1B2131} = {FBC0DE73-D2EB-4020-9734-D18B2FD7A9A5}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {88515F1C-4F05-443B-A5A5-6F0DED2BF9AB}

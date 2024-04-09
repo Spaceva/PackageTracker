@@ -56,6 +56,6 @@ public static class ServiceCollectionExtensions
             var trackedApplication = settings.Value.Applications.SingleOrDefault(s => s.ScannerName.Equals(trackerName, StringComparison.OrdinalIgnoreCase))
             ?? throw new ArgumentException("Unknown ScannerName.");
             var parsers = sp.GetServices<IApplicationModuleParser<PhpModule>>();
-            return new PHPGitHubScanner(getRepositoriesDelegate, trackedApplication, mediator, parsers, loggerFactory.CreateLogger<PHPGitHubScanner>());
+            return new PhpGitHubScanner(getRepositoriesDelegate, trackedApplication, mediator, parsers, loggerFactory.CreateLogger<PhpGitHubScanner>());
         });
 }

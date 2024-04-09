@@ -4,38 +4,27 @@ using PackageTracker.Domain.Application.Model;
 using System.Web;
 
 namespace PackageTracker.Database.MongoDb.Model;
-internal class ApplicationDbModel(ApplicationType type) : IMongoEntity
+internal class ApplicationDbModel(Application application) : IMongoEntity
 {
-    public ApplicationDbModel(Application application) : this(application.Type)
-    {
-        Name = application.Name;
-        Path = application.Path;
-        RepositoryLink = HttpUtility.UrlEncode(application.RepositoryLink);
-        RepositoryType = application.RepositoryType;
-        IsSoonDecommissioned = application.IsSoonDecommissioned;
-        IsDeadLink = application.IsDeadLink;
-        Branchs = [.. application.Branchs.Select(b => new ApplicationBranchDbModel(b))];
-    }
-
     public ObjectId? Id { get; set; }
 
-    public string AppType { get; set; } = type.ToString();
+    public string AppType { get; set; } = application.Type.ToString();
 
-    public string Name { get; set; } = default!;
+    public string Name { get; set; } = application.Name;
 
-    public string Path { get; set; } = default!;
+    public string Path { get; set; } = application.Path;
 
-    public string RepositoryLink { get; set; } = default!;
+    public string RepositoryLink { get; set; } = HttpUtility.UrlEncode(application.RepositoryLink);
 
-    public ICollection<ApplicationBranchDbModel> Branchs { get; set; } = [];
+    public ICollection<ApplicationBranchDbModel> Branchs { get; set; } = [.. application.Branchs.Select(b => new ApplicationBranchDbModel(b))];
 
-    public ApplicationType Type => type;
+    public ApplicationType Type => Enum.Parse<ApplicationType>(AppType);
 
-    public RepositoryType RepositoryType { get; set; }
+    public RepositoryType RepositoryType { get; set; } = application.RepositoryType;
 
-    public bool IsSoonDecommissioned { get; set; }
+    public bool IsSoonDecommissioned { get; set; } = application.IsSoonDecommissioned;
 
-    public bool IsDeadLink { get; set; }
+    public bool IsDeadLink { get; set; } = application.IsDeadLink;
 
     public Application ToDomain()
     {
@@ -45,18 +34,18 @@ internal class ApplicationDbModel(ApplicationType type) : IMongoEntity
             ApplicationType.Angular => typeof(AngularApplication),
             ApplicationType.DotNet => typeof(DotNetApplication),
             ApplicationType.Php => typeof(PhpApplication),
-            _ => throw new ArgumentOutOfRangeException(nameof(Type))
+            _ => throw new ArgumentOutOfRangeException("Application Type")
         };
 
-        Application application = (Application)Activator.CreateInstance(applicationType)!;
-        application.IsDeadLink = IsDeadLink;
-        application.IsSoonDecommissioned = IsSoonDecommissioned;
-        application.Name = Name;
-        application.Path = Path;
-        application.RepositoryLink = HttpUtility.UrlDecode(RepositoryLink);
-        application.RepositoryType = RepositoryType;
-        application.Branchs = [.. Branchs.Select(b => b.ToDomain(appType))];
+        Application domainApplication = (Application)Activator.CreateInstance(applicationType)!;
+        domainApplication.IsDeadLink = IsDeadLink;
+        domainApplication.IsSoonDecommissioned = IsSoonDecommissioned;
+        domainApplication.Name = Name;
+        domainApplication.Path = Path;
+        domainApplication.RepositoryLink = HttpUtility.UrlDecode(RepositoryLink);
+        domainApplication.RepositoryType = RepositoryType;
+        domainApplication.Branchs = [.. Branchs.Select(b => b.ToDomain(appType))];
 
-        return application;
+        return domainApplication;
     }
 }

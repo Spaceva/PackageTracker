@@ -17,7 +17,7 @@ public class ApplicationDetailViewModel
 
     public bool ApplicationIsSoonDecommissioned { get; init; }
 
-    public IReadOnlyCollection<ApplicationPackage> Packages { get; init; } = Array.Empty<ApplicationPackage>();
+    public IReadOnlyCollection<ApplicationPackage> Packages { get; init; } = [];
 
     public class ApplicationPackage
     {

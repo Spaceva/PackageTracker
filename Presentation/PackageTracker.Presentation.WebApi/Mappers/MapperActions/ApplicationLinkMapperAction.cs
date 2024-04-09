@@ -11,9 +11,17 @@ internal class ApplicationLinkMapperAction(IApiDescriptionGroupCollectionProvide
     public void Process(Application source, ApplicationDto destination, ResolutionContext context)
     {
         var searchEndpoint = FindEndpoint(ApplicationsApiEndpoints.SearchEndpointName);
+        var deleteEndpoint = FindEndpoint(ApplicationsApiEndpoints.DeleteEndpointName);
+        var decommissionEndpoint = FindEndpoint(ApplicationsApiEndpoints.DecomissionEndpointName);
+        var cancelDecommissionEndpoint = FindEndpoint(ApplicationsApiEndpoints.CancelDecommissionEndpointName);
+        var unmarkDeadLinkEndpointName = FindEndpoint(ApplicationsApiEndpoints.UnmarkDeadLinkEndpointName);
 
         destination.Links = [
             Link(searchEndpoint, "search"),
+            Link(deleteEndpoint, "delete"),
+            Link(decommissionEndpoint, "decommission"),
+            Link(cancelDecommissionEndpoint, "cancelDecommission"),
+            Link(unmarkDeadLinkEndpointName, "unmarkDeadLink"),
         ];
     }
 }

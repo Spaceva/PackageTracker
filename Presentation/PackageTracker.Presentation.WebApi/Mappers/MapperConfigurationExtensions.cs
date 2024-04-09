@@ -25,7 +25,8 @@ internal static class MapperConfigurationExtensions
             .AfterMap<PackageLinkMapperAction>();
         mapperConfiguration.CreateMap<Package, PackageWithVersionsDto>()
             .AfterMap<PackageLinkMapperAction>();
-        mapperConfiguration.CreateMap<PackageVersion, PackageVersionDto>();
+        mapperConfiguration.CreateMap<PackageVersion, PackageVersionDto>()
+            .ForMember(dto => dto.Value, src => src.MapFrom(d => d.ToString()));
 
         return mapperConfiguration;
     }

@@ -4,6 +4,8 @@ using PackageTracker.Domain.Package.Model;
 
 public interface IPackagesRepository
 {
+    Task<bool> ExistsAsync(string packageName, CancellationToken cancellationToken = default);
+
     Task<Package> GetByNameAsync(string packageName, CancellationToken cancellationToken = default);
 
     Task<Package?> TryGetByNameAsync(string packageName, CancellationToken cancellationToken = default);

@@ -13,7 +13,7 @@ internal class PublicNpmServerFetcher(IOptionsMonitor<FetcherSettings> fetcherSe
 {
     public override string RegistryUrl => Constants.PublicRegistryUrls.NPM_PACKAGE;
 
-    protected override IEnumerable<string> PackagesName(FetcherSettings fetcherSettings) => fetcherSettings.Packages?.Public?.Npm ?? Array.Empty<string>();
+    protected override IEnumerable<string> PackagesName(FetcherSettings fetcherSettings) => fetcherSettings.Packages?.Public?.Npm ?? [];
 
     protected override ICollection<PackageVersion> Parse(JsonDocument jsonDocument)
      => NpmPackageVersions(jsonDocument.RootElement.GetProperty("time"));

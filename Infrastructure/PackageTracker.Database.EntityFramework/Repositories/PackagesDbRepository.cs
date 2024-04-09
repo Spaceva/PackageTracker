@@ -8,11 +8,21 @@ using PackageTracker.Infrastructure;
 namespace PackageTracker.Database.EntityFramework;
 internal class PackagesDbRepository([FromKeyedServices(MemoryCache.Constants.SERVICEKEY)] IPackagesRepository? cacheRepository, IServiceScopeFactory serviceScopeFactory) : IPackagesRepository
 {
+    public async Task<bool> ExistsAsync(string packageName, CancellationToken cancellationToken = default)
+    {
+        if (cacheRepository is null)
+        {
+            return await ExistsNoCacheAsync(packageName, cancellationToken);
+        }
+
+        return await cacheRepository.ExistsAsync(packageName, cancellationToken) || await ExistsNoCacheAsync(packageName, cancellationToken);
+    }
+
     public async Task AddAsync(Package package, CancellationToken cancellationToken = default)
     {
         using var scope = serviceScopeFactory.CreateScope();
         using var dbContext = scope.ServiceProvider.GetRequiredService<PackageTrackerDbContext>();
-        var packageFromDb = await TryGetByNameAsync(package.Name, dbContext, cancellationToken);
+        var packageFromDb = await dbContext.Packages.FindAsync([package.Name], cancellationToken);
         if (packageFromDb is not null)
         {
             throw new PackageAlreadyExistsException();
@@ -20,6 +30,11 @@ internal class PackagesDbRepository([FromKeyedServices(MemoryCache.Constants.SER
 
         dbContext.Packages.Add(package);
         dbContext.SaveChanges();
+
+        if (cacheRepository is not null)
+        {
+            await cacheRepository.AddAsync(package, cancellationToken);
+        }
     }
 
     public async Task<IReadOnlyCollection<Package>> GetAllAsync(string? name = null, IReadOnlyCollection<PackageType>? packageTypes = null, CancellationToken cancellationToken = default)
@@ -43,53 +58,78 @@ internal class PackagesDbRepository([FromKeyedServices(MemoryCache.Constants.SER
 
     public async Task<Package> GetByNameAsync(string packageName, CancellationToken cancellationToken = default)
     {
-        using var scope = serviceScopeFactory.CreateScope();
-        using var dbContext = scope.ServiceProvider.GetRequiredService<PackageTrackerDbContext>();
-        return await GetByNameAsync(packageName, dbContext, cancellationToken);
+        return await TryGetByNameAsync(packageName, cancellationToken) ?? throw new PackageNotFoundException();
     }
 
     public async Task<PackageVersion> GetVersionAsync(string packageName, string versionLabel, CancellationToken cancellationToken = default)
     {
-        using var scope = serviceScopeFactory.CreateScope();
-        using var dbContext = scope.ServiceProvider.GetRequiredService<PackageTrackerDbContext>();
-        var package = await GetByNameAsync(packageName, dbContext, cancellationToken);
+        var package = await GetByNameAsync(packageName, cancellationToken);
         return package.Versions.FirstOrDefault(v => v.Equals(versionLabel)) ?? throw new PackageVersionNotFoundException();
     }
 
     public async Task<Package?> TryGetByNameAsync(string packageName, CancellationToken cancellationToken = default)
     {
-        using var scope = serviceScopeFactory.CreateScope();
-        using var dbContext = scope.ServiceProvider.GetRequiredService<PackageTrackerDbContext>();
-        return await TryGetByNameAsync(packageName, dbContext, cancellationToken);
+        if (cacheRepository is null)
+        {
+            return await TryGetByNameNoCacheAsync(packageName, cancellationToken);
+        }
+
+        var cachedPackaged = await cacheRepository.TryGetByNameAsync(packageName, cancellationToken);
+        if (cachedPackaged is not null)
+        {
+            return cachedPackaged;
+        }
+
+        var package = await TryGetByNameNoCacheAsync(packageName, cancellationToken);
+        if (package is not null)
+        {
+            await cacheRepository.AddAsync(package, cancellationToken);
+        }
+
+        return package;
     }
 
     public async Task DeleteByNameAsync(string packageName, CancellationToken cancellationToken = default)
     {
         using var scope = serviceScopeFactory.CreateScope();
         using var dbContext = scope.ServiceProvider.GetRequiredService<PackageTrackerDbContext>();
-        var existingPackage = await GetByNameAsync(packageName, dbContext, cancellationToken);
+        var existingPackage = await dbContext.Packages.FindAsync([packageName], cancellationToken) ?? throw new PackageNotFoundException();
         dbContext.Packages.Remove(existingPackage);
         dbContext.SaveChanges();
+
+        if (cacheRepository is not null)
+        {
+            await cacheRepository.DeleteByNameAsync(packageName, cancellationToken);
+        }
     }
 
     public async Task UpdateAsync(Package package, CancellationToken cancellationToken = default)
     {
         using var scope = serviceScopeFactory.CreateScope();
         using var dbContext = scope.ServiceProvider.GetRequiredService<PackageTrackerDbContext>();
-        var packageFromDb = await GetByNameAsync(package.Name, dbContext, cancellationToken);
+        var packageFromDb = await dbContext.Packages.FindAsync([package.Name], cancellationToken) ?? throw new PackageNotFoundException();
         packageFromDb.Link = package.Link;
         packageFromDb.RegistryUrl = package.RegistryUrl;
         packageFromDb.Versions = package.Versions;
         dbContext.SaveChanges();
+
+        if (cacheRepository is not null)
+        {
+            await cacheRepository.UpdateAsync(packageFromDb, cancellationToken);
+        }
     }
 
-    private static async Task<Package?> TryGetByNameAsync(string packageName, PackageTrackerDbContext dbContext, CancellationToken cancellationToken = default)
+    private async Task<bool> ExistsNoCacheAsync(string packageName, CancellationToken cancellationToken = default)
     {
+        using var scope = serviceScopeFactory.CreateScope();
+        using var dbContext = scope.ServiceProvider.GetRequiredService<PackageTrackerDbContext>();
+        return await dbContext.Packages.AnyAsync(p => p.Name.Equals(packageName), cancellationToken);
+    }
+
+    private async Task<Package?> TryGetByNameNoCacheAsync(string packageName, CancellationToken cancellationToken = default)
+    {
+        using var scope = serviceScopeFactory.CreateScope();
+        using var dbContext = scope.ServiceProvider.GetRequiredService<PackageTrackerDbContext>();
         return await dbContext.Packages.FindAsync([packageName], cancellationToken);
-    }
-
-    private static async Task<Package> GetByNameAsync(string packageName, PackageTrackerDbContext dbContext, CancellationToken cancellationToken = default)
-    {
-        return await TryGetByNameAsync(packageName, dbContext, cancellationToken) ?? throw new PackageNotFoundException();
     }
 }

@@ -24,15 +24,15 @@ internal class PackageDbModel(PackageType type) : Package, IMongoEntity
             PackageType.Nuget => typeof(NugetPackage),
             PackageType.Npm => typeof(NpmPackage),
             PackageType.Packagist => typeof(PackagistPackage),
-            _ => throw new ArgumentOutOfRangeException(nameof(Type))
+            _ => throw new ArgumentOutOfRangeException("Package Type")
         };
 
-        Package package = (Package)Activator.CreateInstance(packageType)!;
-        package.Name = Name;
-        package.Versions = Versions;
-        package.RegistryUrl = RegistryUrl;
-        package.Link = Link;
+        Package domainPackage = (Package)Activator.CreateInstance(packageType)!;
+        domainPackage.Name = Name;
+        domainPackage.Versions = Versions;
+        domainPackage.RegistryUrl = RegistryUrl;
+        domainPackage.Link = Link;
 
-        return package;
+        return domainPackage;
     }
 }
