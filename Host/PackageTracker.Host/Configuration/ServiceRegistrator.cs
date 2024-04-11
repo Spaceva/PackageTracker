@@ -1,7 +1,4 @@
-﻿using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.OpenApi.Models;
-using Microsoft.AspNetCore.Builder;
+﻿using Microsoft.OpenApi.Models;
 using PackageTracker.ApplicationModuleParsers;
 using PackageTracker.Fetcher;
 using PackageTracker.Fetcher.PublicRegistries;

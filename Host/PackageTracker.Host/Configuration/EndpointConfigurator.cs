@@ -1,6 +1,4 @@
-﻿using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Routing;
-using PackageTracker.Presentation.MVCApp;
+﻿using PackageTracker.Presentation.MVCApp;
 using PackageTracker.Presentation.WebApi;
 
 namespace PackageTracker.Host.Configuration;

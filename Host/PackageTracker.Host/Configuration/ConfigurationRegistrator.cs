@@ -2,8 +2,6 @@
 using PackageTracker.Scanner;
 using PackageTracker.Monitor;
 using PackageTracker.Export.Confluence;
-using Microsoft.AspNetCore.Builder;
-using Microsoft.Extensions.Configuration;
 
 namespace PackageTracker.Host.Configuration;
 internal static class ConfigurationRegistrator

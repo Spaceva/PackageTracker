@@ -1,5 +1,4 @@
-﻿using Microsoft.AspNetCore.Builder;
-using PackageTracker.Host.Configuration;
+﻿using PackageTracker.Host.Configuration;
 
 var builder = WebApplication.CreateBuilder(args);
 

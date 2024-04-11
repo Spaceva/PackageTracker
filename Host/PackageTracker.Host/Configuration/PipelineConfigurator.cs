@@ -1,6 +1,4 @@
-﻿using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Hosting;
-using PackageTracker.Presentation.MVCApp;
+﻿using PackageTracker.Presentation.MVCApp;
 
 namespace PackageTracker.Host.Configuration;
 internal static class PipelineConfigurator

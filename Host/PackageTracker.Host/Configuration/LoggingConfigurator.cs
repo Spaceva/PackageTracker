@@ -1,6 +1,4 @@
-﻿using Microsoft.AspNetCore.Builder;
-using Microsoft.Extensions.Hosting;
-using Serilog;
+﻿using Serilog;
 
 namespace PackageTracker.Host.Configuration;
 internal static class LoggingConfigurator
