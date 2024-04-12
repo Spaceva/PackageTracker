@@ -23,43 +23,43 @@ public class ApplicationController(IMediator mediator, IMapper mapper) : Control
     public async Task<IActionResult> Angular()
     {
         var queryResponse = await mediator.Send(new GetApplicationsQuery { SearchCriteria = new() { ApplicationTypes = [ApplicationType.Angular] } });
-        return View("Index", mapper.MapCollection<Application, ApplicationDetailViewModel>(queryResponse.Applications));
+        return View(nameof(Index), mapper.MapCollection<Application, ApplicationDetailViewModel>(queryResponse.Applications));
     }
 
     public async Task<IActionResult> DotNet()
     {
         var queryResponse = await mediator.Send(new GetApplicationsQuery { SearchCriteria = new() { ApplicationTypes = [ApplicationType.DotNet] } });
-        return View("Index", mapper.MapCollection<Application, ApplicationDetailViewModel>(queryResponse.Applications));
+        return View(nameof(Index), mapper.MapCollection<Application, ApplicationDetailViewModel>(queryResponse.Applications));
     }
 
     public async Task<IActionResult> PHP()
     {
         var queryResponse = await mediator.Send(new GetApplicationsQuery { SearchCriteria = new() { ApplicationTypes = [ApplicationType.Php] } });
-        return View("Index", mapper.MapCollection<Application, ApplicationDetailViewModel>(queryResponse.Applications));
+        return View(nameof(Index), mapper.MapCollection<Application, ApplicationDetailViewModel>(queryResponse.Applications));
     }
 
     public async Task<IActionResult> Gitlab()
     {
         var queryResponse = await mediator.Send(new GetApplicationsQuery { SearchCriteria = new() { RepositoryTypes = [RepositoryType.Gitlab] } });
-        return View("Index", mapper.MapCollection<Application, ApplicationDetailViewModel>(queryResponse.Applications));
+        return View(nameof(Index), mapper.MapCollection<Application, ApplicationDetailViewModel>(queryResponse.Applications));
     }
 
     public async Task<IActionResult> GitHub()
     {
         var queryResponse = await mediator.Send(new GetApplicationsQuery { SearchCriteria = new() { RepositoryTypes = [RepositoryType.GitHub] } });
-        return View("Index", mapper.MapCollection<Application, ApplicationDetailViewModel>(queryResponse.Applications));
+        return View(nameof(Index), mapper.MapCollection<Application, ApplicationDetailViewModel>(queryResponse.Applications));
     }
 
     public async Task<IActionResult> AzureDevOps()
     {
         var queryResponse = await mediator.Send(new GetApplicationsQuery { SearchCriteria = new() { RepositoryTypes = [RepositoryType.AzureDevOps] } });
-        return View("Index", mapper.MapCollection<Application, ApplicationDetailViewModel>(queryResponse.Applications));
+        return View(nameof(Index), mapper.MapCollection<Application, ApplicationDetailViewModel>(queryResponse.Applications));
     }
 
     public async Task<IActionResult> Search(ApplicationSearchCriteria searchCriteria)
     {
         var queryResponse = await mediator.Send(new GetApplicationsQuery { SearchCriteria = searchCriteria });
-        return View("Index", mapper.MapCollection<Application, ApplicationDetailViewModel>(queryResponse.Applications));
+        return View(nameof(Index), mapper.MapCollection<Application, ApplicationDetailViewModel>(queryResponse.Applications));
     }
 
     [HttpPost]

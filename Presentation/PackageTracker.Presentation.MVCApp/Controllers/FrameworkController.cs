@@ -21,7 +21,7 @@ public class FrameworkController(IMediator mediator) : Controller
     public async Task<IActionResult> All()
     {
         var queryResponse = await mediator.Send(new GetFrameworksQuery { SearchCriteria = new FrameworkSearchCriteria() });
-        return View("Index", queryResponse!);
+        return View(nameof(Index), queryResponse!);
     }
 
     [HttpPost]

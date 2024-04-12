@@ -32,8 +32,13 @@ public class PackageController(IMediator mediator, IMapper mapper) : Controller
         }
         catch (PackageNotFoundException)
         {
-            return View("PackageNotFound");
+            return RedirectToAction(nameof(PackageNotFound));
         }
+    }
+
+    public IActionResult PackageNotFound()
+    {
+        return View();
     }
 
     public async Task<IActionResult> Delete([FromBody] DeletePackageCommand command)
