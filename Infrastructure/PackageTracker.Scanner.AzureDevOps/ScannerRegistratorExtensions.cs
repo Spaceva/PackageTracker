@@ -7,7 +7,7 @@ using MediatR;
 
 namespace PackageTracker.Scanner.AzureDevOps;
 
-public static class ServiceCollectionExtensions
+public static class ScannerRegistratorExtensions
 {
     public static IScannerRegistrator AddAngularAzureDevOpsScanner(this IScannerRegistrator services, string trackerName)
     => services.Register(sp =>

@@ -8,7 +8,7 @@ using PackageTracker.Domain.Application.Model;
 
 namespace PackageTracker.Scanner.GitHub;
 
-public static class ServiceCollectionExtensions
+public static class ScannerRegistratorExtensions
 {
     public static IScannerRegistrator AddAngularGitHubUserScanner(this IScannerRegistrator services, string trackerName)
         => AddAngularGitHubScanner(services, trackerName, (gitHubClient, name) => gitHubClient.Repository.GetAllForUser(name));

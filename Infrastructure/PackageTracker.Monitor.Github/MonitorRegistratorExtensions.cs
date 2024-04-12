@@ -3,7 +3,7 @@ using PackageTracker.Monitor.Github.NodeJS;
 
 namespace PackageTracker.Monitor.Github;
 
-public static class ServiceCollectionExtensions
+public static class MonitorRegistratorExtensions
 {
     public static IMonitorRegistrator AddGithubMonitors(this IMonitorRegistrator services)
     {

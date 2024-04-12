@@ -7,7 +7,7 @@ using PackageTracker.Domain.Application.Model;
 
 namespace PackageTracker.Scanner.Gitlab;
 
-public static class ServiceCollectionExtensions
+public static class ScannerRegistratorExtensions
 {
     public static IScannerRegistrator AddAngularGitlabScanner(this IScannerRegistrator services, string trackerName)
     => services.Register(sp =>

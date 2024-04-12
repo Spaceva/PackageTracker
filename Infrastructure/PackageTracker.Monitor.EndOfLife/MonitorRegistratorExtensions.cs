@@ -2,7 +2,7 @@
 
 namespace PackageTracker.Monitor.EndOfLife;
 
-public static class ServiceCollectionExtensions
+public static class MonitorRegistratorExtensions
 {
     public static IMonitorRegistrator AddEndOfLifeMonitors(this IMonitorRegistrator services)
     {

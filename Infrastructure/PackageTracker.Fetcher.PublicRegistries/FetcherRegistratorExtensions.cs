@@ -1,6 +1,6 @@
 ﻿namespace PackageTracker.Fetcher.PublicRegistries;
 
-public static class ServiceCollectionExtensions
+public static class FetcherRegistratorExtensions
 {
     public static IFetcherRegistrator AddPublicRegistriesFetchers(this IFetcherRegistrator services)
     {
