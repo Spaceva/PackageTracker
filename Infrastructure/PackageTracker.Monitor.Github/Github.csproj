@@ -5,6 +5,12 @@
 		<ImplicitUsings>enable</ImplicitUsings>
 		<Nullable>enable</Nullable>
 		<AssemblyVersion>1.0.0</AssemblyVersion>
+		<AssemblyName>PackageTracker.Monitor.Github</AssemblyName>
+		<RootNamespace>PackageTracker.Monitor.Github</RootNamespace>
 	</PropertyGroup>
+
+	<ItemGroup>
+		<ProjectReference Include="..\PackageTracker.Monitor\Monitor.csproj" />
+	</ItemGroup>
 
 </Project>

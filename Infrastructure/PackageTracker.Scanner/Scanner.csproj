@@ -1,10 +1,12 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
 	<PropertyGroup>
 		<TargetFramework>net8.0</TargetFramework>
 		<ImplicitUsings>enable</ImplicitUsings>
 		<Nullable>enable</Nullable>
 		<AssemblyVersion>1.0.0</AssemblyVersion>
+		<AssemblyName>PackageTracker.Scanner</AssemblyName>
+		<RootNamespace>PackageTracker.Scanner</RootNamespace>
 	</PropertyGroup>
 
 	<ItemGroup>
@@ -17,8 +19,8 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<ProjectReference Include="..\..\Application\PackageTracker.Messages\PackageTracker.Messages.csproj" />
-		<ProjectReference Include="..\PackageTracker.Infrastructure\PackageTracker.Infrastructure.csproj" />
+		<ProjectReference Include="..\..\Application\PackageTracker.Messages\Messages.csproj" />
+		<ProjectReference Include="..\PackageTracker.Infrastructure\Infrastructure.csproj" />
 	</ItemGroup>
 
 </Project>

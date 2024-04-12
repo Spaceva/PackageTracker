@@ -5,6 +5,8 @@
 		<ImplicitUsings>enable</ImplicitUsings>
 		<Nullable>enable</Nullable>
 		<AssemblyVersion>1.0.0</AssemblyVersion>
+		<AssemblyName>PackageTracker.Scanner.Gitlab</AssemblyName>
+		<RootNamespace>PackageTracker.Scanner.Gitlab</RootNamespace>
 	</PropertyGroup>
 
 	<ItemGroup>
@@ -12,7 +14,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<ProjectReference Include="..\PackageTracker.Scanner\PackageTracker.Scanner.csproj" />
+		<ProjectReference Include="..\PackageTracker.Scanner\Scanner.csproj" />
 	</ItemGroup>
 
 </Project>

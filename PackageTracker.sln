@@ -10,67 +10,73 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "99. Solution Items", "99. S
 		README.md = README.md
 	EndProjectSection
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PackageTracker.Fetcher", "Infrastructure\PackageTracker.Fetcher\PackageTracker.Fetcher.csproj", "{3F299E8D-3CCD-4CD9-A263-7CC8CCEB30B2}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Fetcher", "Infrastructure\PackageTracker.Fetcher\Fetcher.csproj", "{3F299E8D-3CCD-4CD9-A263-7CC8CCEB30B2}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PackageTracker.Domain", "Application\PackageTracker.Domain\PackageTracker.Domain.csproj", "{FB4C6D48-86A1-4EB5-ACBF-A949594CDF7C}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Domain", "Application\PackageTracker.Domain\Domain.csproj", "{FB4C6D48-86A1-4EB5-ACBF-A949594CDF7C}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PackageTracker.Infrastructure", "Infrastructure\PackageTracker.Infrastructure\PackageTracker.Infrastructure.csproj", "{69E0FC05-E82F-4469-91F9-57783D98B358}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Infrastructure", "Infrastructure\PackageTracker.Infrastructure\Infrastructure.csproj", "{69E0FC05-E82F-4469-91F9-57783D98B358}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PackageTracker.Handlers", "Application\PackageTracker.Handlers\PackageTracker.Handlers.csproj", "{84289BBD-0FF3-4FC7-B03B-DD925F12FF72}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Handlers", "Application\PackageTracker.Handlers\Handlers.csproj", "{84289BBD-0FF3-4FC7-B03B-DD925F12FF72}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "0. Host", "0. Host", "{B2AA9C98-AE71-4301-8297-34BF4DCBD56A}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "2. Application", "2. Application", "{B5B90090-9717-40C9-8C1F-56973B6E4E38}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PackageTracker.Messages", "Application\PackageTracker.Messages\PackageTracker.Messages.csproj", "{ED6D89E0-7C83-4FA5-9BED-F7E3D34E1C1F}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Messages", "Application\PackageTracker.Messages\Messages.csproj", "{ED6D89E0-7C83-4FA5-9BED-F7E3D34E1C1F}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "3. Infrastructure", "3. Infrastructure", "{022A92FA-820B-4CF0-81F1-A092667B48E4}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Fetchers", "Fetchers", "{AA7DDE01-8115-4ADE-9929-30A4380F5D75}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PackageTracker.Fetcher.PublicRegistries", "Infrastructure\PackageTracker.Fetcher.PublicRegistries\PackageTracker.Fetcher.PublicRegistries.csproj", "{48B5834E-B4CA-4B2C-A0E2-F4866DC85196}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PublicRegistries", "Infrastructure\PackageTracker.Fetcher.PublicRegistries\PublicRegistries.csproj", "{48B5834E-B4CA-4B2C-A0E2-F4866DC85196}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PackageTracker.Scanner", "Infrastructure\PackageTracker.Scanner\PackageTracker.Scanner.csproj", "{1E3A2886-595C-4452-B22D-D3BDE1AA56D7}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Scanner", "Infrastructure\PackageTracker.Scanner\Scanner.csproj", "{1E3A2886-595C-4452-B22D-D3BDE1AA56D7}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Scanners", "Scanners", "{A3FDB388-D6A6-4B2B-98D8-82177EF5E163}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PackageTracker.Scanner.Gitlab", "Infrastructure\PackageTracker.Scanner.Gitlab\PackageTracker.Scanner.Gitlab.csproj", "{6CC6D05A-2A96-44D3-9271-DFBEC63D19CB}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Gitlab", "Infrastructure\PackageTracker.Scanner.Gitlab\Gitlab.csproj", "{6CC6D05A-2A96-44D3-9271-DFBEC63D19CB}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PackageTracker.ApplicationModuleParsers", "Application\PackageTracker.ApplicationModuleParsers\PackageTracker.ApplicationModuleParsers.csproj", "{18A71585-63E6-4970-83D2-854E11861180}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ApplicationModuleParsers", "Application\PackageTracker.ApplicationModuleParsers\ApplicationModuleParsers.csproj", "{18A71585-63E6-4970-83D2-854E11861180}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Database", "Database", "{E0EDD194-1949-4936-BA97-075826BD9B9E}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PackageTracker.Database.EntityFramework", "Infrastructure\PackageTracker.Database.EntityFramework\PackageTracker.Database.EntityFramework.csproj", "{118A819C-AA41-4EB5-82A3-450F166531AB}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EntityFramework", "Infrastructure\PackageTracker.Database.EntityFramework\EntityFramework.csproj", "{118A819C-AA41-4EB5-82A3-450F166531AB}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PackageTracker.Scanner.AzureDevOps", "Infrastructure\PackageTracker.Scanner.AzureDevOps\PackageTracker.Scanner.AzureDevOps.csproj", "{132C9C40-77A3-4E8C-8450-E3E51DA8EA45}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AzureDevOps", "Infrastructure\PackageTracker.Scanner.AzureDevOps\AzureDevOps.csproj", "{132C9C40-77A3-4E8C-8450-E3E51DA8EA45}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Monitor", "Monitor", "{2F8B0843-908F-4B38-BFC7-7D08641B0FE8}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PackageTracker.Monitor", "Infrastructure\PackageTracker.Monitor\PackageTracker.Monitor.csproj", "{A935C232-B5C9-4F4D-A2EB-5189CFBF71E7}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Monitor", "Infrastructure\PackageTracker.Monitor\Monitor.csproj", "{A935C232-B5C9-4F4D-A2EB-5189CFBF71E7}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PackageTracker.Monitor.Github", "Infrastructure\PackageTracker.Monitor.Github\PackageTracker.Monitor.Github.csproj", "{708AD1CB-8DFD-4D22-A960-CD6257107442}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Github", "Infrastructure\PackageTracker.Monitor.Github\Github.csproj", "{708AD1CB-8DFD-4D22-A960-CD6257107442}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PackageTracker.Monitor.EndOfLife", "Infrastructure\PackageTracker.Monitor.EndOfLife\PackageTracker.Monitor.EndOfLife.csproj", "{31441300-A159-4955-83A6-2B5666A16D19}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EndOfLife", "Infrastructure\PackageTracker.Monitor.EndOfLife\EndOfLife.csproj", "{31441300-A159-4955-83A6-2B5666A16D19}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Export", "Export", "{A19CBFEC-675F-496E-AD8E-CED4FF53239C}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PackageTracker.Export.Confluence", "Infrastructure\PackageTracker.Export.Confluence\PackageTracker.Export.Confluence.csproj", "{5E6CA9BB-000A-4B51-B8A4-2794B8E197A7}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Confluence", "Infrastructure\PackageTracker.Export.Confluence\Confluence.csproj", "{5E6CA9BB-000A-4B51-B8A4-2794B8E197A7}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PackageTracker.Presentation.WebApi", "Presentation\PackageTracker.Presentation.WebApi\PackageTracker.Presentation.WebApi.csproj", "{C10B52AE-3A65-4CB8-9C35-91428F6263F4}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WebApi", "Presentation\PackageTracker.Presentation.WebApi\WebApi.csproj", "{C10B52AE-3A65-4CB8-9C35-91428F6263F4}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "1. Presentation", "1. Presentation", "{FBC0DE73-D2EB-4020-9734-D18B2FD7A9A5}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PackageTracker.Presentation.MVCApp", "Presentation\PackageTracker.Presentation.MVCApp\PackageTracker.Presentation.MVCApp.csproj", "{C9307A2B-AD4D-4A3E-A63A-62E5208B091F}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MVCApp", "Presentation\PackageTracker.Presentation.MVCApp\MVCApp.csproj", "{C9307A2B-AD4D-4A3E-A63A-62E5208B091F}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PackageTracker.Host", "Host\PackageTracker.Host\PackageTracker.Host.csproj", "{0D98D1DB-C60B-4F51-B6F5-C1E10A682004}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Host", "Host\Host.csproj", "{0D98D1DB-C60B-4F51-B6F5-C1E10A682004}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PackageTracker.Scanner.GitHub", "Infrastructure\PackageTracker.Scanner.GitHub\PackageTracker.Scanner.GitHub.csproj", "{1975885E-CACE-4C4B-8BCA-E5689BF163FA}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GitHub", "Infrastructure\PackageTracker.Scanner.GitHub\GitHub.csproj", "{1975885E-CACE-4C4B-8BCA-E5689BF163FA}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PackageTracker.Database.MongoDb", "Infrastructure\PackageTracker.Database.MongoDb\PackageTracker.Database.MongoDb.csproj", "{ECA64174-78FC-46A6-98D2-E390AECEA165}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MongoDb", "Infrastructure\PackageTracker.Database.MongoDb\MongoDb.csproj", "{ECA64174-78FC-46A6-98D2-E390AECEA165}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PackageTracker.Database.MemoryCache", "Infrastructure\PackageTracker.Database.MemoryCache\PackageTracker.Database.MemoryCache.csproj", "{4A2D2EF2-832F-46AB-8CE2-53123B18E8D3}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MemoryCache", "Infrastructure\PackageTracker.Database.MemoryCache\MemoryCache.csproj", "{4A2D2EF2-832F-46AB-8CE2-53123B18E8D3}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PackageTracker.Presentation.ExceptionHandlers", "Presentation\PackageTracker.Presentation.ExceptionHandlers\PackageTracker.Presentation.ExceptionHandlers.csproj", "{D01A293B-A65C-4873-894E-BB966E1B2131}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ExceptionHandlers", "Presentation\PackageTracker.Presentation.ExceptionHandlers\ExceptionHandlers.csproj", "{D01A293B-A65C-4873-894E-BB966E1B2131}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Providers", "Providers", "{5621B72F-76D2-42E8-9C21-201A06D6C46E}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Providers", "Providers", "{0EFBF47C-059B-4244-B753-8DC57F30F559}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Providers", "Providers", "{43F2E400-A454-4715-808A-4D081BD27ABB}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -177,27 +183,30 @@ Global
 		{84289BBD-0FF3-4FC7-B03B-DD925F12FF72} = {B5B90090-9717-40C9-8C1F-56973B6E4E38}
 		{ED6D89E0-7C83-4FA5-9BED-F7E3D34E1C1F} = {B5B90090-9717-40C9-8C1F-56973B6E4E38}
 		{AA7DDE01-8115-4ADE-9929-30A4380F5D75} = {022A92FA-820B-4CF0-81F1-A092667B48E4}
-		{48B5834E-B4CA-4B2C-A0E2-F4866DC85196} = {AA7DDE01-8115-4ADE-9929-30A4380F5D75}
+		{48B5834E-B4CA-4B2C-A0E2-F4866DC85196} = {43F2E400-A454-4715-808A-4D081BD27ABB}
 		{1E3A2886-595C-4452-B22D-D3BDE1AA56D7} = {A3FDB388-D6A6-4B2B-98D8-82177EF5E163}
 		{A3FDB388-D6A6-4B2B-98D8-82177EF5E163} = {022A92FA-820B-4CF0-81F1-A092667B48E4}
-		{6CC6D05A-2A96-44D3-9271-DFBEC63D19CB} = {A3FDB388-D6A6-4B2B-98D8-82177EF5E163}
+		{6CC6D05A-2A96-44D3-9271-DFBEC63D19CB} = {5621B72F-76D2-42E8-9C21-201A06D6C46E}
 		{18A71585-63E6-4970-83D2-854E11861180} = {B5B90090-9717-40C9-8C1F-56973B6E4E38}
 		{E0EDD194-1949-4936-BA97-075826BD9B9E} = {022A92FA-820B-4CF0-81F1-A092667B48E4}
 		{118A819C-AA41-4EB5-82A3-450F166531AB} = {E0EDD194-1949-4936-BA97-075826BD9B9E}
-		{132C9C40-77A3-4E8C-8450-E3E51DA8EA45} = {A3FDB388-D6A6-4B2B-98D8-82177EF5E163}
+		{132C9C40-77A3-4E8C-8450-E3E51DA8EA45} = {5621B72F-76D2-42E8-9C21-201A06D6C46E}
 		{2F8B0843-908F-4B38-BFC7-7D08641B0FE8} = {022A92FA-820B-4CF0-81F1-A092667B48E4}
 		{A935C232-B5C9-4F4D-A2EB-5189CFBF71E7} = {2F8B0843-908F-4B38-BFC7-7D08641B0FE8}
-		{708AD1CB-8DFD-4D22-A960-CD6257107442} = {2F8B0843-908F-4B38-BFC7-7D08641B0FE8}
-		{31441300-A159-4955-83A6-2B5666A16D19} = {2F8B0843-908F-4B38-BFC7-7D08641B0FE8}
+		{708AD1CB-8DFD-4D22-A960-CD6257107442} = {0EFBF47C-059B-4244-B753-8DC57F30F559}
+		{31441300-A159-4955-83A6-2B5666A16D19} = {0EFBF47C-059B-4244-B753-8DC57F30F559}
 		{A19CBFEC-675F-496E-AD8E-CED4FF53239C} = {022A92FA-820B-4CF0-81F1-A092667B48E4}
 		{5E6CA9BB-000A-4B51-B8A4-2794B8E197A7} = {A19CBFEC-675F-496E-AD8E-CED4FF53239C}
 		{C10B52AE-3A65-4CB8-9C35-91428F6263F4} = {FBC0DE73-D2EB-4020-9734-D18B2FD7A9A5}
 		{C9307A2B-AD4D-4A3E-A63A-62E5208B091F} = {FBC0DE73-D2EB-4020-9734-D18B2FD7A9A5}
 		{0D98D1DB-C60B-4F51-B6F5-C1E10A682004} = {B2AA9C98-AE71-4301-8297-34BF4DCBD56A}
-		{1975885E-CACE-4C4B-8BCA-E5689BF163FA} = {A3FDB388-D6A6-4B2B-98D8-82177EF5E163}
+		{1975885E-CACE-4C4B-8BCA-E5689BF163FA} = {5621B72F-76D2-42E8-9C21-201A06D6C46E}
 		{ECA64174-78FC-46A6-98D2-E390AECEA165} = {E0EDD194-1949-4936-BA97-075826BD9B9E}
 		{4A2D2EF2-832F-46AB-8CE2-53123B18E8D3} = {E0EDD194-1949-4936-BA97-075826BD9B9E}
 		{D01A293B-A65C-4873-894E-BB966E1B2131} = {FBC0DE73-D2EB-4020-9734-D18B2FD7A9A5}
+		{5621B72F-76D2-42E8-9C21-201A06D6C46E} = {A3FDB388-D6A6-4B2B-98D8-82177EF5E163}
+		{0EFBF47C-059B-4244-B753-8DC57F30F559} = {2F8B0843-908F-4B38-BFC7-7D08641B0FE8}
+		{43F2E400-A454-4715-808A-4D081BD27ABB} = {AA7DDE01-8115-4ADE-9929-30A4380F5D75}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {88515F1C-4F05-443B-A5A5-6F0DED2BF9AB}

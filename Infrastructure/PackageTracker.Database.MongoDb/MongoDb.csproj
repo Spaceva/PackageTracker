@@ -5,20 +5,21 @@
 		<ImplicitUsings>enable</ImplicitUsings>
 		<Nullable>enable</Nullable>
 		<AssemblyVersion>1.0.0</AssemblyVersion>
+		<AssemblyName>PackageTracker.Database.MongoDb</AssemblyName>
+		<RootNamespace>PackageTracker.Database.MongoDb</RootNamespace>
 	</PropertyGroup>
 
 	<ItemGroup>
-		<PackageReference Include="MediatR" Version="12.2.0" />
-		<PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="8.0.0" />
 		<PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" Version="8.0.0" />
 		<PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="8.0.0" />
 		<PackageReference Include="Microsoft.Extensions.Options" Version="8.0.0" />
-		<PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" Version="8.0.0" />
+		<PackageReference Include="MongoDB.Bson" Version="2.24.0" />
+		<PackageReference Include="MongoDB.Driver" Version="2.24.0" />
 	</ItemGroup>
 
 	<ItemGroup>
-		<ProjectReference Include="..\..\Application\PackageTracker.Messages\PackageTracker.Messages.csproj" />
-		<ProjectReference Include="..\PackageTracker.Infrastructure\PackageTracker.Infrastructure.csproj" />
+		<ProjectReference Include="..\..\Application\PackageTracker.Domain\Domain.csproj" />
+		<ProjectReference Include="..\PackageTracker.Database.MemoryCache\MemoryCache.csproj" />
 	</ItemGroup>
 
 </Project>

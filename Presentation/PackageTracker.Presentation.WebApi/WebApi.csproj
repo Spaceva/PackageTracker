@@ -5,6 +5,8 @@
 		<ImplicitUsings>enable</ImplicitUsings>
 		<Nullable>enable</Nullable>
 		<AssemblyVersion>1.0.0</AssemblyVersion>
+		<AssemblyName>PackageTracker.Presentation.WebApi</AssemblyName>
+		<RootNamespace>PackageTracker.Presentation.WebApi</RootNamespace>
 	</PropertyGroup>
 
 	<ItemGroup>
@@ -17,7 +19,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<ProjectReference Include="..\..\Application\PackageTracker.Messages\PackageTracker.Messages.csproj" />
+		<ProjectReference Include="..\..\Application\PackageTracker.Messages\Messages.csproj" />
 	</ItemGroup>
 
 </Project>

@@ -1,0 +1,17 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+	<PropertyGroup>
+		<TargetFramework>net8.0</TargetFramework>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<Nullable>enable</Nullable>
+		<AssemblyVersion>1.0.0</AssemblyVersion>
+		<AssemblyName>PackageTracker.Fetcher.PublicRegistries</AssemblyName>
+		<RootNamespace>PackageTracker.Fetcher.PublicRegistries</RootNamespace>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<ProjectReference Include="..\..\Application\PackageTracker.Domain\Domain.csproj" />
+		<ProjectReference Include="..\PackageTracker.Fetcher\Fetcher.csproj" />
+	</ItemGroup>
+
+</Project>

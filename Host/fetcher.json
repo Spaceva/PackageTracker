@@ -1,0 +1,14 @@
+{
+  "Fetcher": {
+    "ProxyUrl": "",
+    "TimeBetweenEachExecution": "00:05:00",
+    "Packages": {
+      "Public": {
+        "Npm": [],
+        "Nuget": [],
+        "Packagist": []
+      },
+      "Privates": []
+    }
+  }
+}
