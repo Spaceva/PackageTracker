@@ -5,7 +5,7 @@ using PackageTracker.Fetcher.PublicRegistries;
 using PackageTracker.Handlers;
 using PackageTracker.Scanner;
 using PackageTracker.Monitor;
-using PackageTracker.Monitor.Github;
+using PackageTracker.Monitor.GitHub;
 using PackageTracker.Monitor.EndOfLife;
 using PackageTracker.Export.Confluence;
 using PackageTracker.Presentation.WebApi;
@@ -73,7 +73,7 @@ internal static class ServiceRegistrator
         if (modules.GetValue<bool>("Monitor"))
         {
             services.AddMonitor(configuration)
-                    .AddGithubMonitors()
+                    .AddGitHubMonitors()
                     .AddEndOfLifeMonitors();
             // Add your monitor registrations here
         }

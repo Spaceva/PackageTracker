@@ -5,8 +5,8 @@
 		<ImplicitUsings>enable</ImplicitUsings>
 		<Nullable>enable</Nullable>
 		<AssemblyVersion>1.0.0</AssemblyVersion>
-		<AssemblyName>PackageTracker.Monitor.Github</AssemblyName>
-		<RootNamespace>PackageTracker.Monitor.Github</RootNamespace>
+		<AssemblyName>PackageTracker.Monitor.GitHub</AssemblyName>
+		<RootNamespace>PackageTracker.Monitor.GitHub</RootNamespace>
 	</PropertyGroup>
 
 	<ItemGroup>

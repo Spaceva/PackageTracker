@@ -7,12 +7,12 @@ using System.Text;
 using System.Text.Json;
 using static PackageTracker.Monitor.MonitorSettings;
 
-namespace PackageTracker.Monitor.Github;
-internal abstract class GithubFrameworkMonitor : IFrameworkMonitor
+namespace PackageTracker.Monitor.GitHub;
+internal abstract class GitHubFrameworkMonitor : IFrameworkMonitor
 {
     private readonly string githubFileUrl;
 
-    protected GithubFrameworkMonitor(MonitoredFramework monitoredFramework, ILogger logger, IHttpProxy? httpProxy)
+    protected GitHubFrameworkMonitor(MonitoredFramework monitoredFramework, ILogger logger, IHttpProxy? httpProxy)
     {
         githubFileUrl = monitoredFramework.Url;
         Logger = logger;
@@ -30,9 +30,9 @@ internal abstract class GithubFrameworkMonitor : IFrameworkMonitor
         {
             using var httpResponseMessage = await HttpClient.GetAsync(githubFileUrl, cancellationToken);
             httpResponseMessage.EnsureSuccessStatusCode();
-            var gitHubFile = await httpResponseMessage.Content.ReadFromJsonAsync<GithubFile>(new JsonSerializerOptions { PropertyNameCaseInsensitive = true }, cancellationToken) ?? throw new JsonException("GithubFile Parsing error");
+            var gitHubFile = await httpResponseMessage.Content.ReadFromJsonAsync<GitHubFile>(new JsonSerializerOptions { PropertyNameCaseInsensitive = true }, cancellationToken) ?? throw new JsonException("GitHubFile Parsing error");
             var decodedContent = gitHubFile.Encoding is not null && gitHubFile.Encoding.Equals("base64") ? Encoding.UTF8.GetString(Convert.FromBase64String(gitHubFile.Content)) : gitHubFile.Content;
-            return await ParseGithubFileContentAsync(decodedContent, cancellationToken);
+            return await ParseGitHubFileContentAsync(decodedContent, cancellationToken);
         }
         catch (TaskCanceledException)
         {
@@ -59,7 +59,7 @@ internal abstract class GithubFrameworkMonitor : IFrameworkMonitor
         GC.SuppressFinalize(this);
     }
 
-    protected abstract Task<IReadOnlyCollection<Framework>> ParseGithubFileContentAsync(string decodedContent, CancellationToken cancellationToken);
+    protected abstract Task<IReadOnlyCollection<Framework>> ParseGitHubFileContentAsync(string decodedContent, CancellationToken cancellationToken);
 
     protected virtual void Dispose(bool isDisposing)
     {

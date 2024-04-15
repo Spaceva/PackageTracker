@@ -1,6 +1,6 @@
 ﻿using System.Text.Json.Serialization;
 
-namespace PackageTracker.Monitor.Github.DotNet;
+namespace PackageTracker.Monitor.GitHub.DotNet;
 
 
 public class ChannelDetail

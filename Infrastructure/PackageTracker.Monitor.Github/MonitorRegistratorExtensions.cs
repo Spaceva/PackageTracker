@@ -1,14 +1,14 @@
-﻿using PackageTracker.Monitor.Github.DotNet;
-using PackageTracker.Monitor.Github.NodeJS;
+﻿using PackageTracker.Monitor.GitHub.DotNet;
+using PackageTracker.Monitor.GitHub.NodeJS;
 
-namespace PackageTracker.Monitor.Github;
+namespace PackageTracker.Monitor.GitHub;
 
 public static class MonitorRegistratorExtensions
 {
-    public static IMonitorRegistrator AddGithubMonitors(this IMonitorRegistrator services)
+    public static IMonitorRegistrator AddGitHubMonitors(this IMonitorRegistrator services)
     {
-        services.Register<DotNetGithubMonitor>();
-        services.Register<NodeJSGithubMonitor>();
+        services.Register<DotNetGitHubMonitor>();
+        services.Register<NodeJSGitHubMonitor>();
 
         return services;
     }

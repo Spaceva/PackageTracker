@@ -1,16 +1,16 @@
 ﻿using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using PackageTracker.Domain.Framework.Model;
-using PackageTracker.Monitor.Github.NodeJS.Model;
+using PackageTracker.Monitor.GitHub.NodeJS.Model;
 using System.Text.Json;
 using System.Text.Json.Nodes;
 
-namespace PackageTracker.Monitor.Github.NodeJS;
-internal class NodeJSGithubMonitor(IOptions<MonitorSettings> monitoredFrameworkSettings, ILogger<NodeJSGithubMonitor> logger) : GithubFrameworkMonitor(monitoredFrameworkSettings.Value.Frameworks.SingleOrDefault(n => n.MonitorName.Equals(nameof(NodeJSGithubMonitor))) ?? throw new ArgumentNullException(nameof(monitoredFrameworkSettings)),
+namespace PackageTracker.Monitor.GitHub.NodeJS;
+internal class NodeJSGitHubMonitor(IOptions<MonitorSettings> monitoredFrameworkSettings, ILogger<NodeJSGitHubMonitor> logger) : GitHubFrameworkMonitor(monitoredFrameworkSettings.Value.Frameworks.SingleOrDefault(n => n.MonitorName.Equals(nameof(NodeJSGitHubMonitor))) ?? throw new ArgumentNullException(nameof(monitoredFrameworkSettings)),
     logger,
     monitoredFrameworkSettings.Value)
 {
-    protected override Task<IReadOnlyCollection<Framework>> ParseGithubFileContentAsync(string decodedContent, CancellationToken cancellationToken)
+    protected override Task<IReadOnlyCollection<Framework>> ParseGitHubFileContentAsync(string decodedContent, CancellationToken cancellationToken)
     {
         var jsonObject = JsonNode.Parse(decodedContent, new JsonNodeOptions { PropertyNameCaseInsensitive = true }, new JsonDocumentOptions { AllowTrailingCommas = true })?.AsObject() ?? throw new JsonException("Parsing failed.");
         var deserializationOptions = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };

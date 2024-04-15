@@ -32,7 +32,7 @@
 		<ProjectReference Include="..\Infrastructure\PackageTracker.Fetcher\Fetcher.csproj" />
 		<ProjectReference Include="..\Infrastructure\PackageTracker.Infrastructure\Infrastructure.csproj" />
 		<ProjectReference Include="..\Infrastructure\PackageTracker.Monitor.EndOfLife\EndOfLife.csproj" />
-		<ProjectReference Include="..\Infrastructure\PackageTracker.Monitor.Github\Github.csproj" />
+		<ProjectReference Include="..\Infrastructure\PackageTracker.Monitor.GitHub\GitHub.csproj" />
 		<ProjectReference Include="..\Infrastructure\PackageTracker.Monitor\Monitor.csproj" />
 		<ProjectReference Include="..\Infrastructure\PackageTracker.Scanner.AzureDevOps\AzureDevOps.csproj" />
 		<ProjectReference Include="..\Infrastructure\PackageTracker.Scanner.GitHub\GitHub.csproj" />

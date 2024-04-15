@@ -1,6 +1,6 @@
 ﻿using System.Text.Json.Serialization;
 
-namespace PackageTracker.Monitor.Github.NodeJS.Model;
+namespace PackageTracker.Monitor.GitHub.NodeJS.Model;
 internal class VersionDetail
 {
     [JsonConverter(typeof(NullableDateTimeConverter))]

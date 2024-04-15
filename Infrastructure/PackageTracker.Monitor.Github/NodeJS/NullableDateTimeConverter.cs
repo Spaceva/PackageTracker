@@ -2,7 +2,7 @@
 using System.Text.Json;
 using System.Runtime.Serialization;
 
-namespace PackageTracker.Monitor.Github.NodeJS;
+namespace PackageTracker.Monitor.GitHub.NodeJS;
 internal class NullableDateTimeConverter : JsonConverter<DateTime?>
 {
     public override DateTime? Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)

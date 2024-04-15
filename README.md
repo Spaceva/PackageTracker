@@ -72,11 +72,11 @@ Use the `monitor.json` configuration file.
     "TimeBetweenEachExecution": "HH:MM:SS",
     "Frameworks": [
       {
-        "MonitorName": "NodeJSGithubMonitor",
+        "MonitorName": "NodeJSGitHubMonitor",
         "Url": "https://api.github.com/repos/nodejs/Release/contents/schedule.json"
       },
       {
-        "MonitorName": "DotNetGithubMonitor",
+        "MonitorName": "DotNetGitHubMonitor",
         "Url": "https://api.github.com/repos/dotnet/core/contents/release-notes/releases-index.json"
       }
     ]

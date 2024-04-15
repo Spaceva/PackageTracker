@@ -1,4 +1,4 @@
-﻿namespace PackageTracker.Monitor.Github.DotNet;
+﻿namespace PackageTracker.Monitor.GitHub.DotNet;
 internal static partial class Constants
 {
     public static class ReleaseTypes

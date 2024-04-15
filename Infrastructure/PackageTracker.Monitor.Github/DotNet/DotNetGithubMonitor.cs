@@ -5,13 +5,13 @@ using PackageTracker.Domain.Framework.Model;
 using System.Net.Http.Json;
 using System.Text.Json;
 
-namespace PackageTracker.Monitor.Github.DotNet;
-internal class DotNetGithubMonitor(IOptions<MonitorSettings> monitoredFrameworkSettings, ILogger<DotNetGithubMonitor> logger) : GithubFrameworkMonitor(
-    monitoredFrameworkSettings.Value.Frameworks.SingleOrDefault(n => n.MonitorName.Equals(nameof(DotNetGithubMonitor))) ?? throw new ArgumentNullException(nameof(monitoredFrameworkSettings)),
+namespace PackageTracker.Monitor.GitHub.DotNet;
+internal class DotNetGitHubMonitor(IOptions<MonitorSettings> monitoredFrameworkSettings, ILogger<DotNetGitHubMonitor> logger) : GitHubFrameworkMonitor(
+    monitoredFrameworkSettings.Value.Frameworks.SingleOrDefault(n => n.MonitorName.Equals(nameof(DotNetGitHubMonitor))) ?? throw new ArgumentNullException(nameof(monitoredFrameworkSettings)),
     logger,
     monitoredFrameworkSettings.Value)
 {
-    protected override async Task<IReadOnlyCollection<Framework>> ParseGithubFileContentAsync(string decodedContent, CancellationToken cancellationToken)
+    protected override async Task<IReadOnlyCollection<Framework>> ParseGitHubFileContentAsync(string decodedContent, CancellationToken cancellationToken)
     {
         var mainIndexFile = JsonSerializer.Deserialize<MainIndexFile>(decodedContent) ?? throw new ArgumentException(null, nameof(decodedContent));
 
