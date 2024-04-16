@@ -13,7 +13,7 @@
     "WriteTo:Console": {
       "Name": "Console",
       "Args": {
-        "outputTemplate": "[{Timestamp:HH:mm:ss.fff} - {Level}] - [{SourceContext}] - {Message:lj}{NewLine}{Exception}{NewLine}"
+        "outputTemplate": "[{Timestamp:HH:mm:ss.fff} - {Level}] - [{SourceContext}] - {Message:lj}{NewLine}{Exception}"
       }
     },
     "Enrich": [ "FromLogContext", "FromProcessId", "WithMachineName" ],

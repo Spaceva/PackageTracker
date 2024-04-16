@@ -10,7 +10,11 @@ internal static class PipelineConfigurator
         application.UseSwagger();
         application.UseSwaggerUI();
         application.UseOutputCache();
-        application.UseHttpsRedirection();
         application.UseExceptionHandler();
+
+        if (application is WebApplication webApplication && webApplication.Configuration.AsEnumerable().Any(kvp => kvp.Key.Contains("HTTPS")))
+        {
+            application.UseHttpsRedirection();
+        }
     }
 }
