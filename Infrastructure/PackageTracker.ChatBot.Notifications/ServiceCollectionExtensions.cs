@@ -4,6 +4,8 @@ using Microsoft.Extensions.DependencyInjection;
 using PackageTracker.ChatBot.Notifications;
 using PackageTracker.ChatBot.Notifications.Configuration;
 using PackageTracker.ChatBot.Notifications.Discord;
+using PackageTracker.ChatBot.Notifications.Telegram;
+using PackageTracker.ChatBot.Telegram;
 using System.Reflection;
 
 namespace PackageTracker.ChatBot.Discord.Notifications;
@@ -11,9 +13,23 @@ public static class ServiceCollectionExtensions
 {
     private static bool hasRegisteredHandlers;
 
-    public static void NotifyWithDiscord(this IServiceCollection services, IConfiguration configuration)
+    public static IServiceCollection NotifyWithDiscord(this IServiceCollection services, IConfiguration configuration)
+    => services.NotifyWithChatBot<DiscordNotifierBot>(configuration,
+        "Discord",
+        (sc, token) => sc.AddDiscordChatBot(sp => new DiscordNotifierBot(token, sp.GetRequiredService<IMediator>(), sp)));
+
+    public static IServiceCollection NotifyWithTelegram(this IServiceCollection services, IConfiguration configuration)
+    => services.NotifyWithChatBot<TelegramNotifierBot>(configuration, 
+        "Telegram",
+        (sc, token) => sc.AddTelegramChatBot(sp => new TelegramNotifierBot(token, sp.GetRequiredService<IMediator>(), sp)));
+
+    private static IServiceCollection NotifyWithChatBot<TChatBot>(this IServiceCollection services,
+        IConfiguration configuration,
+        string sectionName,
+        Action<IServiceCollection, string> registerChatBot)
+         where TChatBot : IChatBot
     {
-        var section = configuration.GetSection("Discord");
+        var section = configuration.GetSection(sectionName);
         var token = section["Token"];
         var notificationsSettings = section.GetSection("Notifications").Get<NotificationSettings[]>();
         ArgumentException.ThrowIfNullOrWhiteSpace(token);
@@ -23,16 +39,18 @@ public static class ServiceCollectionExtensions
             throw new ArgumentException("Notifications settings can't be empty.");
         }
 
-        services.AddDiscordChatBot(sp => new DiscordNotifierBot(token, sp.GetRequiredService<IMediator>(), sp));
+        registerChatBot(services, token);
         foreach (var notificationSettings in notificationsSettings)
         {
-            RegisterNotificationAction<DiscordNotifierBot>(notificationSettings);
+            RegisterNotificationAction<TChatBot>(notificationSettings);
         }
 
         if (!hasRegisteredHandlers)
         {
             services.AddNotificationsHandler();
         }
+
+        return services;
     }
 
     private static IServiceCollection AddNotificationsHandler(this IServiceCollection services)
@@ -60,6 +78,6 @@ public static class ServiceCollectionExtensions
             return;
         }
 
-        throw new ArgumentException("ChatType unknown", nameof(notificationSettings));
+        throw new ArgumentException("ChatType unknown.", nameof(notificationSettings));
     }
 }

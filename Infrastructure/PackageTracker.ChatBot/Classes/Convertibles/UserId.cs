@@ -107,7 +107,7 @@ public class UserId : IConvertible, IComparable<UserId>, IEqualityComparer<UserI
 
     public override int GetHashCode()
     {
-        return this.id.GetHashCode();
+        return id.GetHashCode();
     }
 
     public int CompareTo(UserId? other)

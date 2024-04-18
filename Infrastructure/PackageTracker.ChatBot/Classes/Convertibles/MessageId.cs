@@ -107,7 +107,7 @@ public class MessageId : IConvertible, IComparable<MessageId>, IEqualityComparer
 
     public override int GetHashCode()
     {
-        return this.id.GetHashCode();
+        return id.GetHashCode();
     }
 
     public int CompareTo(MessageId? other)

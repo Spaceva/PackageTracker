@@ -90,5 +90,10 @@ internal static class ServiceRegistrator
         {
             services.NotifyWithDiscord(configuration);
         }
+
+        if (modules.GetValue<bool>("Telegram"))
+        {
+            services.NotifyWithTelegram(configuration);
+        }
     }
 }

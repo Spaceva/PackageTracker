@@ -167,11 +167,11 @@ public abstract class DiscordChatBot(IMediator mediator, IServiceProvider servic
         ReadyEvent.Reset();
         if (!ReadyEvent.WaitOne(TimeSpan.FromSeconds(30)))
         {
-            throw new Exception("Timeout on start");
+            throw new DiscordBotStartFailedException(BotName);
         }
 
         await DiscordClient.SetStatusAsync(UserStatus.Online);
-        Logger.LogInformation("Bot started.");
+        Logger.LogInformation("{BotName} started.", BotName);
         await PostStartAsync(cancellationToken);
     }
 

@@ -26,6 +26,7 @@
 		<ProjectReference Include="..\Application\PackageTracker.Messages\Messages.csproj" />
 		<ProjectReference Include="..\Infrastructure\PackageTracker.ChatBot.Discord\Discord.csproj" />
 		<ProjectReference Include="..\Infrastructure\PackageTracker.ChatBot.Notifications\Notifications.csproj" />
+		<ProjectReference Include="..\Infrastructure\PackageTracker.ChatBot.Telegram\Telegram.csproj" />
 		<ProjectReference Include="..\Infrastructure\PackageTracker.ChatBot\ChatBot.csproj" />
 		<ProjectReference Include="..\Infrastructure\PackageTracker.Database.EntityFramework\EntityFramework.csproj" />
 		<ProjectReference Include="..\Infrastructure\PackageTracker.Database.MemoryCache\MemoryCache.csproj" />

@@ -1,0 +1,11 @@
+{
+  "Telegram": {
+    "Token": "",
+    "Notifications": [
+      {
+        "ChatId": 0,
+        "Type": "User"
+      }
+    ]
+  }
+}

@@ -19,6 +19,7 @@
 
 	<ItemGroup>
 		<ProjectReference Include="..\PackageTracker.ChatBot.Discord\Discord.csproj" />
+		<ProjectReference Include="..\PackageTracker.ChatBot.Telegram\Telegram.csproj" />
 		<ProjectReference Include="..\PackageTracker.ChatBot\ChatBot.csproj" />
 	</ItemGroup>
 

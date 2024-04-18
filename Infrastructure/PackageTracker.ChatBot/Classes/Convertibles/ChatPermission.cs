@@ -107,7 +107,7 @@ public class ChatPermission : IConvertible, IComparable<ChatPermission>, IEquali
 
     public override int GetHashCode()
     {
-        return this.id.GetHashCode();
+        return id.GetHashCode();
     }
 
     public int CompareTo(ChatPermission? other)

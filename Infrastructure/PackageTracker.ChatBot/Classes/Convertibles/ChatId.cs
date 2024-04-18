@@ -107,7 +107,7 @@ public class ChatId : IConvertible, IComparable<ChatId>, IEqualityComparer<ChatI
 
     public override int GetHashCode()
     {
-        return this.id.GetHashCode();
+        return id.GetHashCode();
     }
 
     public int CompareTo(ChatId? other)
