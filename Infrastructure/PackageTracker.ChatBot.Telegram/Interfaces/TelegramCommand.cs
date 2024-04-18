@@ -1,5 +1,4 @@
 ﻿namespace PackageTracker.ChatBot.Telegram;
-public abstract class TelegramCommand
+public abstract class TelegramCommand : ChatBotCommand<TelegramIncomingMessage>
 {
-    public TelegramIncomingMessage MessageProperties { get; init; } = default!;
 }

@@ -1,10 +1,9 @@
 ﻿using Discord;
 using Discord.WebSocket;
-using MediatR;
 
 namespace PackageTracker.ChatBot.Discord;
 
-public abstract class SingleGuildDiscordChatBot(IMediator mediator, IServiceProvider serviceProvider) : DiscordChatBot(mediator, serviceProvider)
+public abstract class SingleGuildDiscordChatBot(IServiceProvider serviceProvider) : DiscordChatBot(serviceProvider)
 {
     public IReadOnlyCollection<SocketRole> GetRoles(UserId userId) => Guild is not null ? GetRoles(Guild.Id, userId) : [];
 

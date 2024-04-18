@@ -1,10 +1,15 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+﻿using MediatR;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
 namespace PackageTracker.ChatBot;
 
 public abstract class ChatBot(IServiceProvider serviceProvider) : IChatBot
 {
+    private IMediator? mediator;
+
+    private ILogger? logger;
+
     public abstract string BeginBoldTag { get; }
 
     public abstract string EndBoldTag { get; }
@@ -31,8 +36,6 @@ public abstract class ChatBot(IServiceProvider serviceProvider) : IChatBot
 
     protected virtual int TimeoutInSec => 3;
 
-    private ILogger? logger;
-
     protected ILogger Logger
     {
         get
@@ -40,6 +43,16 @@ public abstract class ChatBot(IServiceProvider serviceProvider) : IChatBot
             logger ??= serviceProvider.GetRequiredService<ILoggerFactory>().CreateLogger(GetType());
 
             return logger;
+        }
+    }
+
+    protected IMediator Mediator
+    {
+        get
+        {
+            mediator ??= serviceProvider.GetRequiredService<IMediator>();
+
+            return mediator;
         }
     }
 
@@ -221,7 +234,7 @@ public abstract class ChatBot(IServiceProvider serviceProvider) : IChatBot
         }
     }
 
-    public async Task SimulateTypingAsync(ChatId chatId, CancellationToken cancellationToken =default)
+    public async Task SimulateTypingAsync(ChatId chatId, CancellationToken cancellationToken = default)
     {
         Logger.LogDebug("Start SimulateTypingAsync on {chatId}", chatId);
         await SimulateTypingInternalAsync(chatId, cancellationToken);
@@ -268,12 +281,25 @@ public abstract class ChatBot(IServiceProvider serviceProvider) : IChatBot
         }
     }
 
-    protected async Task HandleMessageUpdateAsync(IIncomingMessage incomingMessage)
+    protected virtual async Task HandleUpdateAsync(IIncomingMessage incomingMessage, CancellationToken cancellationToken = default)
+    {
+        try
+        {
+            await HandleMessageUpdateAsync(incomingMessage, cancellationToken);
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "Handling Update {MessageId} in chat {ChatId} from {AuthorUserId} failed.", incomingMessage.MessageId, incomingMessage.ChatId, incomingMessage.AuthorUserId);
+            await HandleUpdateFailedAsync(incomingMessage, ex, cancellationToken);
+        }
+    }
+
+    protected async Task HandleMessageUpdateAsync(IIncomingMessage incomingMessage, CancellationToken cancellationToken = default)
     {
         if (incomingMessage.MessageText is null || string.IsNullOrEmpty(incomingMessage.MessageText))
         {
             Logger.LogDebug("Received event {MessageId} from {AuthorUserId}.", incomingMessage.MessageId, incomingMessage.AuthorUserId);
-            await HandleEventUpdateAsync(incomingMessage);
+            await HandleEventUpdateAsync(incomingMessage, cancellationToken);
             return;
         }
 
@@ -287,7 +313,7 @@ public abstract class ChatBot(IServiceProvider serviceProvider) : IChatBot
         if (!incomingMessage.MessageText.StartsWith(CommandStarterChar, StringComparison.InvariantCultureIgnoreCase))
         {
             Logger.LogDebug("Received message {MessageId} from {AuthorUserId}.", incomingMessage.MessageId!, incomingMessage.AuthorUserId!);
-            await HandleMessageTextUpdateAsync(incomingMessage);
+            await HandleMessageTextUpdateAsync(incomingMessage, cancellationToken);
             return;
         }
 
@@ -306,28 +332,25 @@ public abstract class ChatBot(IServiceProvider serviceProvider) : IChatBot
                 Logger.LogDebug("Received message {MessageId} in {ChatId} from {AuthorUserId} with command '{Command}' with no args.", incomingMessage.MessageId, incomingMessage.ChatId, incomingMessage.AuthorUserId, command);
             }
 
-            await HandleCommandUpdateAsync(incomingMessage, command, commandArgs);
+            await HandleCommandUpdateAsync(incomingMessage, command, commandArgs, cancellationToken);
+            return;
         }
-        else
-        {
-            Logger.LogDebug("Received message {MessageId} from {AuthorUserId}.", incomingMessage.MessageId, incomingMessage.AuthorUserId);
-            await HandleMessageTextUpdateAsync(incomingMessage);
-        }
+
+        Logger.LogDebug("Received message {MessageId} from {AuthorUserId}.", incomingMessage.MessageId, incomingMessage.AuthorUserId);
+        await HandleMessageTextUpdateAsync(incomingMessage, cancellationToken);
     }
 
     protected abstract Task ReactToMessageInternalAsync(ChatId chatId, MessageId messageId, IEmoji emoji, CancellationToken cancellationToken = default);
 
     protected abstract Task SimulateTypingInternalAsync(ChatId chatId, CancellationToken cancellationToken = default);
 
-    protected abstract Task HandleUpdateAsync(IIncomingMessage incomingMessage, CancellationToken cancellationToken = default);
+    internal abstract Task HandleMessageTextUpdateAsync(IIncomingMessage incomingMessage, CancellationToken cancellationToken = default);
 
-    protected abstract Task HandleMessageTextUpdateAsync(IIncomingMessage incomingMessage, CancellationToken cancellationToken = default);
+    internal abstract Task HandleCommandUpdateAsync(IIncomingMessage incomingMessage, string command, string[] commandArgs, CancellationToken cancellationToken = default);
 
-    protected abstract Task HandleCommandUpdateAsync(IIncomingMessage incomingMessage, string command, string[] commandArgs, CancellationToken cancellationToken = default);
+    internal abstract Task HandleEventUpdateAsync(IIncomingMessage incomingMessage, CancellationToken cancellationToken = default);
 
-    protected abstract Task HandleEventUpdateAsync(IIncomingMessage incomingMessage, CancellationToken cancellationToken = default);
-
-    protected abstract Task HandleUpdateFailedAsync(IIncomingMessage incomingMessage, Exception ex, CancellationToken cancellationToken = default);
+    internal abstract Task HandleUpdateFailedAsync(IIncomingMessage incomingMessage, Exception ex, CancellationToken cancellationToken = default);
 
     protected abstract Task HandleEditMessageExceptionAsync(EditMessageFailedException ex, CancellationToken cancellationToken = default);
 

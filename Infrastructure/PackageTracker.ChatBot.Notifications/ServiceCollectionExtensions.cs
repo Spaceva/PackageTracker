@@ -1,5 +1,4 @@
-﻿using MediatR;
-using Microsoft.Extensions.Configuration;
+﻿using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using PackageTracker.ChatBot.Notifications;
 using PackageTracker.ChatBot.Notifications.Configuration;
@@ -16,12 +15,12 @@ public static class ServiceCollectionExtensions
     public static IServiceCollection NotifyWithDiscord(this IServiceCollection services, IConfiguration configuration)
     => services.NotifyWithChatBot<DiscordNotifierBot>(configuration,
         "Discord",
-        (sc, token) => sc.AddDiscordChatBot(sp => new DiscordNotifierBot(token, sp.GetRequiredService<IMediator>(), sp)));
+        (sc, token) => sc.AddDiscordChatBot(sp => new DiscordNotifierBot(token, sp)));
 
     public static IServiceCollection NotifyWithTelegram(this IServiceCollection services, IConfiguration configuration)
     => services.NotifyWithChatBot<TelegramNotifierBot>(configuration, 
         "Telegram",
-        (sc, token) => sc.AddTelegramChatBot(sp => new TelegramNotifierBot(token, sp.GetRequiredService<IMediator>(), sp)));
+        (sc, token) => sc.AddTelegramChatBot(sp => new TelegramNotifierBot(token, sp)));
 
     private static IServiceCollection NotifyWithChatBot<TChatBot>(this IServiceCollection services,
         IConfiguration configuration,

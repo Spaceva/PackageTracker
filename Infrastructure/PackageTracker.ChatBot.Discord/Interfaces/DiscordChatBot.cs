@@ -1,11 +1,10 @@
 ﻿using Discord;
 using Discord.WebSocket;
-using MediatR;
 using Microsoft.Extensions.Logging;
 
 namespace PackageTracker.ChatBot.Discord;
 
-public abstract class DiscordChatBot(IMediator mediator, IServiceProvider serviceProvider) : ChatBot<SocketMessage, DiscordSendingMessageOptions>(serviceProvider), IDiscordBot
+public abstract class DiscordChatBot(IServiceProvider serviceProvider) : ChatBot<SocketMessage, DiscordIncomingMessage, DiscordSendingMessageOptions, DiscordCommand>(serviceProvider), IDiscordBot
 {
     private bool isReady = false;
 
@@ -23,7 +22,7 @@ public abstract class DiscordChatBot(IMediator mediator, IServiceProvider servic
             {
                 return base.BotName;
             }
-
+            
             return DiscordClient.CurrentUser.Username;
         }
     }
@@ -180,9 +179,7 @@ public abstract class DiscordChatBot(IMediator mediator, IServiceProvider servic
         return Task.CompletedTask;
     }
 
-    protected abstract DiscordCommand ParseCommand(string command, string[] commandArgs, DiscordIncomingMessage incomingMessage);
-
-    protected override sealed IIncomingMessage GetAbstractIncomingMessage(SocketMessage incomingMessage) => new DiscordIncomingMessage(incomingMessage);
+    protected override sealed DiscordIncomingMessage ParseIncomingMessage(SocketMessage incomingMessage) => new (incomingMessage);
 
     protected override sealed async Task SimulateTypingInternalAsync(ChatId chat, CancellationToken cancellationToken = default)
     {
@@ -190,30 +187,11 @@ public abstract class DiscordChatBot(IMediator mediator, IServiceProvider servic
         await channel.TriggerTypingAsync(DefaultRequestOptions(cancellationToken));
     }
 
-    protected override sealed async Task HandleUpdateAsync(IIncomingMessage incomingMessage, CancellationToken cancellationToken = default)
-    {
-        try
-        {
-            await HandleMessageUpdateAsync(incomingMessage);
-        }
-        catch (Exception ex)
-        {
-            Logger.LogError(ex, "Handling Update {MessageId} in chat {ChatId} from {AuthorUserId} failed.", incomingMessage.MessageId, incomingMessage.ChatId, incomingMessage.AuthorUserId);
-            await HandleUpdateFailedAsync(incomingMessage, ex, cancellationToken);
-        }
-    }
-
-    protected override sealed async Task HandleUpdateFailedAsync(IIncomingMessage incomingMessage, Exception ex, CancellationToken cancellationToken = default) => await HandleUpdateFailedAsync((DiscordIncomingMessage)incomingMessage, ex, cancellationToken);
-
-    protected override sealed async Task HandleMessageTextUpdateAsync(IIncomingMessage incomingMessage, CancellationToken cancellationToken = default) => await HandleMessageTextUpdateAsync((DiscordIncomingMessage)incomingMessage, cancellationToken);
-
-    protected override sealed Task HandleEventUpdateAsync(IIncomingMessage incomingMessage, CancellationToken cancellationToken = default)
+    protected override sealed Task HandleEventUpdateInternalAsync(DiscordIncomingMessage incomingMessage, CancellationToken cancellationToken = default)
     {
         Logger.LogDebug("Event {MessageId} handled.", incomingMessage.MessageId);
         return Task.CompletedTask;
     }
-
-    protected override sealed async Task HandleCommandUpdateAsync(IIncomingMessage incomingMessage, string command, string[] commandArgs, CancellationToken cancellationToken = default) => await mediator.Send(ParseCommand(command, commandArgs, (DiscordIncomingMessage)incomingMessage), cancellationToken);
 
     protected override sealed async Task ReactToMessageInternalAsync(ChatId chatId, MessageId messageId, IEmoji emoji, CancellationToken cancellationToken = default)
     {
@@ -617,7 +595,7 @@ public abstract class DiscordChatBot(IMediator mediator, IServiceProvider servic
     private async Task HandleMessageReceivedAsync(SocketMessage message)
     {
         Logger.LogDebug("Received message {MessageId} from {UserId}.", message.Id, message.Author.Id);
-        await HandleUpdateAsync(GetAbstractIncomingMessage(message));
+        await HandleUpdateAsync(ParseIncomingMessage(message));
     }
 
     private async Task HandleUserIsTypingEventAsync(Cacheable<IUser, ulong> userCache, Cacheable<IMessageChannel, ulong> channelCache)

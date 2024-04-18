@@ -1,11 +1,10 @@
 ﻿using Discord;
 using Discord.WebSocket;
-using MediatR;
 using PackageTracker.ChatBot.Discord;
 
 namespace PackageTracker.ChatBot.Notifications.Discord;
 
-public class DiscordNotifierBot(string token, IMediator mediator, IServiceProvider serviceProvider) : SingleGuildDiscordChatBot(mediator, serviceProvider)
+public class DiscordNotifierBot(string token, IServiceProvider serviceProvider) : SingleGuildDiscordChatBot(serviceProvider)
 {
     public override string Token => token;
 
@@ -170,4 +169,8 @@ public class DiscordNotifierBot(string token, IMediator mediator, IServiceProvid
     protected override Task HandleSendingFileExceptionAsync(SendFileToUserFailedException ex, CancellationToken cancellationToken = default) => Task.CompletedTask;
 
     protected override Task HandleReactionMessageExceptionAsync(ReactionMessageFailedException ex, CancellationToken cancellationToken = default) => Task.CompletedTask;
+
+    protected override Task HandleMessageTextUpdateAsync(DiscordIncomingMessage incomingMessage, CancellationToken cancellationToken = default) => Task.CompletedTask;
+
+    protected override Task HandleUpdateFailedAsync(DiscordIncomingMessage incomingMessage, Exception ex, CancellationToken cancellationToken = default) => Task.CompletedTask;
 }

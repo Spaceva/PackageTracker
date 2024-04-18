@@ -1,5 +1,4 @@
-﻿using MediatR;
-using Microsoft.Extensions.Logging;
+﻿using Microsoft.Extensions.Logging;
 using System.Net;
 using Telegram.Bot;
 using Telegram.Bot.Exceptions;
@@ -9,7 +8,7 @@ using Telegram.Bot.Types.ReplyMarkups;
 
 namespace PackageTracker.ChatBot.Telegram;
 
-public abstract class TelegramChatBot(IMediator mediator, IServiceProvider serviceProvider) : ChatBot<Update, TelegramSendingMessageOptions>(serviceProvider), ITelegramBot
+public abstract class TelegramChatBot(IServiceProvider serviceProvider) : ChatBot<Update, TelegramIncomingMessage, TelegramSendingMessageOptions, TelegramCommand>(serviceProvider), ITelegramBot
 {
     protected int offset = 0;
 
@@ -171,23 +170,177 @@ public abstract class TelegramChatBot(IMediator mediator, IServiceProvider servi
         return Task.CompletedTask;
     }
 
-    protected override sealed IIncomingMessage GetAbstractIncomingMessage(Update incomingMessage)
+    protected override sealed TelegramIncomingMessage ParseIncomingMessage(Update incomingMessage)
     {
         var genUpdate = new TelegramIncomingMessage(incomingMessage);
         return genUpdate;
     }
 
-    protected override sealed async Task SimulateTypingInternalAsync(ChatId chatId, CancellationToken cancellationToken = default) => await TelegramBotClient!.SendChatActionAsync(chatId.ToString(), ChatAction.Typing, cancellationToken: cancellationToken);
+    protected override sealed async Task SimulateTypingInternalAsync(ChatId chatId, CancellationToken cancellationToken = default) 
+        => await TelegramBotClient!.SendChatActionAsync(chatId.ToString(), ChatAction.Typing, cancellationToken: cancellationToken);
 
-    protected override sealed async Task HandleUpdateAsync(IIncomingMessage incomingMessage, CancellationToken cancellationToken = default) => await HandleTelegramUpdateAsync((TelegramIncomingMessage)incomingMessage);
+    protected override sealed async Task HandleUpdateAsync(IIncomingMessage incomingMessage, CancellationToken cancellationToken = default)
+    {
+        TelegramIncomingMessage telegramIncomingMessage = (TelegramIncomingMessage)incomingMessage;
+        Logger.LogDebug("Handling Telegram Update {MessageId} of type {MessageType}...", telegramIncomingMessage.MessageId, telegramIncomingMessage.MessageType);
+        switch (telegramIncomingMessage.MessageType)
+        {
+            case UpdateType.Message:
+                try
+                {
+                    await HandleMessageUpdateAsync(telegramIncomingMessage, cancellationToken);
+                }
+                catch (Exception ex)
+                {
+                    await HandleUpdateFailedAsync(telegramIncomingMessage, ex);
+                }
+                break;
+            case UpdateType.Unknown:
+                try
+                {
+                    await HandleUnknownUpdateAsync(telegramIncomingMessage, cancellationToken);
+                }
+                catch (Exception ex)
+                {
+                    await HandleUpdateFailedAsync(telegramIncomingMessage, ex);
+                }
+                break;
+            case UpdateType.InlineQuery:
+                try
+                {
+                    await HandleInlineQueryUpdateAsync(telegramIncomingMessage, cancellationToken);
+                }
+                catch (Exception ex)
+                {
+                    await HandleUpdateFailedAsync(telegramIncomingMessage, ex);
+                }
+                break;
+            case UpdateType.ChosenInlineResult:
+                try
+                {
+                    await HandleChosenInlineResultUpdateAsync(telegramIncomingMessage, cancellationToken);
+                }
+                catch (Exception ex)
+                {
+                    await HandleUpdateFailedAsync(telegramIncomingMessage, ex);
+                }
+                break;
+            case UpdateType.EditedMessage:
+                try
+                {
+                    await HandleEditedMessageAsync(telegramIncomingMessage, cancellationToken);
+                }
+                catch (Exception ex)
+                {
+                    await HandleUpdateFailedAsync(telegramIncomingMessage, ex);
+                }
+                break;
+            case UpdateType.CallbackQuery:
+                try
+                {
+                    await HandleCallbackQueryUpdateAsync(telegramIncomingMessage, cancellationToken);
+                }
+                catch (Exception ex)
+                {
+                    await HandleUpdateFailedAsync(telegramIncomingMessage, ex);
+                }
+                break;
+            case UpdateType.ChannelPost:
+                try
+                {
+                    await HandleChannelPostUpdateAsync(telegramIncomingMessage, cancellationToken);
+                }
+                catch (Exception ex)
+                {
+                    await HandleUpdateFailedAsync(telegramIncomingMessage, ex);
+                }
+                break;
+            case UpdateType.EditedChannelPost:
+                try
+                {
+                    await HandleEditedChannelPostAsync(telegramIncomingMessage, cancellationToken);
+                }
+                catch (Exception ex)
+                {
+                    await HandleUpdateFailedAsync(telegramIncomingMessage, ex);
+                }
+                break;
+            case UpdateType.ShippingQuery:
+                try
+                {
+                    await HandleShippingQueryUpdateAsync(telegramIncomingMessage, cancellationToken);
+                }
+                catch (Exception ex)
+                {
+                    await HandleUpdateFailedAsync(telegramIncomingMessage, ex);
+                }
+                break;
+            case UpdateType.PreCheckoutQuery:
+                try
+                {
+                    await HandlePreCheckoutQueryUpdateAsync(telegramIncomingMessage, cancellationToken);
+                }
+                catch (Exception ex)
+                {
+                    await HandleUpdateFailedAsync(telegramIncomingMessage, ex);
+                }
+                break;
+            case UpdateType.Poll:
+                try
+                {
+                    await HandlePollUpdateAsync(telegramIncomingMessage, cancellationToken);
+                }
+                catch (Exception ex)
+                {
+                    await HandleUpdateFailedAsync(telegramIncomingMessage, ex);
+                }
+                break;
+            case UpdateType.PollAnswer:
+                try
+                {
+                    await HandlePollAnswerUpdateAsync(telegramIncomingMessage, cancellationToken);
+                }
+                catch (Exception ex)
+                {
+                    await HandleUpdateFailedAsync(telegramIncomingMessage, ex);
+                }
+                break;
+            case UpdateType.MyChatMember:
+                try
+                {
+                    await HandleMyChatMemberUpdateAsync(telegramIncomingMessage, cancellationToken);
+                }
+                catch (Exception ex)
+                {
+                    await HandleUpdateFailedAsync(telegramIncomingMessage, ex);
+                }
+                break;
+            case UpdateType.ChatMember:
+                try
+                {
+                    await HandleChatMemberUpdateAsync(telegramIncomingMessage, cancellationToken);
+                }
+                catch (Exception ex)
+                {
+                    await HandleUpdateFailedAsync(telegramIncomingMessage, ex);
+                }
+                break;
+            case UpdateType.ChatJoinRequest:
+                try
+                {
+                    await HandleChatJoinRequestUpdateAsync(telegramIncomingMessage, cancellationToken);
+                }
+                catch (Exception ex)
+                {
+                    await HandleUpdateFailedAsync(telegramIncomingMessage, ex);
+                }
+                break;
+            default:
+                break;
+        }
+    }
 
-    protected override sealed async Task HandleCommandUpdateAsync(IIncomingMessage incomingMessage, string command, string[] commandArgs, CancellationToken cancellationToken = default) => await mediator.Send(ParseCommand(command, commandArgs, (TelegramIncomingMessage)incomingMessage), cancellationToken);
-
-    protected override sealed async Task HandleMessageTextUpdateAsync(IIncomingMessage incomingMessage, CancellationToken cancellationToken = default) => await HandleMessageTextUpdateAsync((TelegramIncomingMessage)incomingMessage);
-
-    protected override sealed async Task HandleUpdateFailedAsync(IIncomingMessage incomingMessage, Exception ex, CancellationToken cancellationToken = default) => await HandleUpdateFailedAsync((TelegramIncomingMessage)incomingMessage, ex);
-
-    protected override sealed async Task HandleEventUpdateAsync(IIncomingMessage incomingMessage, CancellationToken cancellationToken = default)
+    protected override sealed async Task HandleEventUpdateInternalAsync(TelegramIncomingMessage incomingMessage, CancellationToken cancellationToken = default)
     {
         if (incomingMessage.ChatId is not null)
         {
@@ -199,32 +352,32 @@ public abstract class TelegramChatBot(IMediator mediator, IServiceProvider servi
 
             if (origin.Message.ChannelChatCreated ?? false)
             {
-                await HandleChannelChatCreatedAsync((TelegramIncomingMessage)incomingMessage);
+                await HandleChannelChatCreatedAsync(incomingMessage);
             }
 
             if (origin.Message.SupergroupChatCreated ?? false)
             {
-                await HandleSupergroupChatCreatedAsync((TelegramIncomingMessage)incomingMessage);
+                await HandleSupergroupChatCreatedAsync(incomingMessage);
             }
 
             if (origin.Message.GroupChatCreated ?? false)
             {
-                await HandleGroupChatCreatedAsync((TelegramIncomingMessage)incomingMessage);
+                await HandleGroupChatCreatedAsync(incomingMessage);
             }
 
             if (origin.Message.MigrateFromChatId > 0 && origin.Message.MigrateToChatId > 0)
             {
-                await HandleMigrationToSuperGroupAsync((TelegramIncomingMessage)incomingMessage, origin.Message.MigrateFromChatId, origin.Message.MigrateToChatId);
+                await HandleMigrationToSuperGroupAsync(incomingMessage, origin.Message.MigrateFromChatId, origin.Message.MigrateToChatId);
             }
 
             if (origin.Message.PinnedMessage is not null)
             {
-                await HandleMessagePinnedAsync((TelegramIncomingMessage)incomingMessage, origin.Message.From!.Id, origin.Message.PinnedMessage.Text!);
+                await HandleMessagePinnedAsync(incomingMessage, origin.Message.From!.Id, origin.Message.PinnedMessage.Text!);
             }
 
             if (!string.IsNullOrEmpty(origin.Message.NewChatTitle))
             {
-                await HandleEventNewChatTitleAsync((TelegramIncomingMessage)incomingMessage, origin.Message.NewChatTitle);
+                await HandleEventNewChatTitleAsync(incomingMessage, origin.Message.NewChatTitle);
             }
 
             if (origin.Message.NewChatMembers is not null)
@@ -233,11 +386,11 @@ public abstract class TelegramChatBot(IMediator mediator, IServiceProvider servi
                 {
                     if (newChatMember.Id == BotId)
                     {
-                        await HandleEventBotJoinedAsync((TelegramIncomingMessage)incomingMessage);
+                        await HandleEventBotJoinedAsync(incomingMessage);
                     }
                     else
                     {
-                        await HandleEventNewChatMemberAsync((TelegramIncomingMessage)incomingMessage, newChatMember);
+                        await HandleEventNewChatMemberAsync(incomingMessage, newChatMember);
                     }
                 }
             }
@@ -246,11 +399,11 @@ public abstract class TelegramChatBot(IMediator mediator, IServiceProvider servi
             {
                 if (origin.Message.LeftChatMember.Id == BotId)
                 {
-                    await HandleEventBotLeavedAsync((TelegramIncomingMessage)incomingMessage);
+                    await HandleEventBotLeavedAsync(incomingMessage);
                 }
                 else
                 {
-                    await HandleEventUserLeavedAsync((TelegramIncomingMessage)incomingMessage, origin.Message.LeftChatMember.Id.ToString());
+                    await HandleEventUserLeavedAsync(incomingMessage, origin.Message.LeftChatMember.Id.ToString());
                 }
             }
         }
@@ -299,35 +452,33 @@ public abstract class TelegramChatBot(IMediator mediator, IServiceProvider servi
 
     protected abstract Task HandleEventNewChatTitleAsync(TelegramIncomingMessage incomingMessage, string newChatTitle);
 
-    protected abstract Task HandleUnknownUpdateAsync(TelegramIncomingMessage incomingMessage);
+    protected abstract Task HandleUnknownUpdateAsync(TelegramIncomingMessage incomingMessage, CancellationToken cancellationToken = default);
 
-    protected abstract Task HandleInlineQueryUpdateAsync(TelegramIncomingMessage incomingMessage);
+    protected abstract Task HandleInlineQueryUpdateAsync(TelegramIncomingMessage incomingMessage, CancellationToken cancellationToken = default);
 
-    protected abstract Task HandleChosenInlineResultUpdateAsync(TelegramIncomingMessage incomingMessage);
+    protected abstract Task HandleChosenInlineResultUpdateAsync(TelegramIncomingMessage incomingMessage, CancellationToken cancellationToken = default);
 
-    protected abstract Task HandleEditedMessageAsync(TelegramIncomingMessage incomingMessage);
+    protected abstract Task HandleEditedMessageAsync(TelegramIncomingMessage incomingMessage, CancellationToken cancellationToken = default);
 
-    protected abstract Task HandleCallbackQueryUpdateAsync(TelegramIncomingMessage incomingMessage);
+    protected abstract Task HandleCallbackQueryUpdateAsync(TelegramIncomingMessage incomingMessage, CancellationToken cancellationToken = default);
 
-    protected abstract Task HandleChannelPostUpdateAsync(TelegramIncomingMessage incomingMessage);
+    protected abstract Task HandleChannelPostUpdateAsync(TelegramIncomingMessage incomingMessage, CancellationToken cancellationToken = default);
 
-    protected abstract Task HandleEditedChannelPostAsync(TelegramIncomingMessage incomingMessage);
+    protected abstract Task HandleEditedChannelPostAsync(TelegramIncomingMessage incomingMessage, CancellationToken cancellationToken = default);
 
-    protected abstract Task HandleShippingQueryUpdateAsync(TelegramIncomingMessage incomingMessage);
+    protected abstract Task HandleShippingQueryUpdateAsync(TelegramIncomingMessage incomingMessage, CancellationToken cancellationToken = default);
 
-    protected abstract Task HandlePreCheckoutQueryUpdateAsync(TelegramIncomingMessage incomingMessage);
+    protected abstract Task HandlePreCheckoutQueryUpdateAsync(TelegramIncomingMessage incomingMessage, CancellationToken cancellationToken = default);
 
-    protected abstract Task HandlePollUpdateAsync(TelegramIncomingMessage telegramIncomingMessage);
+    protected abstract Task HandlePollUpdateAsync(TelegramIncomingMessage telegramIncomingMessage, CancellationToken cancellationToken = default);
 
-    protected abstract Task HandleChatJoinRequestUpdateAsync(TelegramIncomingMessage telegramIncomingMessage);
+    protected abstract Task HandleChatJoinRequestUpdateAsync(TelegramIncomingMessage telegramIncomingMessage, CancellationToken cancellationToken = default);
 
-    protected abstract Task HandleChatMemberUpdateAsync(TelegramIncomingMessage telegramIncomingMessage);
+    protected abstract Task HandleChatMemberUpdateAsync(TelegramIncomingMessage telegramIncomingMessage, CancellationToken cancellationToken = default);
 
-    protected abstract Task HandleMyChatMemberUpdateAsync(TelegramIncomingMessage telegramIncomingMessage);
+    protected abstract Task HandleMyChatMemberUpdateAsync(TelegramIncomingMessage telegramIncomingMessage, CancellationToken cancellationToken = default);
 
-    protected abstract Task HandlePollAnswerUpdateAsync(TelegramIncomingMessage telegramIncomingMessage);
-
-    protected abstract TelegramCommand ParseCommand(string command, string[] commandArgs, TelegramIncomingMessage incomingMessage);
+    protected abstract Task HandlePollAnswerUpdateAsync(TelegramIncomingMessage telegramIncomingMessage, CancellationToken cancellationToken = default);
 
     private void BindEvents()
     {
@@ -360,165 +511,5 @@ public abstract class TelegramChatBot(IMediator mediator, IServiceProvider servi
     {
         var content = eventArgs.ResponseMessage.Content is not null ? await eventArgs.ResponseMessage.Content.ReadAsStringAsync(cancellationToken) : "Empty body";
         Logger.LogDebug("{MethodName} : RESPONSE {HttpStatus} with {Body}", eventArgs.ApiRequestEventArgs.Request.MethodName, eventArgs.ResponseMessage.StatusCode, content);
-    }
-
-    private async Task HandleTelegramUpdateAsync(TelegramIncomingMessage telegramIncomingMessage)
-    {
-        Logger.LogDebug("Handling Telegram Update {MessageId} of type {MessageType}...", telegramIncomingMessage.MessageId, telegramIncomingMessage.MessageType);
-        switch (telegramIncomingMessage.MessageType)
-        {
-            case UpdateType.Message:
-                try
-                {
-                    await HandleMessageUpdateAsync(telegramIncomingMessage);
-                }
-                catch (Exception ex)
-                {
-                    await HandleUpdateFailedAsync(telegramIncomingMessage, ex);
-                }
-                break;
-            case UpdateType.Unknown:
-                try
-                {
-                    await HandleUnknownUpdateAsync(telegramIncomingMessage);
-                }
-                catch (Exception ex)
-                {
-                    await HandleUpdateFailedAsync(telegramIncomingMessage, ex);
-                }
-                break;
-            case UpdateType.InlineQuery:
-                try
-                {
-                    await HandleInlineQueryUpdateAsync(telegramIncomingMessage);
-                }
-                catch (Exception ex)
-                {
-                    await HandleUpdateFailedAsync(telegramIncomingMessage, ex);
-                }
-                break;
-            case UpdateType.ChosenInlineResult:
-                try
-                {
-                    await HandleChosenInlineResultUpdateAsync(telegramIncomingMessage);
-                }
-                catch (Exception ex)
-                {
-                    await HandleUpdateFailedAsync(telegramIncomingMessage, ex);
-                }
-                break;
-            case UpdateType.EditedMessage:
-                try
-                {
-                    await HandleEditedMessageAsync(telegramIncomingMessage);
-                }
-                catch (Exception ex)
-                {
-                    await HandleUpdateFailedAsync(telegramIncomingMessage, ex);
-                }
-                break;
-            case UpdateType.CallbackQuery:
-                try
-                {
-                    await HandleCallbackQueryUpdateAsync(telegramIncomingMessage);
-                }
-                catch (Exception ex)
-                {
-                    await HandleUpdateFailedAsync(telegramIncomingMessage, ex);
-                }
-                break;
-            case UpdateType.ChannelPost:
-                try
-                {
-                    await HandleChannelPostUpdateAsync(telegramIncomingMessage);
-                }
-                catch (Exception ex)
-                {
-                    await HandleUpdateFailedAsync(telegramIncomingMessage, ex);
-                }
-                break;
-            case UpdateType.EditedChannelPost:
-                try
-                {
-                    await HandleEditedChannelPostAsync(telegramIncomingMessage);
-                }
-                catch (Exception ex)
-                {
-                    await HandleUpdateFailedAsync(telegramIncomingMessage, ex);
-                }
-                break;
-            case UpdateType.ShippingQuery:
-                try
-                {
-                    await HandleShippingQueryUpdateAsync(telegramIncomingMessage);
-                }
-                catch (Exception ex)
-                {
-                    await HandleUpdateFailedAsync(telegramIncomingMessage, ex);
-                }
-                break;
-            case UpdateType.PreCheckoutQuery:
-                try
-                {
-                    await HandlePreCheckoutQueryUpdateAsync(telegramIncomingMessage);
-                }
-                catch (Exception ex)
-                {
-                    await HandleUpdateFailedAsync(telegramIncomingMessage, ex);
-                }
-                break;
-            case UpdateType.Poll:
-                try
-                {
-                    await HandlePollUpdateAsync(telegramIncomingMessage);
-                }
-                catch (Exception ex)
-                {
-                    await HandleUpdateFailedAsync(telegramIncomingMessage, ex);
-                }
-                break;
-            case UpdateType.PollAnswer:
-                try
-                {
-                    await HandlePollAnswerUpdateAsync(telegramIncomingMessage);
-                }
-                catch (Exception ex)
-                {
-                    await HandleUpdateFailedAsync(telegramIncomingMessage, ex);
-                }
-                break;
-            case UpdateType.MyChatMember:
-                try
-                {
-                    await HandleMyChatMemberUpdateAsync(telegramIncomingMessage);
-                }
-                catch (Exception ex)
-                {
-                    await HandleUpdateFailedAsync(telegramIncomingMessage, ex);
-                }
-                break;
-            case UpdateType.ChatMember:
-                try
-                {
-                    await HandleChatMemberUpdateAsync(telegramIncomingMessage);
-                }
-                catch (Exception ex)
-                {
-                    await HandleUpdateFailedAsync(telegramIncomingMessage, ex);
-                }
-                break;
-            case UpdateType.ChatJoinRequest:
-                try
-                {
-                    await HandleChatJoinRequestUpdateAsync(telegramIncomingMessage);
-                }
-                catch (Exception ex)
-                {
-                    await HandleUpdateFailedAsync(telegramIncomingMessage, ex);
-                }
-                break;
-            default:
-                break;
-        }
     }
 }
