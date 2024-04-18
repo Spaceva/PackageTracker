@@ -11,7 +11,6 @@ using PackageTracker.Export.Confluence;
 using PackageTracker.Presentation.WebApi;
 using PackageTracker.Presentation.MVCApp;
 using PackageTracker.Presentation.ExceptionHandlers;
-using PackageTracker.ChatBot.Discord;
 using PackageTracker.ChatBot.Discord.Notifications;
 using PackageTracker.Scanner.GitHub;
 
@@ -90,7 +89,6 @@ internal static class ServiceRegistrator
         if (modules.GetValue<bool>("Discord"))
         {
             services.NotifyWithDiscord(configuration);
-            services.AddDiscordNotificationHandlers();
         }
     }
 }

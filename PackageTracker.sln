@@ -86,7 +86,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Discord", "Discord", "{FB1B
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Discord", "Infrastructure\PackageTracker.ChatBot.Discord\Discord.csproj", "{40FAF172-E750-4935-A78E-25770672AD53}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Notifications", "Infrastructure\PackageTracker.ChatBot.Notifications\Notifications.csproj", "{5070D09C-D581-46A4-BABB-8A25B540897B}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Notifications", "Infrastructure\PackageTracker.ChatBot.Notifications\Notifications.csproj", "{5070D09C-D581-46A4-BABB-8A25B540897B}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

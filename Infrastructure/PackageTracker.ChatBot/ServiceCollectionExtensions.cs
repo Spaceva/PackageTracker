@@ -4,17 +4,18 @@ namespace PackageTracker.ChatBot;
 
 public static class ServiceCollectionExtensions
 {
-    public static void AddChatBot<TChatBot>(this IServiceCollection services)
+    public static void AddChatBot<TChatBot>(this IServiceCollection services, Func<IServiceProvider, TChatBot>? factory = null)
         where TChatBot : class, IChatBot
     {
-        services.AddSingleton<TChatBot>();
-        services.AddSingleton<IChatBot>(sp => sp.GetRequiredService<TChatBot>());
-        services.AddHostedService<ChatBotHostingService<TChatBot>>();
-    }
-    public static void AddChatBot<TChatBot>(this IServiceCollection services, Func<IServiceProvider, TChatBot> factory)
-        where TChatBot : class, IChatBot
-    {
-        services.AddSingleton(factory);
+        if (factory is not null)
+        {
+            services.AddSingleton(factory);
+        }
+        else
+        {
+            services.AddSingleton<TChatBot>();
+        }
+
         services.AddSingleton<IChatBot>(sp => sp.GetRequiredService<TChatBot>());
         services.AddHostedService<ChatBotHostingService<TChatBot>>();
     }

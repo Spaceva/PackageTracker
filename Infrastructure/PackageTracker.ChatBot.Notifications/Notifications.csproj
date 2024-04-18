@@ -5,13 +5,21 @@
 		<ImplicitUsings>enable</ImplicitUsings>
 		<Nullable>enable</Nullable>
 		<AssemblyVersion>1.0.0</AssemblyVersion>
-		<AssemblyName>PackageTracker.ChatBot.Discord.Notifications</AssemblyName>
-		<RootNamespace>PackageTracker.ChatBot.Discord.Notifications</RootNamespace>
+		<AssemblyName>PackageTracker.ChatBot.Notifications</AssemblyName>
+		<RootNamespace>PackageTracker.ChatBot.Notifications</RootNamespace>
 	</PropertyGroup>
 
-  <ItemGroup>
-    <ProjectReference Include="..\PackageTracker.ChatBot.Discord\Discord.csproj" />
-    <ProjectReference Include="..\PackageTracker.ChatBot\ChatBot.csproj" />
-  </ItemGroup>
+	<ItemGroup>
+		<PackageReference Include="MediatR" Version="12.2.0" />
+		<PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" Version="8.0.0" />
+		<PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="8.0.0" />
+		<PackageReference Include="Microsoft.Extensions.Options" Version="8.0.0" />
+		<PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" Version="8.0.0" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<ProjectReference Include="..\PackageTracker.ChatBot.Discord\Discord.csproj" />
+		<ProjectReference Include="..\PackageTracker.ChatBot\ChatBot.csproj" />
+	</ItemGroup>
 
 </Project>

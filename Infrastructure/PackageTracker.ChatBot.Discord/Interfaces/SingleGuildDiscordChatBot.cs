@@ -53,7 +53,7 @@ public abstract class SingleGuildDiscordChatBot(IMediator mediator, IServiceProv
     protected override Task HandleChannelUpdatedAsync(SocketChannel channelBefore, SocketChannel channelNow) => HandleGuildChannelUpdatedAsync(channelBefore, Guild!.Channels.Single(c => c.Id.Equals(channelNow.Id)));
 
     protected override Task HandleChannelCreatedAsync(SocketChannel channel) => HandleGuildChannelCreatedAsync(Guild!.Channels.Single(c => c.Id.Equals(channel.Id)));
-    
+
     protected abstract Task HandleGuildWebhooksUpdatedAsync(SocketGuild guild, SocketGuildChannel guildChannel);
 
     protected abstract Task HandleGuildUserVoiceStateUpdatedAsync(SocketGuildUser guildUser, SocketVoiceState voiceStateBefore, SocketVoiceState voiceStateNow);
@@ -61,11 +61,11 @@ public abstract class SingleGuildDiscordChatBot(IMediator mediator, IServiceProv
     protected abstract Task HandleGuildUserIsTypingAsync(SocketGuildUser guildUser, SocketGuildChannel socketGuildChannel);
 
     protected abstract Task HandleGuildUserUpdatedAsync(SocketUser userBefore, SocketGuildUser socketGuildUser);
-    
+
     protected abstract Task HandleGuildUserUnbannedAsync(SocketGuildUser socketGuildUser, SocketGuild guild);
 
     protected abstract Task HandleGuildChannelCreatedAsync(SocketGuildChannel socketGuildChannel);
- 
+
     protected abstract Task HandleGuildChannelUpdatedAsync(SocketChannel channelBefore, SocketGuildChannel socketGuildChannel);
 
     protected abstract Task HandleGuildPresenceUpdatedAsync(SocketGuildUser socketGuildUser, SocketPresence presenceBefore, SocketPresence presenceNow);

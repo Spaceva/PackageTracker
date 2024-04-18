@@ -4,15 +4,20 @@ public abstract class ChatBot<TMessage, TSendingMessageOptions>(IServiceProvider
 where TMessage : class
 where TSendingMessageOptions : class, ISendingMessageOptions
 {
-    internal override sealed async Task SendTextMessageToChatInternalAsync(ChatId chatId, string message, ISendingMessageOptions? messageOptions = null) => await SendTextMessageToChatInternalAsync(chatId, message, (TSendingMessageOptions?)messageOptions);
+    internal override sealed async Task SendTextMessageToChatInternalAsync(ChatId chatId, string message, ISendingMessageOptions? messageOptions = null, CancellationToken cancellationToken = default) 
+        => await SendTextMessageToChatInternalAsync(chatId, message, (TSendingMessageOptions?)messageOptions, cancellationToken);
 
-    internal override sealed async Task SendTextMessageToUserInternalAsync(UserId userId, string message, ISendingMessageOptions? messageOptions = null) => await SendTextMessageToUserInternalAsync(userId, message, (TSendingMessageOptions?)messageOptions);
+    internal override sealed async Task SendTextMessageToUserInternalAsync(UserId userId, string message, ISendingMessageOptions? messageOptions = null, CancellationToken cancellationToken = default) 
+        => await SendTextMessageToUserInternalAsync(userId, message, (TSendingMessageOptions?)messageOptions, cancellationToken);
 
-    internal override sealed async Task SendFileToChatInternalAsync(ChatId chatId, Stream dataStream, string fileName, string? message = null, ISendingMessageOptions? messageOptions = null) => await SendFileToChatInternalAsync(chatId, dataStream, fileName, message, (TSendingMessageOptions?)messageOptions);
+    internal override sealed async Task SendFileToChatInternalAsync(ChatId chatId, Stream dataStream, string fileName, string? message = null, ISendingMessageOptions? messageOptions = null, CancellationToken cancellationToken = default) 
+        => await SendFileToChatInternalAsync(chatId, dataStream, fileName, message, (TSendingMessageOptions?)messageOptions, cancellationToken);
 
-    internal override sealed async Task SendFileToUserInternalAsync(UserId userId, Stream dataStream, string fileName, string? message = null, ISendingMessageOptions? messageOptions = null) => await SendFileToUserInternalAsync(userId, dataStream, fileName, message, (TSendingMessageOptions?)messageOptions);
+    internal override sealed async Task SendFileToUserInternalAsync(UserId userId, Stream dataStream, string fileName, string? message = null, ISendingMessageOptions? messageOptions = null, CancellationToken cancellationToken = default) 
+        => await SendFileToUserInternalAsync(userId, dataStream, fileName, message, (TSendingMessageOptions?)messageOptions, cancellationToken);
 
-    internal override sealed async Task EditMessageInternalAsync(ChatId chatId, MessageId messageId, string newMessageContent, ISendingMessageOptions? messageOptions = null) => await EditMessageInternalAsync(chatId, messageId, newMessageContent, (TSendingMessageOptions?)messageOptions);
+    internal override sealed async Task EditMessageInternalAsync(ChatId chatId, MessageId messageId, string newMessageContent, ISendingMessageOptions? messageOptions = null, CancellationToken cancellationToken = default) 
+        => await EditMessageInternalAsync(chatId, messageId, newMessageContent, (TSendingMessageOptions?)messageOptions, cancellationToken);
 
     protected TMessage? GetOriginObject(IIncomingMessage incomingMessage)
     {
@@ -26,13 +31,13 @@ where TSendingMessageOptions : class, ISendingMessageOptions
 
     protected abstract IIncomingMessage GetAbstractIncomingMessage(TMessage incomingMessage);
 
-    protected abstract Task SendTextMessageToChatInternalAsync(ChatId chatId, string message, TSendingMessageOptions? messageOptions = null);
+    protected abstract Task SendTextMessageToChatInternalAsync(ChatId chatId, string message, TSendingMessageOptions? messageOptions = null, CancellationToken cancellationToken = default);
 
-    protected abstract Task SendTextMessageToUserInternalAsync(UserId userId, string message, TSendingMessageOptions? messageOptions = null);
+    protected abstract Task SendTextMessageToUserInternalAsync(UserId userId, string message, TSendingMessageOptions? messageOptions = null, CancellationToken cancellationToken = default);
 
-    protected abstract Task SendFileToChatInternalAsync(ChatId chatId, Stream dataStream, string fileName, string? message = null, TSendingMessageOptions? messageOptions = null);
+    protected abstract Task SendFileToChatInternalAsync(ChatId chatId, Stream dataStream, string fileName, string? message = null, TSendingMessageOptions? messageOptions = null, CancellationToken cancellationToken = default);
 
-    protected abstract Task SendFileToUserInternalAsync(UserId userId, Stream dataStream, string fileName, string? message = null, TSendingMessageOptions? messageOptions = null);
+    protected abstract Task SendFileToUserInternalAsync(UserId userId, Stream dataStream, string fileName, string? message = null, TSendingMessageOptions? messageOptions = null, CancellationToken cancellationToken = default);
 
-    protected abstract Task EditMessageInternalAsync(ChatId chatId, MessageId messageId, string newMessageContent, TSendingMessageOptions? messageOptions = null);
+    protected abstract Task EditMessageInternalAsync(ChatId chatId, MessageId messageId, string newMessageContent, TSendingMessageOptions? messageOptions = null, CancellationToken cancellationToken = default);
 }

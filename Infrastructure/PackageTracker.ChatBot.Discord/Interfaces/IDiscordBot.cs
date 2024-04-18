@@ -20,5 +20,5 @@ public interface IDiscordBot : IChatBot
     Dictionary<SocketGuildUser, SocketRole[]> GetChatUsers(string guildName, ChatId chatId);
     Dictionary<SocketGuildUser, SocketRole[]> GetChatUsers(ulong guildId, ChatId chatId);
 
-    Task SetStatusAsync(string status);
+    Task SetStatusAsync(string status, CancellationToken cancellationToken = default);
 }
