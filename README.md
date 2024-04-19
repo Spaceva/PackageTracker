@@ -27,7 +27,8 @@ Use the `appsettings.json` configuration file to setup your database and qwactiv
 ```
 
 `Persistence > Type` value can be either `MongoDb` either `SqlServer`.
-`Modules > *` Switch to true to activate modules.
+
+Switch `Modules > *` to true to activate modules.
 
 ## Modules
 ### Fetcher
@@ -158,8 +159,11 @@ Change the values next to `PageNameXX` to the Confluence ID Page associated.
 
 ### Chat Bots
 Send notifications to chat bots.
+
 Add objects to `Notifications` to add recipients for the chat bot.
+
 `Notifications > [] > ChatId` is the chat ID of the recipient (usually a `long` number).
+
 `Notifications > [] > Type` value is either `User` or `Channel`.
 
 #### Discord
