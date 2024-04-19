@@ -1,6 +1,6 @@
 ﻿namespace PackageTracker.ChatBot;
 
-public class ChatPermission : IConvertible, IComparable<ChatPermission>, IEqualityComparer<ChatPermission>, IEquatable<ChatPermission>, IComparer<ChatPermission>
+public sealed class ChatPermission : IConvertible, IComparable<ChatPermission>, IEqualityComparer<ChatPermission>, IEquatable<ChatPermission>, IComparer<ChatPermission>
 {
     private readonly string id;
 
@@ -63,6 +63,18 @@ public class ChatPermission : IConvertible, IComparable<ChatPermission>, IEquali
     {
         return new ChatPermission(u);
     }
+
+    public static bool operator ==(ChatPermission m1, ChatPermission m2) => m1.Equals(m2);
+
+    public static bool operator !=(ChatPermission m1, ChatPermission m2) => !m1.Equals(m2);
+
+    public static bool operator >(ChatPermission m1, ChatPermission m2) => m1.CompareTo(m2) > 0;
+
+    public static bool operator <(ChatPermission m1, ChatPermission m2) => m1.CompareTo(m2) < 0;
+
+    public static bool operator >=(ChatPermission m1, ChatPermission m2) => m1.CompareTo(m2) >= 0;
+
+    public static bool operator <=(ChatPermission m1, ChatPermission m2) => m1.CompareTo(m2) <= 0;
 
     public override string ToString() => id;
 

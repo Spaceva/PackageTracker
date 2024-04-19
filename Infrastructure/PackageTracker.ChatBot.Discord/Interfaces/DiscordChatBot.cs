@@ -146,7 +146,7 @@ public abstract class DiscordChatBot(IServiceProvider serviceProvider) : ChatBot
         return chat is not null ? chat.Users.ToDictionary(u => u, u => u.Roles.ToArray()) : [];
     }
 
-    public async Task SetStatusAsync(string status, CancellationToken cancellationToken) => await DiscordClient.SetCustomStatusAsync(status);
+    public async Task SetStatusAsync(string status, CancellationToken cancellationToken = default) => await DiscordClient.SetCustomStatusAsync(status);
 
     protected override sealed async Task StopAsync(CancellationToken cancellationToken)
     {

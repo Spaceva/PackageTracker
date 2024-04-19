@@ -183,228 +183,103 @@ public abstract class TelegramChatBot(IServiceProvider serviceProvider) : ChatBo
     {
         TelegramIncomingMessage telegramIncomingMessage = (TelegramIncomingMessage)incomingMessage;
         Logger.LogDebug("Handling Telegram Update {MessageId} of type {MessageType}...", telegramIncomingMessage.MessageId, telegramIncomingMessage.MessageType);
-        switch (telegramIncomingMessage.MessageType)
+        Func<TelegramIncomingMessage, CancellationToken, Task> handleUpdateAsync = telegramIncomingMessage.MessageType switch
         {
-            case UpdateType.Message:
-                try
-                {
-                    await HandleMessageUpdateAsync(telegramIncomingMessage, cancellationToken);
-                }
-                catch (Exception ex)
-                {
-                    await HandleUpdateFailedAsync(telegramIncomingMessage, ex, cancellationToken);
-                }
-                break;
-            case UpdateType.Unknown:
-                try
-                {
-                    await HandleUnknownUpdateAsync(telegramIncomingMessage, cancellationToken);
-                }
-                catch (Exception ex)
-                {
-                    await HandleUpdateFailedAsync(telegramIncomingMessage, ex, cancellationToken);
-                }
-                break;
-            case UpdateType.InlineQuery:
-                try
-                {
-                    await HandleInlineQueryUpdateAsync(telegramIncomingMessage, cancellationToken);
-                }
-                catch (Exception ex)
-                {
-                    await HandleUpdateFailedAsync(telegramIncomingMessage, ex, cancellationToken);
-                }
-                break;
-            case UpdateType.ChosenInlineResult:
-                try
-                {
-                    await HandleChosenInlineResultUpdateAsync(telegramIncomingMessage, cancellationToken);
-                }
-                catch (Exception ex)
-                {
-                    await HandleUpdateFailedAsync(telegramIncomingMessage, ex, cancellationToken);
-                }
-                break;
-            case UpdateType.EditedMessage:
-                try
-                {
-                    await HandleEditedMessageAsync(telegramIncomingMessage, cancellationToken);
-                }
-                catch (Exception ex)
-                {
-                    await HandleUpdateFailedAsync(telegramIncomingMessage, ex, cancellationToken);
-                }
-                break;
-            case UpdateType.CallbackQuery:
-                try
-                {
-                    await HandleCallbackQueryUpdateAsync(telegramIncomingMessage, cancellationToken);
-                }
-                catch (Exception ex)
-                {
-                    await HandleUpdateFailedAsync(telegramIncomingMessage, ex, cancellationToken);
-                }
-                break;
-            case UpdateType.ChannelPost:
-                try
-                {
-                    await HandleChannelPostUpdateAsync(telegramIncomingMessage, cancellationToken);
-                }
-                catch (Exception ex)
-                {
-                    await HandleUpdateFailedAsync(telegramIncomingMessage, ex, cancellationToken);
-                }
-                break;
-            case UpdateType.EditedChannelPost:
-                try
-                {
-                    await HandleEditedChannelPostAsync(telegramIncomingMessage, cancellationToken);
-                }
-                catch (Exception ex)
-                {
-                    await HandleUpdateFailedAsync(telegramIncomingMessage, ex, cancellationToken);
-                }
-                break;
-            case UpdateType.ShippingQuery:
-                try
-                {
-                    await HandleShippingQueryUpdateAsync(telegramIncomingMessage, cancellationToken);
-                }
-                catch (Exception ex)
-                {
-                    await HandleUpdateFailedAsync(telegramIncomingMessage, ex, cancellationToken);
-                }
-                break;
-            case UpdateType.PreCheckoutQuery:
-                try
-                {
-                    await HandlePreCheckoutQueryUpdateAsync(telegramIncomingMessage, cancellationToken);
-                }
-                catch (Exception ex)
-                {
-                    await HandleUpdateFailedAsync(telegramIncomingMessage, ex, cancellationToken);
-                }
-                break;
-            case UpdateType.Poll:
-                try
-                {
-                    await HandlePollUpdateAsync(telegramIncomingMessage, cancellationToken);
-                }
-                catch (Exception ex)
-                {
-                    await HandleUpdateFailedAsync(telegramIncomingMessage, ex, cancellationToken);
-                }
-                break;
-            case UpdateType.PollAnswer:
-                try
-                {
-                    await HandlePollAnswerUpdateAsync(telegramIncomingMessage, cancellationToken);
-                }
-                catch (Exception ex)
-                {
-                    await HandleUpdateFailedAsync(telegramIncomingMessage, ex, cancellationToken);
-                }
-                break;
-            case UpdateType.MyChatMember:
-                try
-                {
-                    await HandleMyChatMemberUpdateAsync(telegramIncomingMessage, cancellationToken);
-                }
-                catch (Exception ex)
-                {
-                    await HandleUpdateFailedAsync(telegramIncomingMessage, ex, cancellationToken);
-                }
-                break;
-            case UpdateType.ChatMember:
-                try
-                {
-                    await HandleChatMemberUpdateAsync(telegramIncomingMessage, cancellationToken);
-                }
-                catch (Exception ex)
-                {
-                    await HandleUpdateFailedAsync(telegramIncomingMessage, ex, cancellationToken);
-                }
-                break;
-            case UpdateType.ChatJoinRequest:
-                try
-                {
-                    await HandleChatJoinRequestUpdateAsync(telegramIncomingMessage, cancellationToken);
-                }
-                catch (Exception ex)
-                {
-                    await HandleUpdateFailedAsync(telegramIncomingMessage, ex, cancellationToken);
-                }
-                break;
-            default:
-                break;
+            UpdateType.Message => HandleMessageUpdateAsync,
+            UpdateType.Unknown => HandleUnknownUpdateAsync,
+            UpdateType.InlineQuery => HandleInlineQueryUpdateAsync,
+            UpdateType.ChosenInlineResult => HandleChosenInlineResultUpdateAsync,
+            UpdateType.EditedMessage => HandleEditedMessageAsync,
+            UpdateType.CallbackQuery => HandleCallbackQueryUpdateAsync,
+            UpdateType.ChannelPost => HandleChannelPostUpdateAsync,
+            UpdateType.EditedChannelPost => HandleEditedChannelPostAsync,
+            UpdateType.ShippingQuery => HandleShippingQueryUpdateAsync,
+            UpdateType.PreCheckoutQuery => HandlePreCheckoutQueryUpdateAsync,
+            UpdateType.Poll => HandlePollAnswerUpdateAsync,
+            UpdateType.PollAnswer => HandlePollAnswerUpdateAsync,
+            UpdateType.MyChatMember => HandleMyChatMemberUpdateAsync,
+            UpdateType.ChatMember => HandleChatMemberUpdateAsync,
+            UpdateType.ChatJoinRequest => HandleChatJoinRequestUpdateAsync,
+            _ => throw new NotImplementedException()
+        };
+        
+        try
+        {
+            await handleUpdateAsync(telegramIncomingMessage, cancellationToken);
+        }
+        catch (Exception ex)
+        {
+            await HandleUpdateFailedAsync(telegramIncomingMessage, ex, cancellationToken);
         }
     }
 
     protected override sealed async Task HandleEventUpdateInternalAsync(TelegramIncomingMessage incomingMessage, CancellationToken cancellationToken = default)
     {
-        if (incomingMessage.ChatId is not null)
+        if (incomingMessage.ChatId is null)
         {
-            var origin = GetOriginObject(incomingMessage);
-            if (origin is null || origin.Message is null)
-            {
-                return;
-            }
+            return;
+        }
 
-            if (origin.Message.ChannelChatCreated ?? false)
-            {
-                await HandleChannelChatCreatedAsync(incomingMessage);
-            }
+        var origin = GetOriginObject(incomingMessage);
+        if (origin is null || origin.Message is null)
+        {
+            return;
+        }
 
-            if (origin.Message.SupergroupChatCreated ?? false)
-            {
-                await HandleSupergroupChatCreatedAsync(incomingMessage);
-            }
+        if (origin.Message.ChannelChatCreated ?? false)
+        {
+            await HandleChannelChatCreatedAsync(incomingMessage);
+        }
 
-            if (origin.Message.GroupChatCreated ?? false)
-            {
-                await HandleGroupChatCreatedAsync(incomingMessage);
-            }
+        if (origin.Message.SupergroupChatCreated ?? false)
+        {
+            await HandleSupergroupChatCreatedAsync(incomingMessage);
+        }
 
-            if (origin.Message.MigrateFromChatId > 0 && origin.Message.MigrateToChatId > 0)
-            {
-                await HandleMigrationToSuperGroupAsync(incomingMessage, origin.Message.MigrateFromChatId, origin.Message.MigrateToChatId);
-            }
+        if (origin.Message.GroupChatCreated ?? false)
+        {
+            await HandleGroupChatCreatedAsync(incomingMessage);
+        }
 
-            if (origin.Message.PinnedMessage is not null)
-            {
-                await HandleMessagePinnedAsync(incomingMessage, origin.Message.From!.Id, origin.Message.PinnedMessage.Text!);
-            }
+        if (origin.Message.MigrateFromChatId > 0 && origin.Message.MigrateToChatId > 0)
+        {
+            await HandleMigrationToSuperGroupAsync(incomingMessage, origin.Message.MigrateFromChatId, origin.Message.MigrateToChatId);
+        }
 
-            if (!string.IsNullOrEmpty(origin.Message.NewChatTitle))
-            {
-                await HandleEventNewChatTitleAsync(incomingMessage, origin.Message.NewChatTitle);
-            }
+        if (origin.Message.PinnedMessage is not null)
+        {
+            await HandleMessagePinnedAsync(incomingMessage, origin.Message.From!.Id, origin.Message.PinnedMessage.Text!);
+        }
 
-            if (origin.Message.NewChatMembers is not null)
+        if (!string.IsNullOrEmpty(origin.Message.NewChatTitle))
+        {
+            await HandleEventNewChatTitleAsync(incomingMessage, origin.Message.NewChatTitle);
+        }
+
+        if (origin.Message.NewChatMembers is not null)
+        {
+            foreach (var newChatMember in origin.Message.NewChatMembers)
             {
-                foreach (var newChatMember in origin.Message.NewChatMembers)
+                if (newChatMember.Id == BotId)
                 {
-                    if (newChatMember.Id == BotId)
-                    {
-                        await HandleEventBotJoinedAsync(incomingMessage);
-                    }
-                    else
-                    {
-                        await HandleEventNewChatMemberAsync(incomingMessage, newChatMember);
-                    }
-                }
-            }
-
-            if (origin.Message.LeftChatMember is not null)
-            {
-                if (origin.Message.LeftChatMember.Id == BotId)
-                {
-                    await HandleEventBotLeavedAsync(incomingMessage);
+                    await HandleEventBotJoinedAsync(incomingMessage);
                 }
                 else
                 {
-                    await HandleEventUserLeavedAsync(incomingMessage, origin.Message.LeftChatMember.Id.ToString());
+                    await HandleEventNewChatMemberAsync(incomingMessage, newChatMember);
                 }
+            }
+        }
+
+        if (origin.Message.LeftChatMember is not null)
+        {
+            if (origin.Message.LeftChatMember.Id == BotId)
+            {
+                await HandleEventBotLeavedAsync(incomingMessage);
+            }
+            else
+            {
+                await HandleEventUserLeavedAsync(incomingMessage, origin.Message.LeftChatMember.Id.ToString());
             }
         }
     }

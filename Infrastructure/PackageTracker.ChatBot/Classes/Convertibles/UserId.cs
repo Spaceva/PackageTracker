@@ -1,6 +1,6 @@
 ﻿namespace PackageTracker.ChatBot;
 
-public class UserId : IConvertible, IComparable<UserId>, IEqualityComparer<UserId>, IEquatable<UserId>, IComparer<UserId>
+public sealed class UserId : IConvertible, IComparable<UserId>, IEqualityComparer<UserId>, IEquatable<UserId>, IComparer<UserId>
 {
     private readonly string id;
 
@@ -63,6 +63,18 @@ public class UserId : IConvertible, IComparable<UserId>, IEqualityComparer<UserI
     {
         return new UserId(u);
     }
+
+    public static bool operator ==(UserId m1, UserId m2) => m1.Equals(m2);
+
+    public static bool operator !=(UserId m1, UserId m2) => !m1.Equals(m2);
+
+    public static bool operator >(UserId m1, UserId m2) => m1.CompareTo(m2) > 0;
+
+    public static bool operator <(UserId m1, UserId m2) => m1.CompareTo(m2) < 0;
+
+    public static bool operator >=(UserId m1, UserId m2) => m1.CompareTo(m2) >= 0;
+
+    public static bool operator <=(UserId m1, UserId m2) => m1.CompareTo(m2) <= 0;
 
     public override string ToString() => id;
 
