@@ -3,7 +3,7 @@ using Discord.WebSocket;
 
 namespace PackageTracker.ChatBot.Discord;
 
-public class DiscordIncomingMessage : IncomingMessage, IIncomingMessage
+public class DiscordIncomingMessage : IncomingMessage
 {
     public DiscordIncomingMessage(SocketMessage message)
     {

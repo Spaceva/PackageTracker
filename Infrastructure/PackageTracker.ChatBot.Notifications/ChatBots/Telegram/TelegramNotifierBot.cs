@@ -43,8 +43,6 @@ internal class TelegramNotifierBot(string token, IServiceProvider serviceProvide
 
     protected override Task HandleMessagePinnedAsync(TelegramIncomingMessage incomingMessage, UserId pinnerUserId, string content) => Task.CompletedTask;
 
-    protected override Task HandleMessageTextUpdateAsync(TelegramIncomingMessage incomingMessage) => Task.CompletedTask;
-
     protected override Task HandleMigrationToSuperGroupAsync(TelegramIncomingMessage incomingMessage, ChatId oldChatID, ChatId newChatID) => Task.CompletedTask;
 
     protected override Task HandleMyChatMemberUpdateAsync(TelegramIncomingMessage telegramIncomingMessage, CancellationToken cancellationToken = default) => Task.CompletedTask;
@@ -70,8 +68,6 @@ internal class TelegramNotifierBot(string token, IServiceProvider serviceProvide
     protected override Task HandleSupergroupChatCreatedAsync(TelegramIncomingMessage incomingMessage) => Task.CompletedTask;
 
     protected override Task HandleUnknownUpdateAsync(TelegramIncomingMessage incomingMessage, CancellationToken cancellationToken = default) => Task.CompletedTask;
-
-    protected override Task HandleUpdateFailedAsync(TelegramIncomingMessage incomingMessage, Exception ex) => Task.CompletedTask;
 
     protected override Task ReactToMessageInternalAsync(ChatId chatId, MessageId messageId, IEmoji emoji, CancellationToken cancellationToken = default) => Task.CompletedTask;
 

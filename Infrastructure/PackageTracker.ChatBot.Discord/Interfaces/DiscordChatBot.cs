@@ -146,7 +146,7 @@ public abstract class DiscordChatBot(IServiceProvider serviceProvider) : ChatBot
         return chat is not null ? chat.Users.ToDictionary(u => u, u => u.Roles.ToArray()) : [];
     }
 
-    public async Task SetStatusAsync(string status, CancellationToken _) => await DiscordClient.SetCustomStatusAsync(status);
+    public async Task SetStatusAsync(string status, CancellationToken cancellationToken) => await DiscordClient.SetCustomStatusAsync(status);
 
     protected override sealed async Task StopAsync(CancellationToken cancellationToken)
     {
@@ -181,9 +181,9 @@ public abstract class DiscordChatBot(IServiceProvider serviceProvider) : ChatBot
 
     protected override sealed DiscordIncomingMessage ParseIncomingMessage(SocketMessage incomingMessage) => new (incomingMessage);
 
-    protected override sealed async Task SimulateTypingInternalAsync(ChatId chat, CancellationToken cancellationToken = default)
+    protected override sealed async Task SimulateTypingInternalAsync(ChatId chatId, CancellationToken cancellationToken = default)
     {
-        var channel = await GetChannelAsync(chat);
+        var channel = await GetChannelAsync(chatId);
         await channel.TriggerTypingAsync(DefaultRequestOptions(cancellationToken));
     }
 
@@ -207,55 +207,55 @@ public abstract class DiscordChatBot(IServiceProvider serviceProvider) : ChatBot
         }
     }
 
-    protected override sealed async Task SendTextMessageToChatInternalAsync(ChatId chat, string message, DiscordSendingMessageOptions? messageOptions = null, CancellationToken cancellationToken = default)
+    protected override sealed async Task SendTextMessageToChatInternalAsync(ChatId chatId, string message, DiscordSendingMessageOptions? messageOptions = null, CancellationToken cancellationToken = default)
     {
         try
         {
-            var channel = await GetChannelAsync(chat);
+            var channel = await GetChannelAsync(chatId);
             await channel.SendMessageAsync(message, messageOptions is not null && messageOptions.IsTTS, messageOptions?.Embed, messageOptions?.RequestOptions ?? DefaultRequestOptions(cancellationToken));
         }
         catch (Exception ex)
         {
-            throw new SendMessageToChatFailedException(ex.Message, chat, ex, messageOptions);
+            throw new SendMessageToChatFailedException(ex.Message, chatId, ex, messageOptions);
         }
     }
 
-    protected override sealed async Task SendTextMessageToUserInternalAsync(UserId user, string message, DiscordSendingMessageOptions? messageOptions = null, CancellationToken cancellationToken = default)
+    protected override sealed async Task SendTextMessageToUserInternalAsync(UserId userId, string message, DiscordSendingMessageOptions? messageOptions = null, CancellationToken cancellationToken = default)
     {
         try
         {
-            var dmChannel = await GetDMChannelAsync(user, cancellationToken);
+            var dmChannel = await GetDMChannelAsync(userId, cancellationToken);
             await dmChannel.SendMessageAsync(message, messageOptions is not null && messageOptions.IsTTS, messageOptions?.Embed, messageOptions?.RequestOptions ?? DefaultRequestOptions(cancellationToken));
         }
         catch (Exception ex)
         {
-            throw new SendMessageToUserFailedException(ex.Message, user, ex, messageOptions);
+            throw new SendMessageToUserFailedException(ex.Message, userId, ex, messageOptions);
         }
     }
 
-    protected override sealed async Task SendFileToChatInternalAsync(ChatId chat, Stream dataStream, string fileName, string? message = null, DiscordSendingMessageOptions? messageOptions = null, CancellationToken cancellationToken = default)
+    protected override sealed async Task SendFileToChatInternalAsync(ChatId chatId, Stream dataStream, string fileName, string? message = null, DiscordSendingMessageOptions? messageOptions = null, CancellationToken cancellationToken = default)
     {
         try
         {
-            var channel = await GetChannelAsync(chat);
+            var channel = await GetChannelAsync(chatId);
             await channel.SendFileAsync(dataStream, fileName, message, messageOptions is not null && messageOptions.IsTTS, messageOptions?.Embed, messageOptions?.RequestOptions ?? DefaultRequestOptions(cancellationToken));
         }
         catch (Exception ex)
         {
-            throw new SendFileToChatFailedException(ex.Message, chat, dataStream, fileName, ex, messageOptions);
+            throw new SendFileToChatFailedException(ex.Message, chatId, dataStream, fileName, ex, messageOptions);
         }
     }
 
-    protected override sealed async Task SendFileToUserInternalAsync(UserId user, Stream dataStream, string fileName, string? message = null, DiscordSendingMessageOptions? messageOptions = null, CancellationToken cancellationToken = default)
+    protected override sealed async Task SendFileToUserInternalAsync(UserId userId, Stream dataStream, string fileName, string? message = null, DiscordSendingMessageOptions? messageOptions = null, CancellationToken cancellationToken = default)
     {
         try
         {
-            var dmChannel = await GetDMChannelAsync(user, cancellationToken);
+            var dmChannel = await GetDMChannelAsync(userId, cancellationToken);
             await dmChannel.SendFileAsync(dataStream, fileName, message, messageOptions is not null && messageOptions.IsTTS, messageOptions?.Embed, messageOptions?.RequestOptions ?? DefaultRequestOptions(cancellationToken));
         }
         catch (Exception ex)
         {
-            throw new SendFileToUserFailedException(ex.Message, user, dataStream, fileName, ex, messageOptions);
+            throw new SendFileToUserFailedException(ex.Message, userId, dataStream, fileName, ex, messageOptions);
         }
     }
 
@@ -542,8 +542,6 @@ public abstract class DiscordChatBot(IServiceProvider serviceProvider) : ChatBot
         return await userDiscordClient.CreateDMChannelAsync(DefaultRequestOptions(cancellationToken));
     }
 
-    private Task<IGroupChannel> GetGroupChannelAsync(ChatId chat) => Task.FromResult((IGroupChannel)DiscordClient.GetChannel(chat));
-
     private Task HandleReadyAsync()
     {
         ReadyEvent.Set();
@@ -578,7 +576,7 @@ public abstract class DiscordChatBot(IServiceProvider serviceProvider) : ChatBot
         ReadyEvent.Reset();
         if (!ReadyEvent.WaitOne(30 * 1000))
         {
-            throw new Exception("Timeout on start");
+            throw new DiscordBotStartFailedException(BotName);
         }
 
         await DiscordClient.SetStatusAsync(UserStatus.Online);

@@ -7,7 +7,7 @@ public abstract class SingleGuildDiscordChatBot(IServiceProvider serviceProvider
 {
     public IReadOnlyCollection<SocketRole> GetRoles(UserId userId) => Guild is not null ? GetRoles(Guild.Id, userId) : [];
 
-    public Dictionary<SocketGuildUser, SocketRole[]>? GetChatUsers(ChatId chatId) => Guild is not null ? GetChatUsers(Guild.Id, chatId) : throw new Exception("No guild found.");
+    public Dictionary<SocketGuildUser, SocketRole[]>? GetChatUsers(ChatId chatId) => Guild is not null ? GetChatUsers(Guild.Id, chatId) : throw new DiscordGuildNotFoundException();
 
     protected SocketGuild? Guild
     {

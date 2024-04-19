@@ -64,6 +64,24 @@ public abstract class ChatBot(IServiceProvider serviceProvider) : IChatBot
         }
     }
 
+    public async Task SendTextMessageToChatAsync(ChatId chatId, string message, ISendingMessageOptions? messageOptions = null, CancellationToken cancellationToken = default)
+    {
+        if (string.IsNullOrWhiteSpace(message))
+        {
+            return;
+        }
+
+        try
+        {
+            await SendTextMessageToChatInternalAsync(chatId, message, messageOptions, cancellationToken);
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "Failed to send message to chat {ChatId}.", chatId);
+            await HandleSendingMessageExceptionAsync(new SendMessageToChatFailedException(ex.Message, chatId, ex, messageOptions), cancellationToken);
+        }
+    }
+
     public async Task SendTextMessageToAuthorAsync(IIncomingMessage incomingMessage, string message, ISendingMessageOptions? messageOptions = null, CancellationToken cancellationToken = default)
     {
         if (incomingMessage is not null && incomingMessage.AuthorUserId is not null)
@@ -90,24 +108,6 @@ public abstract class ChatBot(IServiceProvider serviceProvider) : IChatBot
         }
     }
 
-    public async Task SendTextMessageToChatAsync(ChatId chatId, string message, ISendingMessageOptions? messageOptions = null, CancellationToken cancellationToken = default)
-    {
-        if (string.IsNullOrWhiteSpace(message))
-        {
-            return;
-        }
-
-        try
-        {
-            await SendTextMessageToChatInternalAsync(chatId, message, messageOptions, cancellationToken);
-        }
-        catch (Exception ex)
-        {
-            Logger.LogError(ex, "Failed to send message to chat {ChatId}.", chatId);
-            await HandleSendingMessageExceptionAsync(new SendMessageToChatFailedException(ex.Message, chatId, ex, messageOptions), cancellationToken);
-        }
-    }
-
     public async Task SendFileToUserAsync(UserId userId, Stream dataStream, string fileName, string? message = null, ISendingMessageOptions? messageOptions = null, CancellationToken cancellationToken = default)
     {
         try
@@ -129,6 +129,19 @@ public abstract class ChatBot(IServiceProvider serviceProvider) : IChatBot
             Logger.LogError(ex, "Failed to send file '{FileName}' to user {UserId}.", fileName, userId);
             await HandleSendingFileExceptionAsync(new SendFileToUserFailedException(ex.Message, userId, dataStream, fileName, ex, messageOptions), cancellationToken);
         }
+    }
+
+    public async Task SendFileToUserAsync(UserId userId, byte[] content, string fileName, string? message = null, ISendingMessageOptions? messageOptions = null, CancellationToken cancellationToken = default)
+    {
+        using var dataStream = new MemoryStream(content);
+        await SendFileToUserAsync(userId, dataStream, fileName, message, messageOptions, cancellationToken);
+    }
+
+    public async Task SendFileToUserAsync(UserId userId, string filePath, string? message = null, ISendingMessageOptions? messageOptions = null, CancellationToken cancellationToken = default)
+    {
+        var content = File.ReadAllBytes(filePath);
+        var fileName = new FileInfo(filePath).Name;
+        await SendFileToUserAsync(userId, content, fileName, message, messageOptions, cancellationToken);
     }
 
     public async Task SendFileToChatAsync(ChatId chatId, Stream dataStream, string fileName, string? message = null, ISendingMessageOptions? messageOptions = null, CancellationToken cancellationToken = default)
@@ -154,23 +167,10 @@ public abstract class ChatBot(IServiceProvider serviceProvider) : IChatBot
         }
     }
 
-    public async Task SendFileToUserAsync(UserId userId, byte[] content, string fileName, string? message = null, ISendingMessageOptions? messageOptions = null, CancellationToken cancellationToken = default)
-    {
-        using var dataStream = new MemoryStream(content);
-        await SendFileToUserAsync(userId, dataStream, fileName, message, messageOptions, cancellationToken);
-    }
-
     public async Task SendFileToChatAsync(ChatId chatId, byte[] content, string fileName, string? message = null, ISendingMessageOptions? messageOptions = null, CancellationToken cancellationToken = default)
     {
         using var dataStream = new MemoryStream(content);
         await SendFileToChatAsync(chatId, dataStream, fileName, message, messageOptions, cancellationToken);
-    }
-
-    public async Task SendFileToUserAsync(UserId userId, string filePath, string? message = null, ISendingMessageOptions? messageOptions = null, CancellationToken cancellationToken = default)
-    {
-        var content = File.ReadAllBytes(filePath);
-        var fileName = new FileInfo(filePath).Name;
-        await SendFileToUserAsync(userId, content, fileName, message, messageOptions, cancellationToken);
     }
 
     public async Task SendFileToChatAsync(ChatId chatId, string filePath, string? message = null, ISendingMessageOptions? messageOptions = null, CancellationToken cancellationToken = default)
@@ -248,7 +248,7 @@ public abstract class ChatBot(IServiceProvider serviceProvider) : IChatBot
         await SimulateTypingInternalAsync(chatId, cancellationToken);
     }
 
-    public async Task RunAsync(CancellationToken cancellationToken)
+    public async Task RunAsync(CancellationToken cancellationToken = default)
     {
         try
         {
@@ -326,7 +326,7 @@ public abstract class ChatBot(IServiceProvider serviceProvider) : IChatBot
         }
 
         var splitSpace = incomingMessage.MessageText.Split(' ');
-        if (splitSpace.Length >= 1 && (splitSpace.First().Contains("@" + BotName, StringComparison.InvariantCultureIgnoreCase) || !splitSpace[0].Contains('@')))
+        if (splitSpace.Length >= 1 && (splitSpace[0].Contains("@" + BotName, StringComparison.InvariantCultureIgnoreCase) || !splitSpace[0].Contains('@')))
         {
             var command = splitSpace[0].Replace("@" + BotName, "")[CommandStarterChar.Length..];
             var commandArgs = splitSpace.Length > 1 ? splitSpace.Skip(1).ToArray() : Array.Empty<string>();
@@ -352,14 +352,6 @@ public abstract class ChatBot(IServiceProvider serviceProvider) : IChatBot
 
     protected abstract Task SimulateTypingInternalAsync(ChatId chatId, CancellationToken cancellationToken = default);
 
-    internal abstract Task HandleMessageTextUpdateAsync(IIncomingMessage incomingMessage, CancellationToken cancellationToken = default);
-
-    internal abstract Task HandleCommandUpdateAsync(IIncomingMessage incomingMessage, string command, string[] commandArgs, CancellationToken cancellationToken = default);
-
-    internal abstract Task HandleEventUpdateAsync(IIncomingMessage incomingMessage, CancellationToken cancellationToken = default);
-
-    internal abstract Task HandleUpdateFailedAsync(IIncomingMessage incomingMessage, Exception ex, CancellationToken cancellationToken = default);
-
     protected abstract Task HandleEditMessageExceptionAsync(EditMessageFailedException ex, CancellationToken cancellationToken = default);
 
     protected abstract Task HandleSendingMessageExceptionAsync(SendMessageToChatFailedException ex, CancellationToken cancellationToken = default);
@@ -371,6 +363,14 @@ public abstract class ChatBot(IServiceProvider serviceProvider) : IChatBot
     protected abstract Task HandleSendingFileExceptionAsync(SendFileToUserFailedException ex, CancellationToken cancellationToken = default);
 
     protected abstract Task HandleReactionMessageExceptionAsync(ReactionMessageFailedException ex, CancellationToken cancellationToken = default);
+
+    internal abstract Task HandleMessageTextUpdateAsync(IIncomingMessage incomingMessage, CancellationToken cancellationToken = default);
+
+    internal abstract Task HandleCommandUpdateAsync(IIncomingMessage incomingMessage, string command, string[] commandArgs, CancellationToken cancellationToken = default);
+
+    internal abstract Task HandleEventUpdateAsync(IIncomingMessage incomingMessage, CancellationToken cancellationToken = default);
+
+    internal abstract Task HandleUpdateFailedAsync(IIncomingMessage incomingMessage, Exception ex, CancellationToken cancellationToken = default);
 
     internal abstract Task SendTextMessageToChatInternalAsync(ChatId chatId, string message, ISendingMessageOptions? messageOptions = null, CancellationToken cancellationToken = default);
 

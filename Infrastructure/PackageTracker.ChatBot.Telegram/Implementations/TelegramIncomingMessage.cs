@@ -3,7 +3,7 @@ using Telegram.Bot.Types.Enums;
 
 namespace PackageTracker.ChatBot.Telegram;
 
-public class TelegramIncomingMessage : IncomingMessage, IIncomingMessage, ITelegramIncomingMessage
+public class TelegramIncomingMessage : IncomingMessage, ITelegramIncomingMessage
 {
     #region Telegram Specifics
     public bool IsSuperGroup { get; protected set; }

@@ -68,52 +68,41 @@ public class ChatId : IConvertible, IComparable<ChatId>, IEqualityComparer<ChatI
 
     public TypeCode GetTypeCode() => TypeCode.String;
 
-    public bool ToBoolean(IFormatProvider? _) => bool.Parse(id);
+    public bool ToBoolean(IFormatProvider? provider) => bool.Parse(id);
 
-    public char ToChar(IFormatProvider? _) => char.Parse(id);
+    public char ToChar(IFormatProvider? provider) => char.Parse(id);
 
-    public sbyte ToSByte(IFormatProvider? _) => sbyte.Parse(id);
+    public sbyte ToSByte(IFormatProvider? provider) => sbyte.Parse(id);
 
-    public byte ToByte(IFormatProvider? _) => byte.Parse(id);
+    public byte ToByte(IFormatProvider? provider) => byte.Parse(id);
 
-    public short ToInt16(IFormatProvider? _) => short.Parse(id);
+    public short ToInt16(IFormatProvider? provider) => short.Parse(id);
 
-    public ushort ToUInt16(IFormatProvider? _) => ushort.Parse(id);
+    public ushort ToUInt16(IFormatProvider? provider) => ushort.Parse(id);
 
-    public int ToInt32(IFormatProvider? _) => int.Parse(id);
+    public int ToInt32(IFormatProvider? provider) => int.Parse(id);
 
-    public uint ToUInt32(IFormatProvider? _) => uint.Parse(id);
+    public uint ToUInt32(IFormatProvider? provider) => uint.Parse(id);
 
-    public long ToInt64(IFormatProvider? _) => long.Parse(id);
+    public long ToInt64(IFormatProvider? provider) => long.Parse(id);
 
-    public ulong ToUInt64(IFormatProvider? _) => ulong.Parse(id);
+    public ulong ToUInt64(IFormatProvider? provider) => ulong.Parse(id);
 
-    public float ToSingle(IFormatProvider? _) => float.Parse(id);
+    public float ToSingle(IFormatProvider? provider) => float.Parse(id);
 
-    public double ToDouble(IFormatProvider? _) => double.Parse(id);
+    public double ToDouble(IFormatProvider? provider) => double.Parse(id);
 
-    public decimal ToDecimal(IFormatProvider? _) => decimal.Parse(id);
+    public decimal ToDecimal(IFormatProvider? provider) => decimal.Parse(id);
 
-    public DateTime ToDateTime(IFormatProvider? _) => throw new NotImplementedException();
+    public DateTime ToDateTime(IFormatProvider? provider) => throw new NotImplementedException();
 
-    public string ToString(IFormatProvider? _) => id;
+    public string ToString(IFormatProvider? provider) => id;
 
-    public object ToType(Type conversionType, IFormatProvider? _) => Convert.ChangeType(id, conversionType);
+    public object ToType(Type conversionType, IFormatProvider? provider) => Convert.ChangeType(id, conversionType);
 
     public override bool Equals(object? obj)
     {
         return Equals(obj as ChatId);
-    }
-
-    public override int GetHashCode()
-    {
-        return id.GetHashCode();
-    }
-
-    public int CompareTo(ChatId? other)
-    {
-        ArgumentNullException.ThrowIfNull(other);
-        return id.CompareTo(other.id);
     }
 
     public bool Equals(ChatId? x, ChatId? y)
@@ -131,12 +120,6 @@ public class ChatId : IConvertible, IComparable<ChatId>, IEqualityComparer<ChatI
         return x.id.Equals(y.id);
     }
 
-    public int GetHashCode(ChatId? obj)
-    {
-        ArgumentNullException.ThrowIfNull(obj);
-        return obj.id.GetHashCode();
-    }
-
     public bool Equals(ChatId? other)
     {
         if (other is null)
@@ -145,6 +128,23 @@ public class ChatId : IConvertible, IComparable<ChatId>, IEqualityComparer<ChatI
         }
 
         return id.Equals(other.id);
+    }
+
+    public override int GetHashCode()
+    {
+        return id.GetHashCode();
+    }
+
+    public int GetHashCode(ChatId? obj)
+    {
+        ArgumentNullException.ThrowIfNull(obj);
+        return obj.id.GetHashCode();
+    }
+
+    public int CompareTo(ChatId? other)
+    {
+        ArgumentNullException.ThrowIfNull(other);
+        return id.CompareTo(other.id);
     }
 
     public int Compare(ChatId? x, ChatId? y)

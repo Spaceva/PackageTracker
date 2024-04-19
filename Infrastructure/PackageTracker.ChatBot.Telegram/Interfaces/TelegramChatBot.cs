@@ -129,7 +129,7 @@ public abstract class TelegramChatBot(IServiceProvider serviceProvider) : ChatBo
         return new InlineKeyboardMarkup(rows.ToArray());
     }
 
-    public IReplyMarkup? BuildButtons<T>(T[][] buttons, Func<T, InlineKeyboardButton> mapperToButton)
+    public IReplyMarkup? BuildButtons<T>(IEnumerable<IEnumerable<T>> buttons, Func<T, InlineKeyboardButton> mapperToButton)
     {
         var rows = new List<InlineKeyboardButton[]>();
 
@@ -192,7 +192,7 @@ public abstract class TelegramChatBot(IServiceProvider serviceProvider) : ChatBo
                 }
                 catch (Exception ex)
                 {
-                    await HandleUpdateFailedAsync(telegramIncomingMessage, ex);
+                    await HandleUpdateFailedAsync(telegramIncomingMessage, ex, cancellationToken);
                 }
                 break;
             case UpdateType.Unknown:
@@ -202,7 +202,7 @@ public abstract class TelegramChatBot(IServiceProvider serviceProvider) : ChatBo
                 }
                 catch (Exception ex)
                 {
-                    await HandleUpdateFailedAsync(telegramIncomingMessage, ex);
+                    await HandleUpdateFailedAsync(telegramIncomingMessage, ex, cancellationToken);
                 }
                 break;
             case UpdateType.InlineQuery:
@@ -212,7 +212,7 @@ public abstract class TelegramChatBot(IServiceProvider serviceProvider) : ChatBo
                 }
                 catch (Exception ex)
                 {
-                    await HandleUpdateFailedAsync(telegramIncomingMessage, ex);
+                    await HandleUpdateFailedAsync(telegramIncomingMessage, ex, cancellationToken);
                 }
                 break;
             case UpdateType.ChosenInlineResult:
@@ -222,7 +222,7 @@ public abstract class TelegramChatBot(IServiceProvider serviceProvider) : ChatBo
                 }
                 catch (Exception ex)
                 {
-                    await HandleUpdateFailedAsync(telegramIncomingMessage, ex);
+                    await HandleUpdateFailedAsync(telegramIncomingMessage, ex, cancellationToken);
                 }
                 break;
             case UpdateType.EditedMessage:
@@ -232,7 +232,7 @@ public abstract class TelegramChatBot(IServiceProvider serviceProvider) : ChatBo
                 }
                 catch (Exception ex)
                 {
-                    await HandleUpdateFailedAsync(telegramIncomingMessage, ex);
+                    await HandleUpdateFailedAsync(telegramIncomingMessage, ex, cancellationToken);
                 }
                 break;
             case UpdateType.CallbackQuery:
@@ -242,7 +242,7 @@ public abstract class TelegramChatBot(IServiceProvider serviceProvider) : ChatBo
                 }
                 catch (Exception ex)
                 {
-                    await HandleUpdateFailedAsync(telegramIncomingMessage, ex);
+                    await HandleUpdateFailedAsync(telegramIncomingMessage, ex, cancellationToken);
                 }
                 break;
             case UpdateType.ChannelPost:
@@ -252,7 +252,7 @@ public abstract class TelegramChatBot(IServiceProvider serviceProvider) : ChatBo
                 }
                 catch (Exception ex)
                 {
-                    await HandleUpdateFailedAsync(telegramIncomingMessage, ex);
+                    await HandleUpdateFailedAsync(telegramIncomingMessage, ex, cancellationToken);
                 }
                 break;
             case UpdateType.EditedChannelPost:
@@ -262,7 +262,7 @@ public abstract class TelegramChatBot(IServiceProvider serviceProvider) : ChatBo
                 }
                 catch (Exception ex)
                 {
-                    await HandleUpdateFailedAsync(telegramIncomingMessage, ex);
+                    await HandleUpdateFailedAsync(telegramIncomingMessage, ex, cancellationToken);
                 }
                 break;
             case UpdateType.ShippingQuery:
@@ -272,7 +272,7 @@ public abstract class TelegramChatBot(IServiceProvider serviceProvider) : ChatBo
                 }
                 catch (Exception ex)
                 {
-                    await HandleUpdateFailedAsync(telegramIncomingMessage, ex);
+                    await HandleUpdateFailedAsync(telegramIncomingMessage, ex, cancellationToken);
                 }
                 break;
             case UpdateType.PreCheckoutQuery:
@@ -282,7 +282,7 @@ public abstract class TelegramChatBot(IServiceProvider serviceProvider) : ChatBo
                 }
                 catch (Exception ex)
                 {
-                    await HandleUpdateFailedAsync(telegramIncomingMessage, ex);
+                    await HandleUpdateFailedAsync(telegramIncomingMessage, ex, cancellationToken);
                 }
                 break;
             case UpdateType.Poll:
@@ -292,7 +292,7 @@ public abstract class TelegramChatBot(IServiceProvider serviceProvider) : ChatBo
                 }
                 catch (Exception ex)
                 {
-                    await HandleUpdateFailedAsync(telegramIncomingMessage, ex);
+                    await HandleUpdateFailedAsync(telegramIncomingMessage, ex, cancellationToken);
                 }
                 break;
             case UpdateType.PollAnswer:
@@ -302,7 +302,7 @@ public abstract class TelegramChatBot(IServiceProvider serviceProvider) : ChatBo
                 }
                 catch (Exception ex)
                 {
-                    await HandleUpdateFailedAsync(telegramIncomingMessage, ex);
+                    await HandleUpdateFailedAsync(telegramIncomingMessage, ex, cancellationToken);
                 }
                 break;
             case UpdateType.MyChatMember:
@@ -312,7 +312,7 @@ public abstract class TelegramChatBot(IServiceProvider serviceProvider) : ChatBo
                 }
                 catch (Exception ex)
                 {
-                    await HandleUpdateFailedAsync(telegramIncomingMessage, ex);
+                    await HandleUpdateFailedAsync(telegramIncomingMessage, ex, cancellationToken);
                 }
                 break;
             case UpdateType.ChatMember:
@@ -322,7 +322,7 @@ public abstract class TelegramChatBot(IServiceProvider serviceProvider) : ChatBo
                 }
                 catch (Exception ex)
                 {
-                    await HandleUpdateFailedAsync(telegramIncomingMessage, ex);
+                    await HandleUpdateFailedAsync(telegramIncomingMessage, ex, cancellationToken);
                 }
                 break;
             case UpdateType.ChatJoinRequest:
@@ -332,7 +332,7 @@ public abstract class TelegramChatBot(IServiceProvider serviceProvider) : ChatBo
                 }
                 catch (Exception ex)
                 {
-                    await HandleUpdateFailedAsync(telegramIncomingMessage, ex);
+                    await HandleUpdateFailedAsync(telegramIncomingMessage, ex, cancellationToken);
                 }
                 break;
             default:
@@ -427,10 +427,6 @@ public abstract class TelegramChatBot(IServiceProvider serviceProvider) : ChatBo
 
     protected override sealed async Task EditMessageInternalAsync(ChatId chatId, MessageId messageId, string newMessageContent, TelegramSendingMessageOptions? messageOptions = null, CancellationToken cancellationToken = default)
         => await TelegramBotClient!.EditMessageTextAsync(chatId.ToString(), messageId, newMessageContent, disableWebPagePreview: messageOptions is not null && messageOptions.DisableWebPagePreview, replyMarkup: null, parseMode: ParseMode.Html, cancellationToken: cancellationToken);
-
-    protected abstract Task HandleUpdateFailedAsync(TelegramIncomingMessage incomingMessage, Exception ex);
-
-    protected abstract Task HandleMessageTextUpdateAsync(TelegramIncomingMessage incomingMessage);
 
     protected abstract Task HandleMessagePinnedAsync(TelegramIncomingMessage incomingMessage, UserId pinnerUserId, string content);
 
