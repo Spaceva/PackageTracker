@@ -18,6 +18,11 @@ internal abstract class ChatBotNotificationHandler<TNotification>(IEnumerable<IC
         try
         {
             var message = Message(notification, chatBot);
+            if (string.IsNullOrWhiteSpace(message))
+            {
+                return;
+            }
+
             await Task.WhenAll(ChatBotActionResolver.GetActions(chatBot).Select(a => a(chatBot, message, cancellationToken)));
         }
         catch (Exception ex)
@@ -26,5 +31,5 @@ internal abstract class ChatBotNotificationHandler<TNotification>(IEnumerable<IC
         }
     }
 
-    protected abstract string Message(TNotification notification, IChatBot chatBot);
+    protected abstract string? Message(TNotification notification, IChatBot chatBot);
 }
