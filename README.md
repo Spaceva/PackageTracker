@@ -17,10 +17,12 @@ Use the `appsettings.json` configuration file to setup your database and qwactiv
     "UseMemoryCache": boolean
   },
   "Modules": {
-    "Fetcher": boolean,
-    "Scanner": boolean,
-    "Monitor": boolean,
-    "ConfluenceExport": boolean
+    "Fetcher": false, // true to activate
+    "Scanner": false, // true to activate
+    "Monitor": false, // true to activate
+    "ConfluenceExport": false, // true to activate
+    "Discord": false, // true to activate
+    "Telegram": false // true to activate
   }
 }
 ```
@@ -99,7 +101,7 @@ Use the `scanner.json` configuration file.
         "RepositoryRootLink": "https://gitlab.custom.fr/",
         "AccessToken": "TOKEN_HERE",
         "TokenExpirationWarningThreshold": "DD:HH:MM:SS",
-        "MaximumConcurrencyCalls": NumberHere
+        "MaximumConcurrencyCalls": 10
       },
       {
         "ScannerName": "MyCustomAzureDevops",
@@ -110,13 +112,13 @@ Use the `scanner.json` configuration file.
         "ScannerName": "MyCustomGitHubOrganization",
         "RepositoryRootLink": "https://github.com/MyOrganizationName",
         "AccessToken": "TOKEN_HERE",
-        "MaximumConcurrencyCalls": NumberHere
+        "MaximumConcurrencyCalls": 10
       },
       {
         "ScannerName": "MyCustomGitHubUser",
         "RepositoryRootLink": "https://github.com/UserName",
         "AccessToken": "TOKEN_HERE",
-        "MaximumConcurrencyCalls": NumberHere
+        "MaximumConcurrencyCalls": 10
       }
     ]
   }
@@ -136,15 +138,49 @@ Use the `confluence.json` configuration file.
     "Username": "",
     "AccessToken": "",
     "Pages": {
-    "PageName1": PageName1NumberId,
-    "PageName2": PageName2NumberId,
-    "PageName3": PageName3NumberId,
-    "PageName4": PageName4NumberId,
+    "PageName1": 0, // Put Page Id Number here
+    "PageName2": 0, // Put Page Id Number here
+    "PageName3": 0, // Put Page Id Number here
+    "PageName4": 0, // Put Page Id Number here
     },
     "Credentials": [
       {
         "Domain": "",
         "AccessToken": ""
+      }
+    ]
+  }
+}
+```
+
+### Discord
+Discord Bot
+Use the `discord.json` configuration file.
+``` json
+{
+  "Discord": {
+    "Token": "TOKEN_HERE",
+    "Notifications": [ // Add recipients for notifications here
+      {
+        "ChatId": 0, // Your chat Id here
+        "Type": "User | Channel"
+      }
+    ]
+  }
+}
+```
+
+### Telegram
+Telegram Bot
+Use the `telegram.json` configuration file.
+``` json
+{
+  "Telegram": {
+    "Token": "TOKEN_HERE",
+    "Notifications": [ // Add recipients for notifications here
+      {
+        "ChatId": 0, // Your chat Id here
+        "Type": "User | Channel"
       }
     ]
   }
