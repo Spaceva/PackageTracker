@@ -5,7 +5,6 @@ Track your favorites packages releases and pre-releases.
 # Setup
 ## Application Global Settings
 Use the `appsettings.json` configuration file to setup your database and qwactivate modules.
-
 ``` json
 {
   "AllowedHosts": "*",
@@ -16,7 +15,6 @@ Use the `appsettings.json` configuration file to setup your database and qwactiv
     "Type": "MongoDb | SqlServer",
     "UseMemoryCache": true
   },
-  // Switch one of the following to true to activate
   "Modules": {
     "Fetcher": false,
     "Scanner": false,
@@ -27,6 +25,9 @@ Use the `appsettings.json` configuration file to setup your database and qwactiv
   }
 }
 ```
+
+`Persistence > Type` value can be either `MongoDb` either `SqlServer`.
+`Modules > *` Switch to true to activate modules.
 
 ## Modules
 ### Fetcher
@@ -139,7 +140,6 @@ Use the `confluence.json` configuration file.
     "Username": "",
     "AccessToken": "",
     "Pages": {
-        // Put Pages Id Number here
         "PageName1": 0, 
         "PageName2": 0,
         "PageName3": 0,
@@ -154,18 +154,22 @@ Use the `confluence.json` configuration file.
   }
 }
 ```
+Change the values next to `PageNameXX` to the Confluence ID Page associated.
 
-### Discord
-Discord Bot
+### Chat Bots
+Send notifications to chat bots.
+Add objects to `Notifications` to add recipients for the chat bot.
+`Notifications > [] > ChatId` is the chat ID of the recipient (usually a `long` number).
+`Notifications > [] > Type` value is either `User` or `Channel`.
+
+#### Discord
 Use the `discord.json` configuration file.
 ``` json
 {
   "Discord": {
     "Token": "TOKEN_HERE",
     "Notifications": [ 
-    // Add recipients for notifications here
       {
-        // Your chat Id here
         "ChatId": 0, 
         "Type": "User | Channel"
       }
@@ -174,17 +178,14 @@ Use the `discord.json` configuration file.
 }
 ```
 
-### Telegram
-Telegram Bot
+#### Telegram
 Use the `telegram.json` configuration file.
 ``` json
 {
   "Telegram": {
     "Token": "TOKEN_HERE",
     "Notifications": [ 
-    // Add recipients for notifications here
       {
-      // Your chat Id here
         "ChatId": 0, 
         "Type": "User | Channel"
       }
