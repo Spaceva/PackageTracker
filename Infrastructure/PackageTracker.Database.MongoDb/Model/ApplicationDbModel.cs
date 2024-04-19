@@ -1,5 +1,6 @@
 ﻿using MongoDB.Bson;
 using PackageTracker.Database.MongoDb.Model.Base;
+using PackageTracker.Domain.Application.Exceptions;
 using PackageTracker.Domain.Application.Model;
 using System.Web;
 
@@ -34,7 +35,7 @@ internal class ApplicationDbModel(Application application) : IMongoEntity
             ApplicationType.Angular => typeof(AngularApplication),
             ApplicationType.DotNet => typeof(DotNetApplication),
             ApplicationType.Php => typeof(PhpApplication),
-            _ => throw new ArgumentOutOfRangeException("Application Type")
+            _ => throw new UnknownApplicationTypeException()
         };
 
         Application domainApplication = (Application)Activator.CreateInstance(applicationType)!;

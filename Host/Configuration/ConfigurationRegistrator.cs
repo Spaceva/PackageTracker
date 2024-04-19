@@ -2,6 +2,8 @@
 using PackageTracker.Scanner;
 using PackageTracker.Monitor;
 using PackageTracker.Export.Confluence;
+using PackageTracker.ChatBot.Discord;
+using PackageTracker.ChatBot.Telegram;
 
 namespace PackageTracker.Host.Configuration;
 internal static class ConfigurationRegistrator
@@ -15,6 +17,8 @@ internal static class ConfigurationRegistrator
                         .AddFetcherConfiguration(environment)
                         .AddScannerConfiguration(environment)
                         .AddMonitorConfiguration(environment)
-                        .AddConfluenceConfiguration(environment);
+                        .AddConfluenceConfiguration(environment)
+                        .AddDiscordConfiguration(environment)
+                        .AddTelegramConfiguration(environment);
     }
 }

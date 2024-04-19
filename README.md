@@ -5,7 +5,6 @@ Track your favorites packages releases and pre-releases.
 # Setup
 ## Application Global Settings
 Use the `appsettings.json` configuration file to setup your database and qwactivate modules.
-
 ``` json
 {
   "AllowedHosts": "*",
@@ -14,16 +13,22 @@ Use the `appsettings.json` configuration file to setup your database and qwactiv
   },
   "Persistence": {
     "Type": "MongoDb | SqlServer",
-    "UseMemoryCache": boolean
+    "UseMemoryCache": true
   },
   "Modules": {
-    "Fetcher": boolean,
-    "Scanner": boolean,
-    "Monitor": boolean,
-    "ConfluenceExport": boolean
+    "Fetcher": false,
+    "Scanner": false,
+    "Monitor": false,
+    "ConfluenceExport": false,
+    "Discord": false,
+    "Telegram": false
   }
 }
 ```
+
+`Persistence > Type` value can be either `MongoDb` either `SqlServer`.
+
+Switch `Modules > *` to true to activate modules.
 
 ## Modules
 ### Fetcher
@@ -99,7 +104,7 @@ Use the `scanner.json` configuration file.
         "RepositoryRootLink": "https://gitlab.custom.fr/",
         "AccessToken": "TOKEN_HERE",
         "TokenExpirationWarningThreshold": "DD:HH:MM:SS",
-        "MaximumConcurrencyCalls": NumberHere
+        "MaximumConcurrencyCalls": 10
       },
       {
         "ScannerName": "MyCustomAzureDevops",
@@ -110,13 +115,13 @@ Use the `scanner.json` configuration file.
         "ScannerName": "MyCustomGitHubOrganization",
         "RepositoryRootLink": "https://github.com/MyOrganizationName",
         "AccessToken": "TOKEN_HERE",
-        "MaximumConcurrencyCalls": NumberHere
+        "MaximumConcurrencyCalls": 10
       },
       {
         "ScannerName": "MyCustomGitHubUser",
         "RepositoryRootLink": "https://github.com/UserName",
         "AccessToken": "TOKEN_HERE",
-        "MaximumConcurrencyCalls": NumberHere
+        "MaximumConcurrencyCalls": 10
       }
     ]
   }
@@ -136,15 +141,57 @@ Use the `confluence.json` configuration file.
     "Username": "",
     "AccessToken": "",
     "Pages": {
-    "PageName1": PageName1NumberId,
-    "PageName2": PageName2NumberId,
-    "PageName3": PageName3NumberId,
-    "PageName4": PageName4NumberId,
+        "PageName1": 0, 
+        "PageName2": 0,
+        "PageName3": 0,
+        "PageName4": 0,
     },
     "Credentials": [
       {
         "Domain": "",
         "AccessToken": ""
+      }
+    ]
+  }
+}
+```
+Change the values next to `PageNameXX` to the Confluence ID Page associated.
+
+### Chat Bots
+Send notifications to chat bots.
+
+Add objects to `Notifications` to add recipients for the chat bot.
+
+`Notifications > [] > ChatId` is the chat ID of the recipient (usually a `long` number).
+
+`Notifications > [] > Type` value is either `User` or `Channel`.
+
+#### Discord
+Use the `discord.json` configuration file.
+``` json
+{
+  "Discord": {
+    "Token": "TOKEN_HERE",
+    "Notifications": [ 
+      {
+        "ChatId": 0, 
+        "Type": "User | Channel"
+      }
+    ]
+  }
+}
+```
+
+#### Telegram
+Use the `telegram.json` configuration file.
+``` json
+{
+  "Telegram": {
+    "Token": "TOKEN_HERE",
+    "Notifications": [ 
+      {
+        "ChatId": 0, 
+        "Type": "User | Channel"
       }
     ]
   }

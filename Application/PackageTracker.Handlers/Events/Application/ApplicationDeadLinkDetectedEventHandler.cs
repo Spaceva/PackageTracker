@@ -14,11 +14,11 @@ internal class ApplicationDeadLinkDetectedEventHandler(IApplicationsRepository a
         var existingApplication = await applicationsRepository.TryGetAsync(scannedApplication.Name, scannedApplication.Type, scannedApplication.RepositoryLink, cancellationToken);
         if (existingApplication is null)
         {
-            logger.LogWarning($"False Positive Deadlink application detected : '{{ApplicationName}}' ({{ApplicationType}}).", scannedApplication.Name, scannedApplication.Type);
+            logger.LogWarning("False Positive Deadlink application detected : '{ApplicationName}' ({ApplicationType}).", scannedApplication.Name, scannedApplication.Type);
             return;
         }
 
-        logger.LogInformation($"Deadlink application detected : '{{ApplicationName}}' ({{ApplicationType}}).", scannedApplication.Name, scannedApplication.Type);
+        logger.LogInformation("Deadlink application detected : '{ApplicationName}' ({ApplicationType}).", scannedApplication.Name, scannedApplication.Type);
         if (existingApplication.IsDeadLink)
         {
             await mediator.Send(new DeleteApplicationCommand() { Name = existingApplication.Name, RepositoryLink = existingApplication.RepositoryLink, Type = existingApplication.Type }, cancellationToken);

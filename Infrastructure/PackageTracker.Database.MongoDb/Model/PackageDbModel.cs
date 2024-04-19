@@ -1,5 +1,6 @@
 ﻿using MongoDB.Bson;
 using PackageTracker.Database.MongoDb.Model.Base;
+using PackageTracker.Domain.Package.Exceptions;
 using PackageTracker.Domain.Package.Model;
 
 namespace PackageTracker.Database.MongoDb.Model;
@@ -24,7 +25,7 @@ internal class PackageDbModel(PackageType type) : Package, IMongoEntity
             PackageType.Nuget => typeof(NugetPackage),
             PackageType.Npm => typeof(NpmPackage),
             PackageType.Packagist => typeof(PackagistPackage),
-            _ => throw new ArgumentOutOfRangeException("Package Type")
+            _ => throw new UnknownPackageTypeException()
         };
 
         Package domainPackage = (Package)Activator.CreateInstance(packageType)!;

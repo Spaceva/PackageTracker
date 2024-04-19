@@ -11,6 +11,8 @@ using PackageTracker.Export.Confluence;
 using PackageTracker.Presentation.WebApi;
 using PackageTracker.Presentation.MVCApp;
 using PackageTracker.Presentation.ExceptionHandlers;
+using PackageTracker.ChatBot.Discord.Notifications;
+using PackageTracker.Scanner.GitHub;
 
 namespace PackageTracker.Host.Configuration;
 internal static class ServiceRegistrator
@@ -82,6 +84,16 @@ internal static class ServiceRegistrator
         {
             services.AddConfluenceExport(configuration);
             // Add your confluence exports registrations here
+        }
+
+        if (modules.GetValue<bool>("Discord"))
+        {
+            services.NotifyWithDiscord(configuration);
+        }
+
+        if (modules.GetValue<bool>("Telegram"))
+        {
+            services.NotifyWithTelegram(configuration);
         }
     }
 }
