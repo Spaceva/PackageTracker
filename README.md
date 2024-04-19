@@ -14,15 +14,16 @@ Use the `appsettings.json` configuration file to setup your database and qwactiv
   },
   "Persistence": {
     "Type": "MongoDb | SqlServer",
-    "UseMemoryCache": boolean
+    "UseMemoryCache": true
   },
+  // Switch one of the following to true to activate
   "Modules": {
-    "Fetcher": false, // true to activate
-    "Scanner": false, // true to activate
-    "Monitor": false, // true to activate
-    "ConfluenceExport": false, // true to activate
-    "Discord": false, // true to activate
-    "Telegram": false // true to activate
+    "Fetcher": false,
+    "Scanner": false,
+    "Monitor": false,
+    "ConfluenceExport": false,
+    "Discord": false,
+    "Telegram": false
   }
 }
 ```
@@ -138,10 +139,11 @@ Use the `confluence.json` configuration file.
     "Username": "",
     "AccessToken": "",
     "Pages": {
-    "PageName1": 0, // Put Page Id Number here
-    "PageName2": 0, // Put Page Id Number here
-    "PageName3": 0, // Put Page Id Number here
-    "PageName4": 0, // Put Page Id Number here
+        // Put Pages Id Number here
+        "PageName1": 0, 
+        "PageName2": 0,
+        "PageName3": 0,
+        "PageName4": 0,
     },
     "Credentials": [
       {
@@ -160,9 +162,11 @@ Use the `discord.json` configuration file.
 {
   "Discord": {
     "Token": "TOKEN_HERE",
-    "Notifications": [ // Add recipients for notifications here
+    "Notifications": [ 
+    // Add recipients for notifications here
       {
-        "ChatId": 0, // Your chat Id here
+        // Your chat Id here
+        "ChatId": 0, 
         "Type": "User | Channel"
       }
     ]
@@ -177,9 +181,11 @@ Use the `telegram.json` configuration file.
 {
   "Telegram": {
     "Token": "TOKEN_HERE",
-    "Notifications": [ // Add recipients for notifications here
+    "Notifications": [ 
+    // Add recipients for notifications here
       {
-        "ChatId": 0, // Your chat Id here
+      // Your chat Id here
+        "ChatId": 0, 
         "Type": "User | Channel"
       }
     ]
