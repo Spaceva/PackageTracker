@@ -2,8 +2,8 @@
 
 internal class NotificationSettings
 {
-    public ulong ChatId { get; init; }
-    public ChatType Type { get; init; }
+    public required long ChatId { get; init; }
+    public required ChatType Type { get; init; }
     public enum ChatType
     {
         User,

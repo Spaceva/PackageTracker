@@ -158,6 +158,8 @@ public class DiscordNotifierBot(string token, IServiceProvider serviceProvider) 
 
     protected override Task HandleApplicationCommandCreatedAsync(SocketApplicationCommand applicationCommand) => Task.CompletedTask;
 
+    protected override Task HandleMessageTextUpdateAsync(DiscordIncomingMessage incomingMessage, CancellationToken cancellationToken = default) => Task.CompletedTask;
+
     protected override Task HandleEditMessageExceptionAsync(EditMessageFailedException ex, CancellationToken cancellationToken = default) => Task.CompletedTask;
 
     protected override Task HandleSendingMessageExceptionAsync(SendMessageToChatFailedException ex, CancellationToken cancellationToken = default) => Task.CompletedTask;
@@ -169,8 +171,6 @@ public class DiscordNotifierBot(string token, IServiceProvider serviceProvider) 
     protected override Task HandleSendingFileExceptionAsync(SendFileToUserFailedException ex, CancellationToken cancellationToken = default) => Task.CompletedTask;
 
     protected override Task HandleReactionMessageExceptionAsync(ReactionMessageFailedException ex, CancellationToken cancellationToken = default) => Task.CompletedTask;
-
-    protected override Task HandleMessageTextUpdateAsync(DiscordIncomingMessage incomingMessage, CancellationToken cancellationToken = default) => Task.CompletedTask;
 
     protected override Task HandleUpdateFailedAsync(DiscordIncomingMessage incomingMessage, Exception ex, CancellationToken cancellationToken = default) => Task.CompletedTask;
 }

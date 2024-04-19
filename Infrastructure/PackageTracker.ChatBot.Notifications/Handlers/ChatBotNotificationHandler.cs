@@ -9,21 +9,21 @@ internal abstract class ChatBotNotificationHandler<TNotification>(IEnumerable<IC
     {
         foreach (var chatBot in chatBots)
         {
-            try
-            {
-                await Handle(notification, chatBot, cancellationToken);
-            }
-            catch (Exception ex)
-            {
-                logger.LogError(ex, "Failed to notify {Notification} with {ChatBot}.", notification.GetType().Name, chatBot.BotName);
-            }
+            await HandleWithChatBot(notification, chatBot, cancellationToken);
         }
     }
 
-    private async Task Handle(TNotification notification, IChatBot chatBot, CancellationToken cancellationToken)
+    private async Task HandleWithChatBot(TNotification notification, IChatBot chatBot, CancellationToken cancellationToken)
     {
-        var message = Message(notification, chatBot);
-        await Task.WhenAll(ChatBotActionResolver.GetActions(chatBot).Select(a => a(chatBot, message, cancellationToken)));
+        try
+        {
+            var message = Message(notification, chatBot);
+            await Task.WhenAll(ChatBotActionResolver.GetActions(chatBot).Select(a => a(chatBot, message, cancellationToken)));
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, "Failed to notify {Notification} with {ChatBot}.", notification.GetType().Name, chatBot.BotName);
+        }
     }
 
     protected abstract string Message(TNotification notification, IChatBot chatBot);

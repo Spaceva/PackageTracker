@@ -85,6 +85,7 @@ public abstract class ChatBot(IServiceProvider serviceProvider) : IChatBot
         }
         catch (Exception ex)
         {
+            Logger.LogError(ex, "Failed to send message to user {UserId}.", userId);
             await HandleSendingMessageExceptionAsync(new SendMessageToUserFailedException(ex.Message, userId, ex, messageOptions), cancellationToken);
         }
     }
@@ -102,6 +103,7 @@ public abstract class ChatBot(IServiceProvider serviceProvider) : IChatBot
         }
         catch (Exception ex)
         {
+            Logger.LogError(ex, "Failed to send message to chat {ChatId}.", chatId);
             await HandleSendingMessageExceptionAsync(new SendMessageToChatFailedException(ex.Message, chatId, ex, messageOptions), cancellationToken);
         }
     }
@@ -124,6 +126,7 @@ public abstract class ChatBot(IServiceProvider serviceProvider) : IChatBot
         }
         catch (Exception ex)
         {
+            Logger.LogError(ex, "Failed to send file '{FileName}' to user {UserId}.", fileName, userId);
             await HandleSendingFileExceptionAsync(new SendFileToUserFailedException(ex.Message, userId, dataStream, fileName, ex, messageOptions), cancellationToken);
         }
     }
@@ -146,6 +149,7 @@ public abstract class ChatBot(IServiceProvider serviceProvider) : IChatBot
         }
         catch (Exception ex)
         {
+            Logger.LogError(ex, "Failed to send file '{FileName}' to chat {ChatId}.", fileName, chatId);
             await HandleSendingFileExceptionAsync(new SendFileToChatFailedException(ex.Message, chatId, dataStream, fileName, ex, messageOptions), cancellationToken);
         }
     }
@@ -189,6 +193,7 @@ public abstract class ChatBot(IServiceProvider serviceProvider) : IChatBot
         }
         catch (Exception ex)
         {
+            Logger.LogError(ex, "Failed to edit message #{MessageId} in chat {ChatId}.", incomingMessage.MessageId, incomingMessage.ChatId);
             await HandleEditMessageExceptionAsync(new EditMessageFailedException(ex.Message, incomingMessage.MessageId!, incomingMessage.ChatId!, ex, messageOptions), cancellationToken);
         }
     }
@@ -206,6 +211,7 @@ public abstract class ChatBot(IServiceProvider serviceProvider) : IChatBot
         }
         catch (Exception ex)
         {
+            Logger.LogError(ex, "Failed to edit message #{MessageId} in chat {ChatId}.", messageId, chatId);
             await HandleEditMessageExceptionAsync(new EditMessageFailedException(ex.Message, messageId, chatId, ex, messageOptions), cancellationToken);
         }
     }
@@ -218,6 +224,7 @@ public abstract class ChatBot(IServiceProvider serviceProvider) : IChatBot
         }
         catch (Exception ex)
         {
+            Logger.LogError(ex, "Failed to react message #{MessageId} in chat {ChatId} with emoji {Emoji}.", incomingMessage.MessageId, incomingMessage.ChatId, emoji);
             await HandleReactionMessageExceptionAsync(new ReactionMessageFailedException(ex.Message, incomingMessage.MessageId!, incomingMessage.ChatId!, ex, emoji), cancellationToken);
         }
     }
@@ -230,6 +237,7 @@ public abstract class ChatBot(IServiceProvider serviceProvider) : IChatBot
         }
         catch (Exception ex)
         {
+            Logger.LogError(ex, "Failed to react message #{MessageId} in chat {ChatId} with emoji {Emoji}.", messageId, chatId, emoji);
             await HandleReactionMessageExceptionAsync(new ReactionMessageFailedException(ex.Message, messageId, chatId, ex, emoji), cancellationToken);
         }
     }
@@ -289,7 +297,7 @@ public abstract class ChatBot(IServiceProvider serviceProvider) : IChatBot
         }
         catch (Exception ex)
         {
-            Logger.LogError(ex, "Handling Update {MessageId} in chat {ChatId} from {AuthorUserId} failed.", incomingMessage.MessageId, incomingMessage.ChatId, incomingMessage.AuthorUserId);
+            Logger.LogError(ex, "Failed to handle update #{MessageId} in chat {ChatId} from {AuthorUserId}.", incomingMessage.MessageId, incomingMessage.ChatId, incomingMessage.AuthorUserId);
             await HandleUpdateFailedAsync(incomingMessage, ex, cancellationToken);
         }
     }
