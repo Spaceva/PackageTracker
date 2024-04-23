@@ -60,15 +60,11 @@ internal class DotNetFrameworkAssemblyParser(IPackagesRepository packagesReposit
     }
 
     private static bool IsLibraryElement(XElement element)
-     => element.Name is not null
-     && element.Name.LocalName is not null
-     && element.Name.LocalName == Constants.Application.DotNetFramework.XMLLibraryNodeName
+     => element.Name?.LocalName == Constants.Application.DotNetFramework.XMLLibraryNodeName
      && element.HasAttributes
      && element.Attribute(Constants.Application.DotNetFramework.XMLLibraryNameAndVersionAttribute)?.Value is not null
      && element.Attribute(Constants.Application.DotNetFramework.XMLLibraryNameAndVersionAttribute)!.Value.Trim().Contains($"{Constants.Application.DotNetFramework.XMLLibraryVersionSubAttribute}=");
 
     private static bool IsDotNetElement(XElement element)
-     => element.Name is not null
-     && element.Name.LocalName is not null
-     && element.Name.LocalName == Constants.Application.DotNetFramework.XMLDotnetVersionNodeName;
+     => element.Name?.LocalName == Constants.Application.DotNetFramework.XMLDotnetVersionNodeName;
 }

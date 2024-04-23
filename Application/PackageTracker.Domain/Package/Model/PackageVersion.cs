@@ -2,9 +2,12 @@
 
 public class PackageVersion
 {
+    public static bool IsValid(string version)
+     => Constants.RegularExpressions.AnyVersionNumber.IsMatch(version);
+
     public PackageVersion(string version)
     {
-        if (!Constants.RegularExpressions.AnyVersionNumber.IsMatch(version))
+        if (!IsValid(version))
         {
             throw new ArgumentException($"Expected version at format '{Constants.RegularExpressions.AnyVersionNumber}', got '{version}'.", nameof(version));
         }

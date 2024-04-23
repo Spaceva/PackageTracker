@@ -21,15 +21,7 @@ internal class ApplicationBranchDbModel()
 
     internal ApplicationBranch ToDomain(ApplicationType applicationType)
     {
-        var applicationBranchType = applicationType switch
-        {
-            ApplicationType.Angular => typeof(AngularApplicationBranch),
-            ApplicationType.DotNet => typeof(DotNetApplicationBranch),
-            ApplicationType.Php => typeof(PhpApplicationBranch),
-            _ => throw new ArgumentOutOfRangeException(nameof(applicationType))
-        };
-
-        ApplicationBranch applicationBranch = (ApplicationBranch)Activator.CreateInstance(applicationBranchType)!;
+        ApplicationBranch applicationBranch = (ApplicationBranch)Activator.CreateInstance(applicationType.ToApplicationBranchType())!;
         applicationBranch.Name = Name!;
         applicationBranch.RepositoryLink = HttpUtility.UrlDecode(RepositoryLink);
         applicationBranch.LastCommit = LastCommit;

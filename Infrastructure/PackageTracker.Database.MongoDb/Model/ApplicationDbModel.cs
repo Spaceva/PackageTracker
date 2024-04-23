@@ -1,6 +1,5 @@
 ﻿using MongoDB.Bson;
 using PackageTracker.Database.MongoDb.Model.Base;
-using PackageTracker.Domain.Application.Exceptions;
 using PackageTracker.Domain.Application.Model;
 using System.Web;
 
@@ -29,23 +28,15 @@ internal class ApplicationDbModel(Application application) : IMongoEntity
 
     public Application ToDomain()
     {
-        var appType = Enum.Parse<ApplicationType>(AppType);
-        var applicationType = appType switch
-        {
-            ApplicationType.Angular => typeof(AngularApplication),
-            ApplicationType.DotNet => typeof(DotNetApplication),
-            ApplicationType.Php => typeof(PhpApplication),
-            _ => throw new UnknownApplicationTypeException()
-        };
-
-        Application domainApplication = (Application)Activator.CreateInstance(applicationType)!;
+        var applicationType = Enum.Parse<ApplicationType>(AppType);
+        Application domainApplication = (Application)Activator.CreateInstance(applicationType.ToApplicationType())!;
         domainApplication.IsDeadLink = IsDeadLink;
         domainApplication.IsSoonDecommissioned = IsSoonDecommissioned;
         domainApplication.Name = Name;
         domainApplication.Path = Path;
         domainApplication.RepositoryLink = HttpUtility.UrlDecode(RepositoryLink);
         domainApplication.RepositoryType = RepositoryType;
-        domainApplication.Branchs = [.. Branchs.Select(b => b.ToDomain(appType))];
+        domainApplication.Branchs = [.. Branchs.Select(b => b.ToDomain(applicationType))];
 
         return domainApplication;
     }

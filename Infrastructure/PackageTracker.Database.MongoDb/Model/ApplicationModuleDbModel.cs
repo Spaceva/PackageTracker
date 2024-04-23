@@ -22,14 +22,7 @@ internal class ApplicationModuleDbModel()
 
     internal ApplicationModule ToDomain(ApplicationType applicationType)
     {
-        var applicationModuleType = applicationType switch
-        {
-            ApplicationType.Angular => typeof(AngularModule),
-            ApplicationType.DotNet => typeof(DotNetAssembly),
-            ApplicationType.Php => typeof(PhpModule),
-            _ => throw new ArgumentOutOfRangeException(nameof(applicationType))
-        };
-        ApplicationModule applicationModule = (ApplicationModule)Activator.CreateInstance(applicationModuleType)!;
+        var applicationModule = (ApplicationModule)Activator.CreateInstance(applicationType.ToApplicationModuleType())!;
         applicationModule.Name = Name;
         applicationModule.Packages = [.. Packages.Select(p => p.ToDomain())];
         applicationModule.FrameworkVersion = FrameworkVersion;

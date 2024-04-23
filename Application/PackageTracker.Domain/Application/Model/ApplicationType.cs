@@ -5,5 +5,6 @@ public enum ApplicationType
     Unknown,
     Angular,
     DotNet,
-    Php
+    Php,
+    Java
 }

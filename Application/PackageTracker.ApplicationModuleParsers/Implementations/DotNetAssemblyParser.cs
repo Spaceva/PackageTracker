@@ -62,13 +62,11 @@ internal class DotNetAssemblyParser(IPackagesRepository packagesRepository, ILog
     }
 
     private static bool IsLibraryElement(XElement element)
-     => element.Name is not null
-     && element.Name == Constants.Application.DotNet.XMLLibraryNodeName
+     => element.Name == Constants.Application.DotNet.XMLLibraryNodeName
      && element.HasAttributes
      && element.Attribute(Constants.Application.DotNet.XMLLibraryNameAttribute) is not null
      && element.Attribute(Constants.Application.DotNet.XMLLibraryVersionAttribute) is not null;
 
     private static bool IsDotNetElement(XElement element)
-     => element.Name is not null
-     && element.Name == Constants.Application.DotNet.XMLDotnetVersionNodeName;
+     => element.Name == Constants.Application.DotNet.XMLDotnetVersionNodeName;
 }

@@ -7,35 +7,18 @@ internal class ApplicationBranchCollectionValueConverter : ValueConverter<IColle
 {
     private static readonly ApplicationModuleValueConverter applicationModuleValueConverter = new();
     private static ApplicationBranchModel ToModel(ApplicationBranch entity)
-    {
-        var applicationType = entity.GetType().Name switch
+        => new()
         {
-            nameof(AngularApplicationBranch) => ApplicationType.Angular,
-            nameof(DotNetApplicationBranch) => ApplicationType.DotNet,
-            nameof(PhpApplicationBranch) => ApplicationType.Php,
-            _ => throw new ArgumentOutOfRangeException(entity.GetType().Name)
-        };
-
-        return new ApplicationBranchModel
-        {
-            ApplicationType = applicationType,
+            ApplicationType = entity.GetType().ToApplicationType(),
             Name = entity.Name,
             Link = entity.RepositoryLink,
             Modules = entity.Modules.Select(x => (ApplicationModuleModel)applicationModuleValueConverter.ConvertToProvider(x)!).ToList(),
             LastCommit = entity.LastCommit
         };
-    }
 
     private static ApplicationBranch FromModel(ApplicationBranchModel model)
     {
-        var applicationBranchType = model.ApplicationType switch
-        {
-            ApplicationType.Angular => typeof(AngularApplicationBranch),
-            ApplicationType.DotNet => typeof(DotNetApplicationBranch),
-            ApplicationType.Php => typeof(PhpApplicationBranch),
-            _ => throw new ArgumentOutOfRangeException(model.GetType().Name)
-        };
-        ApplicationBranch applicationBranch = (ApplicationBranch)Activator.CreateInstance(applicationBranchType)!;
+        var applicationBranch = (ApplicationBranch)Activator.CreateInstance(model.ApplicationType.ToApplicationBranchType())!;
         applicationBranch.Name = model.Name;
         applicationBranch.RepositoryLink = model.Link;
         applicationBranch.Modules = model.Modules.Select(m => (ApplicationModule)applicationModuleValueConverter.ConvertFromProvider(m)!).ToList();
