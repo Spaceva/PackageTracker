@@ -4,19 +4,19 @@ using PackageTracker.Domain.Package.Exceptions;
 using PackageTracker.Domain.Package.Model;
 
 namespace PackageTracker.Database.MongoDb.Model;
-internal class PackageDbModel(PackageType type) : Package, IMongoEntity
+internal class PackageDbModel(Package package) : IMongoEntity
 {
-    public PackageDbModel(Package package) : this(package.Type)
-    {
-        Name = package.Name;
-        Versions = package.Versions;
-        RegistryUrl = package.RegistryUrl;
-        Link = package.Link;
-    }
-
     public ObjectId? Id { get; set; }
 
-    public override PackageType Type => type;
+    public string Name { get; set; } = package.Name;
+
+    public ICollection<PackageVersion> Versions { get; set; } = package.Versions;
+
+    public string RegistryUrl { get; set; } = package.RegistryUrl;
+
+    public string Link { get; set; } = package.Link;
+
+    public PackageType Type { get; set; } = package.Type;
 
     public Package ToDomain()
     {
