@@ -4,5 +4,6 @@ public enum PackageType
 {
     Npm,
     Nuget,
-    Packagist
+    Packagist,
+    Java
 }

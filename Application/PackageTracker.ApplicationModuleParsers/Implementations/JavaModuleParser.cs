@@ -11,14 +11,17 @@ internal class JavaModuleParser(IPackagesRepository packagesRepository, ILogger<
     {
         try
         {
-            var positionOfHeader = fileContent.IndexOf($"<{Constants.Application.Java.XMLJavaVersionNodeName}>");
-            var cleanFileContent = fileContent[positionOfHeader..].Trim();
+            var javaVersionPosition = FindJavaVersionPosition(fileContent);
+            if (javaVersionPosition < 0)
+            {
+                return false;
+            }
+
+            var cleanFileContent = fileContent.Trim();
             var povFile = XElement.Parse(cleanFileContent);
             var hasJavaVersion = povFile
                 .Descendants()
-                .SingleOrDefault(IsPropertiesElement)
-                ?.Descendants()
-                ?.SingleOrDefault(IsJavaElement) is not null;
+                .FirstOrDefault(IsJavaElement) is not null;
 
             return hasJavaVersion;
         }
@@ -30,24 +33,19 @@ internal class JavaModuleParser(IPackagesRepository packagesRepository, ILogger<
 
     public override async Task<JavaModule> ParseModuleAsync(string fileContent, string fileName, CancellationToken cancellationToken)
     {
-        var positionOfHeader = fileContent.IndexOf($"<{Constants.Application.Java.XMLJavaVersionNodeName}>");
-        var cleanFileContent = fileContent[positionOfHeader..].Trim();
-        var povFile = XElement.Parse(cleanFileContent);
+        var javaVersionPosition = FindJavaVersionPosition(fileContent);
+        var cleanFileContent = fileContent.Trim();
+        var pomFileRootNode = XElement.Parse(cleanFileContent);
 
-        var propertiesNode = povFile
+        var propertiesNode = pomFileRootNode
                 .Descendants()
                 .Single(IsPropertiesElement);
 
-        var javaVersion = propertiesNode
-                .Descendants()
-                .Single(IsJavaElement)
-                .Value
-                .Trim();
+        var javaVersion = GetJavaVersion(propertiesNode.Descendants().Where(IsJavaElement));
 
-        var librairiesTasks = povFile
+        var librairiesTasks = pomFileRootNode
             .Descendants()
             .Where(IsLibraryElement)
-            .SelectMany(element => element.Descendants())
             .Select(element => ParseLibraryElement(element, propertiesNode))
             .Where(package => package.Name is not null && package.Version is not null)
             .Select((package) => ApplicationPackage(package.Name!, package.Version!, cancellationToken));
@@ -57,10 +55,23 @@ internal class JavaModuleParser(IPackagesRepository packagesRepository, ILogger<
         return new JavaModule { Name = fileName, FrameworkVersion = javaVersion, Packages = [.. librairiesVersions.OrderBy(p => p.PackageName)] };
     }
 
+    private static string GetJavaVersion(IEnumerable<XElement> nodes)
+    {
+        var node = nodes.SingleOrDefault(e => e.Name?.LocalName == Constants.Application.Java.XMLJavaVersionNodeName)
+         ?? nodes.SingleOrDefault(e => e.Name?.LocalName == Constants.Application.Java.XMLJavaVersionFallback1NodeName)
+         ?? nodes.Single(e => e.Name?.LocalName == Constants.Application.Java.XMLJavaVersionFallback2NodeName);
+        return node.Value.Trim();
+    }
+
     private static (string? Name, string? Version) ParseLibraryElement(XElement dependencyNode, XElement propertiesNode)
     {
-        var name = dependencyNode.Descendants().Single(d => d.Name.LocalName.Equals(Constants.Application.Java.XMLArtifactIdNodeName, StringComparison.OrdinalIgnoreCase)).Value;
-        var version = dependencyNode.Descendants().Single(d => d.Name.LocalName.Equals(Constants.Application.Java.XMLArtifactVersionNodeName, StringComparison.OrdinalIgnoreCase)).Value;
+        var name = dependencyNode.Descendants().SingleOrDefault(d => d.Name.LocalName.Equals(Constants.Application.Java.XMLArtifactIdNodeName, StringComparison.OrdinalIgnoreCase))?.Value;
+        var version = dependencyNode.Descendants().SingleOrDefault(d => d.Name.LocalName.Equals(Constants.Application.Java.XMLArtifactVersionNodeName, StringComparison.OrdinalIgnoreCase))?.Value;
+        if (name is null || version is null)
+        {
+            return (null, null);
+        }
+
         if (!PackageVersion.IsValid(version))
         {
             var matchingProperty = propertiesNode.Descendants().SingleOrDefault(n => n.Name.LocalName.Equals(name, StringComparison.OrdinalIgnoreCase));
@@ -76,12 +87,28 @@ internal class JavaModuleParser(IPackagesRepository packagesRepository, ILogger<
     }
 
     private static bool IsLibraryElement(XElement element)
-     => element.Name?.LocalName == Constants.Application.Java.XMLDependencyManagementNodeName
-     && element.Descendants().All(e => e.Name.LocalName.Equals(Constants.Application.Java.XMLDependencyNodeName));
+     => element.Name?.LocalName == Constants.Application.Java.XMLDependencyNodeName;
 
     private static bool IsPropertiesElement(XElement element)
      => element.Name?.LocalName == Constants.Application.Java.XMLPropertiesNode;
 
     private static bool IsJavaElement(XElement element)
-     => element.Name?.LocalName == Constants.Application.Java.XMLJavaVersionNodeName;
+     => element.Name?.LocalName == Constants.Application.Java.XMLJavaVersionNodeName
+        || element.Name?.LocalName == Constants.Application.Java.XMLJavaVersionFallback1NodeName
+        || element.Name?.LocalName == Constants.Application.Java.XMLJavaVersionFallback2NodeName;
+
+    private static int FindJavaVersionPosition(string fileContent)
+    {
+        var positionOfHeader = fileContent.IndexOf($"<{Constants.Application.Java.XMLJavaVersionNodeName}>");
+        if (positionOfHeader < 0)
+        {
+            positionOfHeader = fileContent.IndexOf($"<{Constants.Application.Java.XMLJavaVersionFallback1NodeName}>");
+            if (positionOfHeader < 0)
+            {
+                positionOfHeader = fileContent.IndexOf($"<{Constants.Application.Java.XMLJavaVersionFallback2NodeName}>");
+            }
+        }
+
+        return positionOfHeader;
+    }
 }

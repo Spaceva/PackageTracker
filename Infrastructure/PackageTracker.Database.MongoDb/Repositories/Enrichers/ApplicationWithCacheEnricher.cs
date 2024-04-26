@@ -73,6 +73,11 @@ internal class ApplicationWithCacheEnricher(IPackagesRepository packagesReposito
                             ?? await frameworksRepository.TryGetByVersionAsync(PhpModule.FrameworkName, new PackageVersion(phpModule.FrameworkVersion).ToStringMajorMinor(), cancellationToken);
         }
 
+        if(module is JavaModule javaModule)
+        {
+            return await frameworksRepository.TryGetByVersionAsync(JavaModule.FrameworkName, javaModule.FrameworkVersion, cancellationToken);
+        }
+
         return null;
     }
 }

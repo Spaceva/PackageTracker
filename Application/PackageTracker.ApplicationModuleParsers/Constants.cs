@@ -37,6 +37,8 @@ internal static partial class Constants
         public static class Java
         {
             public const string XMLJavaVersionNodeName = "java.version";
+            public const string XMLJavaVersionFallback1NodeName = "maven.compiler.target";
+            public const string XMLJavaVersionFallback2NodeName = "maven.compiler.source";
             public const string XMLDependencyManagementNodeName = "dependencyManagement";
             public const string XMLDependencyNodeName = "dependency";
             public const string XMLArtifactIdNodeName = "artifactId";

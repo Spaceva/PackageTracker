@@ -2,7 +2,7 @@
 
 public abstract class Package
 {
-    private readonly PackageVersionComparer _packageVersionComparer = new ();
+    private readonly PackageVersionComparer _packageVersionComparer = new();
 
     public string Name { get; set; } = default!;
 

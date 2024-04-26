@@ -10,8 +10,13 @@ internal class DotNetAssemblyParser(IPackagesRepository packagesRepository, ILog
     {
         try
         {
-            var positionOfHeader = fileContent.IndexOf("<Project");
-            var cleanFileContent = fileContent[positionOfHeader..].Trim();
+            var projectPosition = fileContent.IndexOf("<Project");
+            if (projectPosition < 0)
+            {
+                return false;
+            }
+
+            var cleanFileContent = fileContent[projectPosition..].Trim();
             var csProjectContent = XElement.Parse(cleanFileContent);
             var hasDotnetVersion = csProjectContent
                 .Descendants()
@@ -27,8 +32,8 @@ internal class DotNetAssemblyParser(IPackagesRepository packagesRepository, ILog
 
     public override async Task<DotNetAssembly> ParseModuleAsync(string fileContent, string fileName, CancellationToken cancellationToken)
     {
-        var positionOfHeader = fileContent.IndexOf("<Project");
-        var cleanFileContent = fileContent[positionOfHeader..].Trim();
+        var projectPosition = fileContent.IndexOf("<Project");
+        var cleanFileContent = fileContent[projectPosition..].Trim();
         var csProjectContent = XElement.Parse(cleanFileContent);
 
         var dotnetVersion = csProjectContent
