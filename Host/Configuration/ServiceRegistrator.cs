@@ -12,7 +12,6 @@ using PackageTracker.Presentation.WebApi;
 using PackageTracker.Presentation.MVCApp;
 using PackageTracker.Presentation.ExceptionHandlers;
 using PackageTracker.ChatBot.Discord.Notifications;
-using PackageTracker.Scanner.GitHub;
 
 namespace PackageTracker.Host.Configuration;
 internal static class ServiceRegistrator
@@ -68,8 +67,7 @@ internal static class ServiceRegistrator
 
         if (modules.GetValue<bool>("Scanner"))
         {
-            services.AddScanner(configuration)
-                .AddJavaGitHubUserScanner("Arnaud");
+            services.AddScanner(configuration);
             // Add your scanner registrations here
         }
 
