@@ -9,7 +9,7 @@ public static partial class Constants
         public static readonly Regex AnyVersionNumber = AnyVersionNumberRegex();
         public static readonly Regex ReleaseVersionNumber = ReleaseVersionNumberRegex();
 
-        [GeneratedRegex("^(?<Major>\\d+)\\.(?<Minor>\\d+)\\.(?<Patch>\\d*[-*.]?[\\S]*)$")]
+        [GeneratedRegex("^(?<Major>\\d+)\\.(?<Minor>\\d+)(\\.(?<Patch>\\d*[-*.]?[\\S]*))?$")]
         private static partial Regex AnyVersionNumberRegex();
         
         [GeneratedRegex("^(?<Major>\\d+)\\.(?<Minor>\\d+)\\.(?<Patch>\\d+)$")]

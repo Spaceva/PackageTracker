@@ -25,6 +25,7 @@ internal class PackageDbModel(Package package) : IMongoEntity
             PackageType.Nuget => typeof(NugetPackage),
             PackageType.Npm => typeof(NpmPackage),
             PackageType.Packagist => typeof(PackagistPackage),
+            PackageType.Java => typeof(JavaPackage),
             _ => throw new UnknownPackageTypeException()
         };
 

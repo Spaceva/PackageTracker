@@ -11,6 +11,6 @@ internal static class Constants
         public const string NUGET_PACKAGE = "https://nuget.org/packages";
         public const string NPM_PACKAGE = "https://npmjs.com/package";
         public const string PACKAGIST_PACKAGE = "https://packagist.org/packages";
-        public const string MAVENCENTRAL_PACKAGE = "https://central.sonatype.com/namespace";
+        public const string MAVENCENTRAL_PACKAGE = "https://central.sonatype.com";
     }
 }

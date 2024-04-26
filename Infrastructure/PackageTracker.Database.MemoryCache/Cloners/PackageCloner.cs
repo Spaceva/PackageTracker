@@ -15,6 +15,7 @@ internal class PackageCloner(PackageVersionCloner packageVersionCloner) : BaseCl
             PackageType.Nuget => typeof(NugetPackage),
             PackageType.Npm => typeof(NpmPackage),
             PackageType.Packagist => typeof(PackagistPackage),
+            PackageType.Java => typeof(JavaPackage),
             _ => throw new ArgumentOutOfRangeException(nameof(duplicatedObject))
         };
 

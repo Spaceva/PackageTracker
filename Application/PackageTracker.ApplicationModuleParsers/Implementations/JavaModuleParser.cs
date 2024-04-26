@@ -66,8 +66,9 @@ internal class JavaModuleParser(IPackagesRepository packagesRepository, ILogger<
     private static (string? Name, string? Version) ParseLibraryElement(XElement dependencyNode, XElement propertiesNode)
     {
         var name = dependencyNode.Descendants().SingleOrDefault(d => d.Name.LocalName.Equals(Constants.Application.Java.XMLArtifactIdNodeName, StringComparison.OrdinalIgnoreCase))?.Value;
+        var group = dependencyNode.Descendants().SingleOrDefault(d => d.Name.LocalName.Equals(Constants.Application.Java.XMLGroupIdNodeName, StringComparison.OrdinalIgnoreCase))?.Value;
         var version = dependencyNode.Descendants().SingleOrDefault(d => d.Name.LocalName.Equals(Constants.Application.Java.XMLArtifactVersionNodeName, StringComparison.OrdinalIgnoreCase))?.Value;
-        if (name is null || version is null)
+        if (name is null || group is null || version is null)
         {
             return (null, null);
         }
@@ -83,7 +84,7 @@ internal class JavaModuleParser(IPackagesRepository packagesRepository, ILogger<
             version = matchingProperty.Value;
         }
 
-        return (name, version);
+        return ($"{group}.{name}", version);
     }
 
     private static bool IsLibraryElement(XElement element)

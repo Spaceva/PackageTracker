@@ -9,7 +9,7 @@ using System.Text.Json;
 
 internal abstract class PublicPackageServerFetcher(string baseUrl, IOptionsMonitor<FetcherSettings> fetcherSettings, ILogger logger) : IPackagesFetcher
 {
-    private HttpClient HttpClient => HttpClientFactory.Build(fetcherSettings.CurrentValue, baseUrl);
+    protected readonly HttpClient HttpClient = HttpClientFactory.Build(fetcherSettings.CurrentValue, baseUrl);
 
     protected IOptionsMonitor<FetcherSettings> FetcherSettings => fetcherSettings;
 

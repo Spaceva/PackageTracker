@@ -6,7 +6,8 @@
       "Public": {
         "Npm": [],
         "Nuget": [],
-        "Packagist": []
+        "Packagist": [],
+        "MavenCentral": []
       },
       "Privates": []
     }

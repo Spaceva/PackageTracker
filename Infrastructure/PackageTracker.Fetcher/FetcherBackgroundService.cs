@@ -12,6 +12,7 @@ namespace PackageTracker.Fetcher;
 internal class FetcherBackgroundService(IServiceProvider serviceProvider, IOptionsMonitor<FetcherSettings> fetcherSettings, IMediator mediator, IPackagesRepository packagesRepository, ILogger<FetcherBackgroundService> logger) : RepeatedBackgroundService(logger, TimeSpan.FromSeconds(1))
 {
     private IEnumerable<IPackagesFetcher> PackagesFetchers => serviceProvider.GetServices<IPackagesFetcher>();
+    private readonly PackageType[] packagesType = [.. Enum.GetValues(typeof(PackageType)).OfType<PackageType>()];
 
     protected override Task CloseServiceAsync()
     {
@@ -25,34 +26,28 @@ internal class FetcherBackgroundService(IServiceProvider serviceProvider, IOptio
 
         var packagesFromDb = await packagesRepository.GetAllAsync(cancellationToken: stoppingToken);
 
-        var npmPackageFetcher = serviceProvider.GetKeyedService<IPackagesFetcher>($"Public-{nameof(PackageType.Npm)}");
-        if (npmPackageFetcher is not null)
-        {
-            var npmPackages = await npmPackageFetcher.FetchAsync([.. packagesFromDb.Where(p => p.Type == PackageType.Npm && p.RegistryUrl.Equals(npmPackageFetcher.RegistryUrl)).Select(p => p.Name)], stoppingToken);
-            await Parallel.ForEachAsync(npmPackages, stoppingToken, PublishPackageFetched);
-        }
-
-        var nugetPackageFetcher = serviceProvider.GetKeyedService<IPackagesFetcher>($"Public-{nameof(PackageType.Nuget)}");
-        if (nugetPackageFetcher is not null)
-        {
-            var nugetPackages = await nugetPackageFetcher.FetchAsync([.. packagesFromDb.Where(p => p.Type == PackageType.Nuget && p.RegistryUrl.Equals(nugetPackageFetcher.RegistryUrl)).Select(p => p.Name)], stoppingToken);
-            await Parallel.ForEachAsync(nugetPackages, stoppingToken, PublishPackageFetched);
-        }
-
-        var packagistPackageFetcher = serviceProvider.GetKeyedService<IPackagesFetcher>($"Public-{nameof(PackageType.Packagist)}");
-        if (packagistPackageFetcher is not null)
-        {
-            var packagistPackages = await packagistPackageFetcher.FetchAsync([.. packagesFromDb.Where(p => p.Type == PackageType.Packagist && p.RegistryUrl.Equals(packagistPackageFetcher.RegistryUrl)).Select(p => p.Name)], stoppingToken);
-            await Parallel.ForEachAsync(packagistPackages, stoppingToken, PublishPackageFetched);
-        }
+        await Parallel.ForEachAsync(packagesType, stoppingToken, (p, token) => FetchExistingPackageTypeAsync(p, packagesFromDb, token));
     }
 
-    private async ValueTask FetchAsync(IPackagesFetcher fetcher, CancellationToken token)
+    private async ValueTask FetchExistingPackageTypeAsync(PackageType packageType, IEnumerable<Package> packagesFromDb, CancellationToken stoppingToken)
+    {
+        var packageFetcher = serviceProvider.GetKeyedService<IPackagesFetcher>($"Public-{packageType}");
+        if (packageFetcher is null)
+        {
+            Logger.LogInformation("No public package fetcher found for {PackageType}.", packageType);
+            return;
+        }
+
+        var packages = await packageFetcher.FetchAsync([.. packagesFromDb.Where(p => p.Type == packageType && p.RegistryUrl.Equals(packageFetcher.RegistryUrl)).Select(p => p.Name)], stoppingToken);
+        await Parallel.ForEachAsync(packages, stoppingToken, PublishPackageFetched);
+    }
+
+    private async ValueTask FetchAsync(IPackagesFetcher fetcher, CancellationToken stoppingToken)
     {
         try
         {
-            var packages = await fetcher.FetchAsync(token);
-            await Parallel.ForEachAsync(packages, token, PublishPackageFetched);
+            var packages = await fetcher.FetchAsync(stoppingToken);
+            await Parallel.ForEachAsync(packages, stoppingToken, PublishPackageFetched);
         }
         catch (TaskCanceledException)
         {
@@ -64,9 +59,9 @@ internal class FetcherBackgroundService(IServiceProvider serviceProvider, IOptio
         }
     }
 
-    private async ValueTask PublishPackageFetched(Package package, CancellationToken token)
+    private async ValueTask PublishPackageFetched(Package package, CancellationToken stoppingToken)
     {
-        await mediator.Publish(new PackageFetchedEvent(package), token);
+        await mediator.Publish(new PackageFetchedEvent(package), stoppingToken);
     }
 
     protected override TimeSpan TimeBetweenEachExecution()

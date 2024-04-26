@@ -24,6 +24,8 @@ public class FetcherSettings : IRepeatedBackgroundSettings, IHttpProxy
             public ICollection<string>? Nuget { get; init; }
 
             public ICollection<string>? Packagist { get; init; }
+
+            public ICollection<string>? MavenCentral { get; init; }
         }
 
         public class PrivateTrackedPackages

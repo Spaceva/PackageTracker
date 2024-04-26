@@ -49,6 +49,14 @@ Use the `fetcher.json` configuration file.
         "Nuget": [
           "package1",
           "package2"
+        ],
+        "Packagist": [
+          "package1",
+          "package2"
+        ],
+        "MavenCentral": [
+          "package1",
+          "package2"
         ]
       },
       "Privates": [

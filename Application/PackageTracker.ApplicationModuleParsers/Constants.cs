@@ -42,6 +42,7 @@ internal static partial class Constants
             public const string XMLDependencyManagementNodeName = "dependencyManagement";
             public const string XMLDependencyNodeName = "dependency";
             public const string XMLArtifactIdNodeName = "artifactId";
+            public const string XMLGroupIdNodeName = "groupId";
             public const string XMLArtifactVersionNodeName = "version";
             public const string XMLPropertiesNode = "properties";
         }
