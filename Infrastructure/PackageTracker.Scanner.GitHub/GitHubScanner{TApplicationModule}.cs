@@ -31,7 +31,7 @@ internal abstract class GitHubScanner<TApplicationModule>(Func<IGitHubClient, st
         using var semaphore = new SemaphoreSlim(MaximumConcurrencyCalls, MaximumConcurrencyCalls);
         try
         {
-            await Parallel.ForEachAsync(repositories.Where(r => r.Name.Equals("cockatrice-merger")), cancellationToken, async (repository, cancellationToken) =>
+            await Parallel.ForEachAsync(repositories, cancellationToken, async (repository, cancellationToken) =>
             {
                 try
                 {
