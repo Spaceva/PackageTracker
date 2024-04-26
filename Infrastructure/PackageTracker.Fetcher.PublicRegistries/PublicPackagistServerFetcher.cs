@@ -26,5 +26,5 @@ internal class PublicPackagistServerFetcher(IOptionsMonitor<FetcherSettings> fet
                   .OrderAscendingUsing(new PackageVersionComparer())];
 
     protected override Package CreatePackage(string packageName, ICollection<PackageVersion> packageVersions)
-     => new PackagistPackage() { Name = packageName, Versions = packageVersions, RegistryUrl = RegistryUrl, Link = $"{RegistryUrl}/{packageName}" };
+     => new PackagistPackage() { Name = packageName, Versions = packageVersions, RegistryUrl = RegistryUrl, Link = $"{RegistryUrl}/packages/{packageName}" };
 }
