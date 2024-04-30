@@ -1,6 +1,6 @@
 ﻿namespace PackageTracker.Domain.Application.Model;
 
-public static class LanguageMatcher
+public static class ApplicationTypeExtensions
 {
     public static ApplicationType ToApplicationType(this Type type)
     {
@@ -20,42 +20,6 @@ public static class LanguageMatcher
         }
 
         throw new ArgumentOutOfRangeException(nameof(type));
-    }
-
-    private static ApplicationType FromApplicationType(this Type type)
-    {
-        return type.Name switch
-        {
-            nameof(AngularApplication) => ApplicationType.Angular,
-            nameof(PhpApplication) => ApplicationType.Php,
-            nameof(JavaApplication) => ApplicationType.Java,
-            nameof(DotNetApplication) => ApplicationType.DotNet,
-            _ => throw new ArgumentOutOfRangeException(nameof(type)),
-        };
-    }
-
-    private static ApplicationType FromApplicationBranchType(this Type type)
-    {
-        return type.Name switch
-        {
-            nameof(AngularApplicationBranch) => ApplicationType.Angular,
-            nameof(PhpApplicationBranch) => ApplicationType.Php,
-            nameof(JavaApplicationBranch) => ApplicationType.Java,
-            nameof(DotNetApplicationBranch) => ApplicationType.DotNet,
-            _ => throw new ArgumentOutOfRangeException(nameof(type)),
-        };
-    }
-
-    private static ApplicationType FromApplicationModuleType(this Type type)
-    {
-        return type.Name switch
-        {
-            nameof(AngularModule) => ApplicationType.Angular,
-            nameof(PhpModule) => ApplicationType.Php,
-            nameof(JavaModule) => ApplicationType.Java,
-            nameof(DotNetAssembly) => ApplicationType.DotNet,
-            _ => throw new ArgumentOutOfRangeException(nameof(type)),
-        };
     }
 
     public static Type ToApplicationType(this ApplicationType applicationType)
@@ -91,6 +55,42 @@ public static class LanguageMatcher
             ApplicationType.Java => typeof(JavaModule),
             ApplicationType.DotNet => typeof(DotNetAssembly),
             _ => throw new ArgumentOutOfRangeException(nameof(applicationType))
+        };
+    }
+
+    private static ApplicationType FromApplicationType(this Type type)
+    {
+        return type.Name switch
+        {
+            nameof(AngularApplication) => ApplicationType.Angular,
+            nameof(PhpApplication) => ApplicationType.Php,
+            nameof(JavaApplication) => ApplicationType.Java,
+            nameof(DotNetApplication) => ApplicationType.DotNet,
+            _ => throw new ArgumentOutOfRangeException(nameof(type)),
+        };
+    }
+
+    private static ApplicationType FromApplicationBranchType(this Type type)
+    {
+        return type.Name switch
+        {
+            nameof(AngularApplicationBranch) => ApplicationType.Angular,
+            nameof(PhpApplicationBranch) => ApplicationType.Php,
+            nameof(JavaApplicationBranch) => ApplicationType.Java,
+            nameof(DotNetApplicationBranch) => ApplicationType.DotNet,
+            _ => throw new ArgumentOutOfRangeException(nameof(type)),
+        };
+    }
+
+    private static ApplicationType FromApplicationModuleType(this Type type)
+    {
+        return type.Name switch
+        {
+            nameof(AngularModule) => ApplicationType.Angular,
+            nameof(PhpModule) => ApplicationType.Php,
+            nameof(JavaModule) => ApplicationType.Java,
+            nameof(DotNetAssembly) => ApplicationType.DotNet,
+            _ => throw new ArgumentOutOfRangeException(nameof(type)),
         };
     }
 }

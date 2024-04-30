@@ -1,6 +1,5 @@
 ﻿using MongoDB.Bson;
 using PackageTracker.Database.MongoDb.Model.Base;
-using PackageTracker.Domain.Package.Exceptions;
 using PackageTracker.Domain.Package.Model;
 
 namespace PackageTracker.Database.MongoDb.Model;
@@ -20,16 +19,7 @@ internal class PackageDbModel(Package package) : IMongoEntity
 
     public Package ToDomain()
     {
-        var packageType = Type switch
-        {
-            PackageType.Nuget => typeof(NugetPackage),
-            PackageType.Npm => typeof(NpmPackage),
-            PackageType.Packagist => typeof(PackagistPackage),
-            PackageType.Java => typeof(JavaPackage),
-            _ => throw new UnknownPackageTypeException()
-        };
-
-        Package domainPackage = (Package)Activator.CreateInstance(packageType)!;
+        Package domainPackage = (Package)Activator.CreateInstance(Type.ToPackageType())!;
         domainPackage.Name = Name;
         domainPackage.Versions = Versions;
         domainPackage.RegistryUrl = RegistryUrl;
