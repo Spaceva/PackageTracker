@@ -9,7 +9,7 @@ internal class ApplicationModuleDeletedEventHandler(INotificationsRepository not
 {
     public async Task Handle(ApplicationModuleDeletedEvent notification, CancellationToken cancellationToken)
     {
-        logger.LogInformation($"Deleted '{{ModuleName}}' module from '{{BranchName}}' branch from '{{ApplicationName}}' ({{ApplicationType}} application).", notification.ModuleName, notification.BranchName, notification.ApplicationName, notification.Type);
+        logger.LogInformation("Deleted '{ModuleName}' module from '{BranchName}' branch from '{ApplicationName}' ({ApplicationType} application).", notification.ModuleName, notification.BranchName, notification.ApplicationName, notification.Type);
 
         await notificationsRepository.SaveAsync(new Domain.Notifications.Model.Notification
         {

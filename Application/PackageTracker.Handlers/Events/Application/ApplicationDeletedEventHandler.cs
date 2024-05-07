@@ -9,7 +9,7 @@ internal class ApplicationDeletedEventHandler(INotificationsRepository notificat
 {
     public async Task Handle(ApplicationDeletedEvent notification, CancellationToken cancellationToken)
     {
-        logger.LogInformation($"Deleted '{{ApplicationName}}' ({{ApplicationType}} application at {{RepositoryLink}}).", notification.Name, notification.Type, notification.RepositoryLink);
+        logger.LogInformation("Deleted '{ApplicationName}' ({ApplicationType} application at {RepositoryLink}).", notification.Name, notification.Type, notification.RepositoryLink);
 
         await notificationsRepository.SaveAsync(new Domain.Notifications.Model.Notification
         {

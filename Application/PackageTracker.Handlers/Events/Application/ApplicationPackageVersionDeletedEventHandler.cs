@@ -9,7 +9,7 @@ internal class ApplicationPackageVersionDeletedEventHandler(INotificationsReposi
 {
     public async Task Handle(ApplicationPackageVersionDeletedEvent notification, CancellationToken cancellationToken)
     {
-        logger.LogInformation($"Deleted '{{PackageName}}' package v{{PackageVersion}} from '{{ModuleName}}' module from '{{BranchName}}' branch from '{{ApplicationName}}' ({{ApplicationType}} application).", notification.PackageName, notification.PackageVersionLabel, notification.ModuleName, notification.BranchName, notification.ApplicationName, notification.Type);
+        logger.LogInformation("Deleted '{PackageName}' package v{PackageVersion} from '{ModuleName}' module from '{BranchName}' branch from '{ApplicationName}' ({ApplicationType} application).", notification.PackageName, notification.PackageVersionLabel, notification.ModuleName, notification.BranchName, notification.ApplicationName, notification.Type);
 
         await notificationsRepository.SaveAsync(new Domain.Notifications.Model.Notification
         {

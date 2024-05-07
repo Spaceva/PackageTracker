@@ -22,7 +22,7 @@ public abstract class DiscordChatBot(IServiceProvider serviceProvider) : ChatBot
             {
                 return base.BotName;
             }
-            
+
             return DiscordClient.CurrentUser.Username;
         }
     }
@@ -179,7 +179,7 @@ public abstract class DiscordChatBot(IServiceProvider serviceProvider) : ChatBot
         return Task.CompletedTask;
     }
 
-    protected override sealed DiscordIncomingMessage ParseIncomingMessage(SocketMessage incomingMessage) => new (incomingMessage);
+    protected override sealed DiscordIncomingMessage ParseIncomingMessage(SocketMessage incomingMessage) => new(incomingMessage);
 
     protected override sealed async Task SimulateTypingInternalAsync(ChatId chatId, CancellationToken cancellationToken = default)
     {
@@ -606,7 +606,7 @@ public abstract class DiscordChatBot(IServiceProvider serviceProvider) : ChatBot
         }
         catch (Exception ex)
         {
-            Logger.LogError(ex, $"{nameof(HandleUserIsTypingEventAsync)} failed.");
+            Logger.LogError(ex, "{HandlerName} failed.", nameof(HandleUserIsTypingEventAsync));
             await HandleLogAsync(new LogMessage(LogSeverity.Error, nameof(HandleUserIsTypingEventAsync), ex.Message, ex));
         }
     }
@@ -621,7 +621,7 @@ public abstract class DiscordChatBot(IServiceProvider serviceProvider) : ChatBot
         }
         catch (Exception ex)
         {
-            Logger.LogError(ex, $"{nameof(HandleReactionsRemovedForEmoteEventAsync)} failed.");
+            Logger.LogError(ex, "{HandlerName} failed.", nameof(HandleReactionsRemovedForEmoteEventAsync));
             await HandleLogAsync(new LogMessage(LogSeverity.Error, nameof(HandleReactionsRemovedForEmoteEventAsync), ex.Message, ex));
         }
     }
@@ -637,7 +637,7 @@ public abstract class DiscordChatBot(IServiceProvider serviceProvider) : ChatBot
         }
         catch (Exception ex)
         {
-            Logger.LogError(ex, $"{nameof(HandleReactionRemovedAsync)} failed.");
+            Logger.LogError(ex, "{HandlerName} failed.", nameof(HandleReactionRemovedAsync));
             await HandleLogAsync(new LogMessage(LogSeverity.Error, nameof(HandleReactionRemovedAsync), ex.Message, ex));
         }
     }
@@ -653,7 +653,7 @@ public abstract class DiscordChatBot(IServiceProvider serviceProvider) : ChatBot
         }
         catch (Exception ex)
         {
-            Logger.LogError(ex, $"{nameof(HandleReactionAddedAsync)} failed.");
+            Logger.LogError(ex, "{HandlerName} failed.", nameof(HandleReactionAddedAsync));
             await HandleLogAsync(new LogMessage(LogSeverity.Error, nameof(HandleReactionAddedAsync), ex.Message, ex));
         }
     }
@@ -668,7 +668,7 @@ public abstract class DiscordChatBot(IServiceProvider serviceProvider) : ChatBot
         }
         catch (Exception ex)
         {
-            Logger.LogError(ex, $"{nameof(HandleReactionsClearedAsync)} failed.");
+            Logger.LogError(ex, "{HandlerName} failed.", nameof(HandleReactionsClearedAsync));
             await HandleLogAsync(new LogMessage(LogSeverity.Error, nameof(HandleReactionsClearedAsync), ex.Message, ex));
         }
     }
@@ -682,7 +682,7 @@ public abstract class DiscordChatBot(IServiceProvider serviceProvider) : ChatBot
         }
         catch (Exception ex)
         {
-            Logger.LogError(ex, $"{nameof(HandleMessageUpdatedAsync)} failed.");
+            Logger.LogError(ex, "{HandlerName} failed.", nameof(HandleMessageUpdatedAsync));
             await HandleLogAsync(new LogMessage(LogSeverity.Error, nameof(HandleMessageUpdatedAsync), ex.Message, ex));
         }
     }
@@ -697,7 +697,7 @@ public abstract class DiscordChatBot(IServiceProvider serviceProvider) : ChatBot
         }
         catch (Exception ex)
         {
-            Logger.LogError(ex, $"{nameof(HandleMessagesBulkDeletedAsync)} failed.");
+            Logger.LogError(ex, "{HandlerName} failed.", nameof(HandleMessagesBulkDeletedAsync));
             await HandleLogAsync(new LogMessage(LogSeverity.Error, nameof(HandleMessagesBulkDeletedAsync), ex.Message, ex));
         }
     }
@@ -712,7 +712,7 @@ public abstract class DiscordChatBot(IServiceProvider serviceProvider) : ChatBot
         }
         catch (Exception ex)
         {
-            Logger.LogError(ex, $"{nameof(HandleMessageDeletedAsync)} failed.");
+            Logger.LogError(ex, "{HandlerName} failed.", nameof(HandleMessageDeletedAsync));
             await HandleLogAsync(new LogMessage(LogSeverity.Error, nameof(HandleMessageDeletedAsync), ex.Message, ex));
         }
     }
@@ -726,7 +726,7 @@ public abstract class DiscordChatBot(IServiceProvider serviceProvider) : ChatBot
         }
         catch (Exception ex)
         {
-            Logger.LogError(ex, $"{nameof(HandleThreadUpdatedEventAsync)} failed.");
+            Logger.LogError(ex, "{HandlerName} failed.", nameof(HandleThreadUpdatedEventAsync));
             await HandleLogAsync(new LogMessage(LogSeverity.Error, nameof(HandleThreadUpdatedEventAsync), ex.Message, ex));
         }
     }
@@ -740,7 +740,7 @@ public abstract class DiscordChatBot(IServiceProvider serviceProvider) : ChatBot
         }
         catch (Exception ex)
         {
-            Logger.LogError(ex, $"{nameof(HandleThreadDeletedEventAsync)} failed.");
+            Logger.LogError(ex, "{HandlerName} failed.", nameof(HandleThreadDeletedEventAsync));
             await HandleLogAsync(new LogMessage(LogSeverity.Error, nameof(HandleThreadDeletedEventAsync), ex.Message, ex));
         }
     }
@@ -754,7 +754,7 @@ public abstract class DiscordChatBot(IServiceProvider serviceProvider) : ChatBot
         }
         catch (Exception ex)
         {
-            Logger.LogError(ex, $"{nameof(HandleGuildScheduledEventUserRemoveEventAsync)} failed.");
+            Logger.LogError(ex, "{HandlerName} failed.", nameof(HandleGuildScheduledEventUserRemoveEventAsync));
             await HandleLogAsync(new LogMessage(LogSeverity.Error, nameof(HandleGuildScheduledEventUserRemoveEventAsync), ex.Message, ex));
         }
     }
@@ -768,7 +768,7 @@ public abstract class DiscordChatBot(IServiceProvider serviceProvider) : ChatBot
         }
         catch (Exception ex)
         {
-            Logger.LogError(ex, $"{nameof(HandleGuildScheduledEventUserAddEventAsync)} failed.");
+            Logger.LogError(ex, "{HandlerName} failed.", nameof(HandleGuildScheduledEventUserAddEventAsync));
             await HandleLogAsync(new LogMessage(LogSeverity.Error, nameof(HandleGuildScheduledEventUserAddEventAsync), ex.Message, ex));
         }
     }
@@ -782,7 +782,7 @@ public abstract class DiscordChatBot(IServiceProvider serviceProvider) : ChatBot
         }
         catch (Exception ex)
         {
-            Logger.LogError(ex, $"{nameof(HandleGuildScheduledEventUpdatedEventAsync)} failed.");
+            Logger.LogError(ex, "{HandlerName} failed.", nameof(HandleGuildScheduledEventUpdatedEventAsync));
             await HandleLogAsync(new LogMessage(LogSeverity.Error, nameof(HandleGuildScheduledEventUpdatedEventAsync), ex.Message, ex));
         }
     }
@@ -796,7 +796,7 @@ public abstract class DiscordChatBot(IServiceProvider serviceProvider) : ChatBot
         }
         catch (Exception ex)
         {
-            Logger.LogError(ex, $"{nameof(HandleGuildMemberUpdatedEventAsync)} failed.");
+            Logger.LogError(ex, "{HandlerName} failed.", nameof(HandleGuildMemberUpdatedEventAsync));
             await HandleLogAsync(new LogMessage(LogSeverity.Error, nameof(HandleGuildMemberUpdatedEventAsync), ex.Message, ex));
         }
     }
@@ -810,7 +810,7 @@ public abstract class DiscordChatBot(IServiceProvider serviceProvider) : ChatBot
         }
         catch (Exception ex)
         {
-            Logger.LogError(ex, $"{nameof(HandleGuildJoinRequestDeletedEventAsync)} failed.");
+            Logger.LogError(ex, "{HandlerName} failed.", nameof(HandleGuildJoinRequestDeletedEventAsync));
             await HandleLogAsync(new LogMessage(LogSeverity.Error, nameof(HandleGuildJoinRequestDeletedEventAsync), ex.Message, ex));
         }
     }

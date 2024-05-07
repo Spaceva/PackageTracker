@@ -49,13 +49,13 @@ internal class FetcherBackgroundService(IServiceProvider serviceProvider, IOptio
             var packages = await fetcher.FetchAsync(stoppingToken);
             await Parallel.ForEachAsync(packages, stoppingToken, PublishPackageFetched);
         }
-        catch (TaskCanceledException)
+        catch (TaskCanceledException ex)
         {
-            Logger.LogWarning("{Fetcher} stopped due to task cancellation.", fetcher.GetType().Name);
+            Logger.LogWarning(ex, "{Fetcher} stopped.", fetcher.GetType().Name);
         }
         catch (Exception ex)
         {
-            Logger.LogWarning("{Fetcher} failed to fetch due to a {ExceptionType} : {ExceptionMessage}", fetcher.GetType().Name, ex.GetType().Name, ex.Message);
+            Logger.LogWarning(ex, "{Fetcher} failed to fetch due to {ExceptionType}", fetcher.GetType().Name, ex.GetType().Name);
         }
     }
 

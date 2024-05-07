@@ -10,7 +10,7 @@ internal class FrameworkAddedEventHandler(INotificationsRepository notifications
     public async Task Handle(FrameworkAddedEvent notification, CancellationToken cancellationToken)
     {
         var framework = notification.Framework;
-        logger.LogInformation($"Added {{FrameworkName}} {{FrameworkVersion}} (Channel {{FrameworkChannel}}).", framework.Name, framework.Version, framework.Channel);
+        logger.LogInformation("Added {FrameworkName} {FrameworkVersion} (Channel {FrameworkChannel}).", framework.Name, framework.Version, framework.Channel);
 
         await notificationsRepository.SaveAsync(new Domain.Notifications.Model.Notification
         {

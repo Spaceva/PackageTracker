@@ -9,7 +9,7 @@ internal class ApplicationPackageVersionAddedEventHandler(INotificationsReposito
 {
     public async Task Handle(ApplicationPackageVersionAddedEvent notification, CancellationToken cancellationToken)
     {
-        logger.LogInformation($"Added '{{PackageName}}' package v{{PackageVersion}} to '{{ModuleName}}' module in '{{BranchName}}' branch, in '{{Application}}' ({{ApplicationType}} application).", notification.PackageName, notification.PackageVersionLabel, notification.ApplicationName, notification.BranchName, notification.ModuleName, notification.Type);
+        logger.LogInformation("Added '{PackageName}' package v{PackageVersion} to '{ModuleName}' module in '{BranchName}' branch, in '{Application}' ({ApplicationType} application).", notification.PackageName, notification.PackageVersionLabel, notification.ApplicationName, notification.BranchName, notification.ModuleName, notification.Type);
 
         await notificationsRepository.SaveAsync(new Domain.Notifications.Model.Notification
         {

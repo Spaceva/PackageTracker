@@ -37,27 +37,19 @@ internal abstract class PublicPackageServerFetcher(string baseUrl, IOptionsMonit
 
     private async Task<IReadOnlyCollection<Package>> FetchPackagesAsync(IEnumerable<string> packagesNames, CancellationToken cancellationToken)
     {
-        try
+        var packages = new List<Package>();
+        foreach (var packageName in packagesNames)
         {
-            var packages = new List<Package>();
-            foreach (var packageName in packagesNames)
+            var package = await TryFetchPackageAsync(packageName, cancellationToken);
+            if (package is null)
             {
-                var package = await TryFetchPackageAsync(packageName, cancellationToken);
-                if (package is null)
-                {
-                    continue;
-                }
-
-                packages.Add(package);
+                continue;
             }
 
-            return packages;
+            packages.Add(package);
         }
-        catch (Exception ex)
-        {
-            logger.LogError(ex, "Failed to fetch.");
-            throw;
-        }
+
+        return packages;
     }
 
     private async Task<Package?> TryFetchPackageAsync(string packageName, CancellationToken cancellationToken)
@@ -83,7 +75,7 @@ internal abstract class PublicPackageServerFetcher(string baseUrl, IOptionsMonit
         }
         catch (Exception ex)
         {
-            logger.LogWarning("Skipped {Package} because of {ExceptionType}: {ExceptionMessage}", packageName, ex.GetType().Name, ex.Message);
+            logger.LogWarning(ex, "Skipped {Package} because of {ExceptionType}", packageName, ex.GetType().Name);
             return null;
         }
     }

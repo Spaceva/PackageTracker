@@ -14,7 +14,7 @@ internal class FrameworkMonitoredEventHandler(IFrameworkRepository frameworkRepo
         var existingApplication = await frameworkRepository.TryGetByVersionAsync(framework.Name, framework.Version, cancellationToken);
         if (existingApplication is null)
         {
-            logger.LogInformation($"New framework detected : {{FrameworkName}} {{FrameworkVersion}} (Channel {{FrameworkChannel}}).", framework.Name, framework.Version, framework.Channel);
+            logger.LogInformation("New framework detected : {FrameworkName} {FrameworkVersion} (Channel {FrameworkChannel}).", framework.Name, framework.Version, framework.Channel);
             await mediator.Send(new CreateFrameworkCommand(notification.Framework), cancellationToken);
             return;
         }
