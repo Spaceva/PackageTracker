@@ -63,7 +63,7 @@ internal class DotNetAssemblyParser(IPackagesRepository packagesRepository, ILog
 
         var librairiesVersions = await Task.WhenAll(librairiesTasks);
 
-        return new DotNetAssembly { Name = fileName, FrameworkVersion = dotnetVersion, Packages = [.. librairiesVersions.OrderBy(p => p.PackageName)] };
+        return new DotNetAssembly { Name = fileName.Replace(".csproj",string.Empty), FrameworkVersion = dotnetVersion, Packages = [.. librairiesVersions.OrderBy(p => p.PackageName)] };
     }
 
     private static bool IsLibraryElement(XElement element)

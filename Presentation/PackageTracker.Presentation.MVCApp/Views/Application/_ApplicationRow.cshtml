@@ -46,8 +46,8 @@
                     @Model.ApplicationPath
                 </div>
                 <div>
-                    <a asp-controller="Application" asp-action="@Model.ApplicationRepositoryType"> <img src="~/assets/@(Model.ApplicationRepositoryType.ToLower()).png" alt="@(Model.ApplicationRepositoryType)" width="32"></a>
-                    <a asp-controller="Application" asp-action="@Model.ApplicationType"> <img src="~/assets/@(Model.ApplicationType.ToLower()).png" alt="@(Model.ApplicationType)" width="32"></a>
+                    <a asp-controller="Application" asp-action="RepositoryType" asp-route-id="@Model.ApplicationRepositoryType"> <img src="~/assets/@(Model.ApplicationRepositoryType.ToLower()).png" alt="@(Model.ApplicationRepositoryType)" width="32"></a>
+                    <a asp-controller="Application" asp-action="ApplicationType" asp-route-id="@Model.ApplicationType"> <img src="~/assets/@(Model.ApplicationType.ToLower()).png" alt="@(Model.ApplicationType)" width="32"></a>
                     <i data-toggle="tooltip" data-placement="top" title="Application en cours de décommissionnement" class="fa-solid fa-plug-circle-xmark" id="@(applicationRowId)_marker_IsSoonDecommissioned" @Html.Raw(Model.ApplicationIsSoonDecommissioned ? string.Empty : "style=\"display: none;\"")></i>
                     <i data-toggle="tooltip" data-placement="top" title="Application avec un lien mort" class="fa-solid fa-link-slash" id="@(applicationRowId)_marker_IsDeadLink" @Html.Raw(Model.ApplicationIsDeadLink ? string.Empty : "style=\"display: none;\"")></i>
                 </div>

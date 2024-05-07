@@ -22,6 +22,7 @@ internal static partial class Constants
 
         public static class Angular
         {
+            public const string NameProperty = "name";
             public const string PackagesProperty = "dependencies";
             public const string DevPackagesProperty = "devDependencies";
             public const string VersionPropertyName = "@angular/cli";
@@ -29,6 +30,7 @@ internal static partial class Constants
 
         public static class Php
         {
+            public const string NameProperty = "name";
             public const string PackagesProperty = "require";
             public const string DevPackagesProperty = "require-dev";
             public const string VersionPropertyName = "php";

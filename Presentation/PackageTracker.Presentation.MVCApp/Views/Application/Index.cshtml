@@ -26,17 +26,20 @@
                 <label class="form-label" for="ApplicationTypes"><i class="fa-solid fa-language"></i> Type d'application:</label>
                 <select class="form-control" name="ApplicationTypes">
                     <option value="">Tous</option>
-                    <option value="@ApplicationType.Angular">Angular</option>
-                    <option value="@ApplicationType.DotNet">DotNet</option>
-                    <option value="@ApplicationType.Php">PHP</option>
+                    @foreach (var applicationType in Enum.GetValues<ApplicationType>().Skip(1))
+                    {
+                        <option value="@applicationType">@applicationType</option>
+                    }
                 </select>
             </div>
             <div class="mb-1">
                 <label class="form-label" for="RepositoryTypes"><i class="fa-solid fa-cloud"></i> Type de repository:</label>
                 <select class="form-control" name="RepositoryTypes">
                     <option value="">Tous</option>
-                    <option value="@RepositoryType.Gitlab">Gitlab</option>
-                    <option value="@RepositoryType.AzureDevOps">Azure Dev Ops</option>
+                    @foreach (var repositoryType in Enum.GetValues<RepositoryType>().Skip(1))
+                    {
+                        <option value="@repositoryType">@repositoryType</option>
+                    }
                 </select>
             </div>
             <div class="mb-1">

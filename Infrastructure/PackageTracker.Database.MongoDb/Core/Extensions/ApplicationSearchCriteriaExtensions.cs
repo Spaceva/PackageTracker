@@ -21,7 +21,7 @@ internal static class ApplicationSearchCriteriaExtensions
 
         if (searchCriteria.RepositoryTypes?.Count > 0)
         {
-            searchFilterDefinition &= filterBuilder.In(nameof(ApplicationDbModel.RepositoryType).ToCamelCase(), searchCriteria.RepositoryTypes);
+            searchFilterDefinition &= filterBuilder.In(nameof(ApplicationDbModel.RepositoryType).ToCamelCase(), searchCriteria.RepositoryTypes.Select(a => a.ToString()));
         }
 
         if (searchCriteria.ApplicationName?.Length > 0)

@@ -43,6 +43,10 @@ internal class JavaModuleParser(IPackagesRepository packagesRepository, ILogger<
 
         var javaVersion = GetJavaVersion(propertiesNode.Descendants().Where(IsJavaElement));
 
+        var artifactName = pomFileRootNode.Descendants().Single(d => d.Name?.LocalName == Constants.Application.Java.XMLArtifactIdNodeName
+        && d.Parent is not null 
+        && d.Parent.Name.Equals(pomFileRootNode.Name)).Value;
+
         var librairiesTasks = pomFileRootNode
             .Descendants()
             .Where(IsLibraryElement)
@@ -52,7 +56,7 @@ internal class JavaModuleParser(IPackagesRepository packagesRepository, ILogger<
 
         var librairiesVersions = await Task.WhenAll(librairiesTasks);
 
-        return new JavaModule { Name = fileName, FrameworkVersion = javaVersion, Packages = [.. librairiesVersions.OrderBy(p => p.PackageName)] };
+        return new JavaModule { Name = artifactName, FrameworkVersion = javaVersion, Packages = [.. librairiesVersions.OrderBy(p => p.PackageName)] };
     }
 
     private static string GetJavaVersion(IEnumerable<XElement> nodes)
