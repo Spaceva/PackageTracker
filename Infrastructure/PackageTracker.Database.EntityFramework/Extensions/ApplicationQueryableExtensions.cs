@@ -54,6 +54,10 @@ internal static class ApplicationQueryableExtensions
         {
             applicationTypesFilters.Add(x => x is PhpApplication);
         }
+        if (searchCriteria.Contains(ApplicationType.Java))
+        {
+            applicationTypesFilters.Add(x => x is JavaApplication);
+        }
         var applicationTypesFilter = applicationTypesFilters.CombineOr();
 
         return query.Where(app => applicationTypesFilter(app));

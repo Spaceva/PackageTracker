@@ -244,7 +244,7 @@ public abstract class ChatBot(IServiceProvider serviceProvider) : IChatBot
 
     public async Task SimulateTypingAsync(ChatId chatId, CancellationToken cancellationToken = default)
     {
-        Logger.LogDebug("Start SimulateTypingAsync on {chatId}", chatId);
+        Logger.LogDebug("Start SimulateTypingAsync on {ChatId}", chatId);
         await SimulateTypingInternalAsync(chatId, cancellationToken);
     }
 

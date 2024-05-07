@@ -12,7 +12,6 @@ using PackageTracker.Presentation.WebApi;
 using PackageTracker.Presentation.MVCApp;
 using PackageTracker.Presentation.ExceptionHandlers;
 using PackageTracker.ChatBot.Discord.Notifications;
-using PackageTracker.Scanner.GitHub;
 
 namespace PackageTracker.Host.Configuration;
 internal static class ServiceRegistrator

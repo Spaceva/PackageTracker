@@ -44,7 +44,7 @@ public abstract class RepeatedBackgroundService(ILogger logger, TimeSpan? initia
         }
         catch (OperationCanceledException)
         {
-            Logger.LogInformation("Stopped");
+            Logger.LogInformation("Stopped.");
         }
         finally
         {

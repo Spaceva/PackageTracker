@@ -81,7 +81,7 @@ public abstract class TelegramChatBot(IServiceProvider serviceProvider) : ChatBo
 
     public async Task SendLocationAsync(ChatId chatId, float lat, float lng, CancellationToken cancellationToken = default)
     {
-        Logger.LogDebug("Sending Location (lat:{lat},lng:{lng}) to Chat {chatId}.", lat, lng, chatId);
+        Logger.LogDebug("Sending Location (lat:{Latitude},lng:{Longitude}) to Chat {ChatId}.", lat, lng, chatId);
         await TelegramBotClient!.SendLocationAsync(chatId.ToString(), lat, lng, cancellationToken: cancellationToken);
     }
 

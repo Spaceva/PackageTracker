@@ -12,7 +12,8 @@ internal class PhpModuleParser(IPackagesRepository packagesRepository, ILogger<P
     {
         try
         {
-            var librairiesProperties = Dependencies(fileContent);
+            var jsonObject = JsonNode.Parse(fileContent, new JsonNodeOptions { PropertyNameCaseInsensitive = true }, new JsonDocumentOptions { AllowTrailingCommas = true }) ?? throw new JsonException("Parsing failed.");
+            var librairiesProperties = Dependencies(jsonObject);
 
             return Array.Exists(librairiesProperties, l => l.Name == Constants.Application.Php.VersionPropertyName);
         }
@@ -24,18 +25,19 @@ internal class PhpModuleParser(IPackagesRepository packagesRepository, ILogger<P
 
     public override async Task<PhpModule> ParseModuleAsync(string fileContent, string fileName, CancellationToken cancellationToken)
     {
-        var dependencies = Dependencies(fileContent);
+        var jsonObject = JsonNode.Parse(fileContent, new JsonNodeOptions { PropertyNameCaseInsensitive = true }, new JsonDocumentOptions { AllowTrailingCommas = true }) ?? throw new JsonException("Parsing failed.");
+        var moduleName = jsonObject[Constants.Application.Php.NameProperty]?.AsValue()?.GetValue<string>() ?? fileName;
+        var dependencies = Dependencies(jsonObject);
 
         var phpVersion = dependencies.SingleOrDefault(l => l.Name == Constants.Application.Php.VersionPropertyName).Version ?? throw new JsonException("Missing PHP package");
         var packagesTask = dependencies.Select(l => ApplicationPackage(l.Name, l.Version, cancellationToken));
         var packages = await Task.WhenAll(packagesTask);
 
-        return new PhpModule { Name = fileName, FrameworkVersion = phpVersion, Packages = packages };
+        return new PhpModule { Name = moduleName, FrameworkVersion = phpVersion, Packages = packages };
     }
 
-    private static (string Name, string Version)[] Dependencies(string content)
+    private static (string Name, string Version)[] Dependencies(JsonNode jsonObject)
     {
-        var jsonObject = JsonNode.Parse(content, new JsonNodeOptions { PropertyNameCaseInsensitive = true }, new JsonDocumentOptions { AllowTrailingCommas = true }) ?? throw new JsonException("Parsing failed.");
         var dependencies = jsonObject[Constants.Application.Php.PackagesProperty]?.AsObject() ?? [];
         var devDependencies = jsonObject[Constants.Application.Php.DevPackagesProperty]?.AsObject() ?? [];
 

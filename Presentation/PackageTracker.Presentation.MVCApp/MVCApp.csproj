@@ -17,6 +17,7 @@
 
 	<ItemGroup>
 		<EmbeddedResource Include="wwwroot\**\*" />
+		<Content Remove="wwwroot\assets\java.png" />
 		<Content Update="**\*.cshtml" Pack="false" />
 	</ItemGroup>
 

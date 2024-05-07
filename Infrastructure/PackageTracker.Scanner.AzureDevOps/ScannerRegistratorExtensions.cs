@@ -16,7 +16,7 @@ public static class ScannerRegistratorExtensions
             var loggerFactory = sp.GetRequiredService<ILoggerFactory>();
             var mediator = sp.GetRequiredService<IMediator>();
             var trackedApplication = settings.Value.Applications.SingleOrDefault(s => s.ScannerName.Equals(trackerName, StringComparison.OrdinalIgnoreCase))
-            ?? throw new ArgumentException("Unknown ScannerName.");
+            ?? throw new UnknownScannerException();
             var parsers = sp.GetRequiredService<IEnumerable<IApplicationModuleParser<AngularModule>>>();
             return new AngularAzureDevOpsScanner(trackedApplication, mediator, parsers, loggerFactory.CreateLogger<AngularAzureDevOpsScanner>(), settings.Value);
         });
@@ -27,7 +27,7 @@ public static class ScannerRegistratorExtensions
             var loggerFactory = sp.GetRequiredService<ILoggerFactory>();
             var mediator = sp.GetRequiredService<IMediator>();
             var trackedApplication = settings.Value.Applications.SingleOrDefault(s => s.ScannerName.Equals(trackerName, StringComparison.OrdinalIgnoreCase))
-            ?? throw new ArgumentException("Unknown ScannerName.");
+            ?? throw new UnknownScannerException();
             var parsers = sp.GetRequiredService<IEnumerable<IApplicationModuleParser<DotNetAssembly>>>();
             return new DotNetAzureDevOpsScanner(trackedApplication, mediator, parsers, loggerFactory.CreateLogger<DotNetAzureDevOpsScanner>(), settings.Value);
         });

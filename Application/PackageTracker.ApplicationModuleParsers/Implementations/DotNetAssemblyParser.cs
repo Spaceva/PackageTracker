@@ -10,8 +10,13 @@ internal class DotNetAssemblyParser(IPackagesRepository packagesRepository, ILog
     {
         try
         {
-            var positionOfHeader = fileContent.IndexOf("<Project");
-            var cleanFileContent = fileContent[positionOfHeader..].Trim();
+            var projectPosition = fileContent.IndexOf("<Project");
+            if (projectPosition < 0)
+            {
+                return false;
+            }
+
+            var cleanFileContent = fileContent[projectPosition..].Trim();
             var csProjectContent = XElement.Parse(cleanFileContent);
             var hasDotnetVersion = csProjectContent
                 .Descendants()
@@ -27,8 +32,8 @@ internal class DotNetAssemblyParser(IPackagesRepository packagesRepository, ILog
 
     public override async Task<DotNetAssembly> ParseModuleAsync(string fileContent, string fileName, CancellationToken cancellationToken)
     {
-        var positionOfHeader = fileContent.IndexOf("<Project");
-        var cleanFileContent = fileContent[positionOfHeader..].Trim();
+        var projectPosition = fileContent.IndexOf("<Project");
+        var cleanFileContent = fileContent[projectPosition..].Trim();
         var csProjectContent = XElement.Parse(cleanFileContent);
 
         var dotnetVersion = csProjectContent
@@ -58,17 +63,15 @@ internal class DotNetAssemblyParser(IPackagesRepository packagesRepository, ILog
 
         var librairiesVersions = await Task.WhenAll(librairiesTasks);
 
-        return new DotNetAssembly { Name = fileName, FrameworkVersion = dotnetVersion, Packages = [.. librairiesVersions.OrderBy(p => p.PackageName)] };
+        return new DotNetAssembly { Name = fileName.Replace(".csproj",string.Empty), FrameworkVersion = dotnetVersion, Packages = [.. librairiesVersions.OrderBy(p => p.PackageName)] };
     }
 
     private static bool IsLibraryElement(XElement element)
-     => element.Name is not null
-     && element.Name == Constants.Application.DotNet.XMLLibraryNodeName
+     => element.Name == Constants.Application.DotNet.XMLLibraryNodeName
      && element.HasAttributes
      && element.Attribute(Constants.Application.DotNet.XMLLibraryNameAttribute) is not null
      && element.Attribute(Constants.Application.DotNet.XMLLibraryVersionAttribute) is not null;
 
     private static bool IsDotNetElement(XElement element)
-     => element.Name is not null
-     && element.Name == Constants.Application.DotNet.XMLDotnetVersionNodeName;
+     => element.Name == Constants.Application.DotNet.XMLDotnetVersionNodeName;
 }

@@ -27,5 +27,5 @@ internal class PublicNpmServerFetcher(IOptionsMonitor<FetcherSettings> fetcherSe
                   .OrderAscendingUsing(new PackageVersionComparer())];
 
     protected override Package CreatePackage(string packageName, ICollection<PackageVersion> packageVersions)
-     => new NpmPackage() { Name = packageName, Versions = packageVersions, RegistryUrl = RegistryUrl, Link = $"{RegistryUrl}/{packageName}" };
+     => new NpmPackage() { Name = packageName, Versions = packageVersions, RegistryUrl = RegistryUrl, Link = $"{RegistryUrl}/package/{packageName}" };
 }

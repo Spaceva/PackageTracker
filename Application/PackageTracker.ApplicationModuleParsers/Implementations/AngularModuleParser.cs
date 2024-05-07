@@ -12,7 +12,8 @@ internal class AngularModuleParser(IPackagesRepository packagesRepository, ILogg
     {
         try
         {
-            var librairiesProperties = Dependencies(fileContent);
+            var jsonObject = JsonNode.Parse(fileContent, new JsonNodeOptions { PropertyNameCaseInsensitive = true }, new JsonDocumentOptions { AllowTrailingCommas = true }) ?? throw new JsonException("Parsing failed.");
+            var librairiesProperties = Dependencies(jsonObject);
             return Array.Exists(librairiesProperties, l => l.Name == Constants.Application.Angular.VersionPropertyName);
         }
         catch (Exception)
@@ -23,18 +24,19 @@ internal class AngularModuleParser(IPackagesRepository packagesRepository, ILogg
 
     public override async Task<AngularModule> ParseModuleAsync(string fileContent, string fileName, CancellationToken cancellationToken)
     {
-        var dependencies = Dependencies(fileContent);
+        var jsonObject = JsonNode.Parse(fileContent, new JsonNodeOptions { PropertyNameCaseInsensitive = true }, new JsonDocumentOptions { AllowTrailingCommas = true }) ?? throw new JsonException("Parsing failed.");
+        var moduleName = jsonObject[Constants.Application.Angular.NameProperty]?.AsValue()?.GetValue<string>() ?? fileName;
+        var dependencies = Dependencies(jsonObject);
 
         var angularVersion = dependencies.SingleOrDefault(l => l.Name == Constants.Application.Angular.VersionPropertyName).Version ?? throw new JsonException("Missing Angular package");
         var packagesTask = dependencies.Select(l => ApplicationPackage(l.Name, l.Version, cancellationToken));
         var packages = await Task.WhenAll(packagesTask);
 
-        return new AngularModule { Name = fileName, FrameworkVersion = angularVersion, Packages = packages };
+        return new AngularModule { Name = moduleName, FrameworkVersion = angularVersion, Packages = packages };
     }
 
-    private static (string Name, string Version)[] Dependencies(string content)
+    private static (string Name, string Version)[] Dependencies(JsonNode jsonObject)
     {
-        var jsonObject = JsonNode.Parse(content, new JsonNodeOptions { PropertyNameCaseInsensitive = true }, new JsonDocumentOptions { AllowTrailingCommas = true }) ?? throw new JsonException("Parsing failed.");
         var dependencies = jsonObject[Constants.Application.Angular.PackagesProperty]?.AsObject() ?? [];
         var devDependencies = jsonObject[Constants.Application.Angular.DevPackagesProperty]?.AsObject() ?? [];
 

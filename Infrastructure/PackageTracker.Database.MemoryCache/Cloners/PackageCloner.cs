@@ -10,15 +10,7 @@ internal class PackageCloner(PackageVersionCloner packageVersionCloner) : BaseCl
             return null;
         }
 
-        var packageType = duplicatedObject.Type switch
-        {
-            PackageType.Nuget => typeof(NugetPackage),
-            PackageType.Npm => typeof(NpmPackage),
-            PackageType.Packagist => typeof(PackagistPackage),
-            _ => throw new ArgumentOutOfRangeException(nameof(duplicatedObject))
-        };
-
-        Package package = (Package)Activator.CreateInstance(packageType)!;
+        Package package = (Package)Activator.CreateInstance(duplicatedObject.Type.ToPackageType())!;
         package.Name = duplicatedObject.Name;
         package.Versions = duplicatedObject.Versions;
         package.RegistryUrl = duplicatedObject.RegistryUrl;

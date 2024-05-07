@@ -22,6 +22,10 @@ public static class ScannerRegistratorExtensions
         => AddPhpGitHubScanner(services, trackerName, (gitHubClient, name) => gitHubClient.Repository.GetAllForUser(name));
     public static IScannerRegistrator AddPhpGitHubOrganizationScanner(this IScannerRegistrator services, string trackerName)
         => AddPhpGitHubScanner(services, trackerName, (gitHubClient, name) => gitHubClient.Repository.GetAllForOrg(name));
+    public static IScannerRegistrator AddJavaGitHubUserScanner(this IScannerRegistrator services, string trackerName)
+        => AddJavaGitHubScanner(services, trackerName, (gitHubClient, name) => gitHubClient.Repository.GetAllForUser(name));
+    public static IScannerRegistrator AddJavaGitHubOrganizationScanner(this IScannerRegistrator services, string trackerName)
+        => AddJavaGitHubScanner(services, trackerName, (gitHubClient, name) => gitHubClient.Repository.GetAllForOrg(name));
 
     private static IScannerRegistrator AddAngularGitHubScanner(this IScannerRegistrator services, string trackerName, Func<IGitHubClient, string, Task<IReadOnlyList<Repository>>> getRepositoriesDelegate)
     => services.Register(sp =>
@@ -29,8 +33,7 @@ public static class ScannerRegistratorExtensions
             var settings = sp.GetRequiredService<IOptions<ScannerSettings>>();
             var loggerFactory = sp.GetRequiredService<ILoggerFactory>();
             var mediator = sp.GetRequiredService<IMediator>();
-            var trackedApplication = settings.Value.Applications.SingleOrDefault(s => s.ScannerName.Equals(trackerName, StringComparison.OrdinalIgnoreCase))
-            ?? throw new ArgumentException("Unknown ScannerName.");
+            var trackedApplication = settings.Value.Applications.SingleOrDefault(s => s.ScannerName.Equals(trackerName, StringComparison.OrdinalIgnoreCase)) ?? throw new UnknownScannerException();
             var parsers = sp.GetServices<IApplicationModuleParser<AngularModule>>();
             return new AngularGitHubScanner(getRepositoriesDelegate, trackedApplication, mediator, parsers, loggerFactory.CreateLogger<AngularGitHubScanner>());
         });
@@ -41,8 +44,7 @@ public static class ScannerRegistratorExtensions
             var settings = sp.GetRequiredService<IOptions<ScannerSettings>>();
             var loggerFactory = sp.GetRequiredService<ILoggerFactory>();
             var mediator = sp.GetRequiredService<IMediator>();
-            var trackedApplication = settings.Value.Applications.SingleOrDefault(s => s.ScannerName.Equals(trackerName, StringComparison.OrdinalIgnoreCase))
-            ?? throw new ArgumentException("Unknown ScannerName.");
+            var trackedApplication = settings.Value.Applications.SingleOrDefault(s => s.ScannerName.Equals(trackerName, StringComparison.OrdinalIgnoreCase)) ?? throw new UnknownScannerException();
             var parsers = sp.GetServices<IApplicationModuleParser<DotNetAssembly>>();
             return new DotNetGitHubScanner(getRepositoriesDelegate, trackedApplication, mediator, parsers, loggerFactory.CreateLogger<DotNetGitHubScanner>());
         });
@@ -53,9 +55,19 @@ public static class ScannerRegistratorExtensions
             var settings = sp.GetRequiredService<IOptions<ScannerSettings>>();
             var loggerFactory = sp.GetRequiredService<ILoggerFactory>();
             var mediator = sp.GetRequiredService<IMediator>();
-            var trackedApplication = settings.Value.Applications.SingleOrDefault(s => s.ScannerName.Equals(trackerName, StringComparison.OrdinalIgnoreCase))
-            ?? throw new ArgumentException("Unknown ScannerName.");
+            var trackedApplication = settings.Value.Applications.SingleOrDefault(s => s.ScannerName.Equals(trackerName, StringComparison.OrdinalIgnoreCase)) ?? throw new UnknownScannerException();
             var parsers = sp.GetServices<IApplicationModuleParser<PhpModule>>();
             return new PhpGitHubScanner(getRepositoriesDelegate, trackedApplication, mediator, parsers, loggerFactory.CreateLogger<PhpGitHubScanner>());
         });
+
+    private static IScannerRegistrator AddJavaGitHubScanner(this IScannerRegistrator services, string trackerName, Func<IGitHubClient, string, Task<IReadOnlyList<Repository>>> getRepositoriesDelegate)
+    => services.Register(sp =>
+    {
+        var settings = sp.GetRequiredService<IOptions<ScannerSettings>>();
+        var loggerFactory = sp.GetRequiredService<ILoggerFactory>();
+        var mediator = sp.GetRequiredService<IMediator>();
+        var trackedApplication = settings.Value.Applications.SingleOrDefault(s => s.ScannerName.Equals(trackerName, StringComparison.OrdinalIgnoreCase)) ?? throw new UnknownScannerException();
+        var parsers = sp.GetServices<IApplicationModuleParser<JavaModule>>();
+        return new JavaGitHubScanner(getRepositoriesDelegate, trackedApplication, mediator, parsers, loggerFactory.CreateLogger<JavaGitHubScanner>());
+    });
 }

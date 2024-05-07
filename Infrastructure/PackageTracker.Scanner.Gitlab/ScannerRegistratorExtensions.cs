@@ -16,7 +16,7 @@ public static class ScannerRegistratorExtensions
             var loggerFactory = sp.GetRequiredService<ILoggerFactory>();
             var mediator = sp.GetRequiredService<IMediator>();
             var trackedApplication = settings.Value.Applications.SingleOrDefault(s => s.ScannerName.Equals(trackerName, StringComparison.OrdinalIgnoreCase))
-            ?? throw new ArgumentException("Unknown ScannerName.");
+            ?? throw new UnknownScannerException();
             var parsers = sp.GetServices<IApplicationModuleParser<AngularModule>>();
             return new AngularGitlabScanner(trackedApplication, mediator, parsers, loggerFactory.CreateLogger<AngularGitlabScanner>());
         });
@@ -28,7 +28,7 @@ public static class ScannerRegistratorExtensions
             var loggerFactory = sp.GetRequiredService<ILoggerFactory>();
             var mediator = sp.GetRequiredService<IMediator>();
             var trackedApplication = settings.Value.Applications.SingleOrDefault(s => s.ScannerName.Equals(trackerName, StringComparison.OrdinalIgnoreCase))
-            ?? throw new ArgumentException("Unknown ScannerName.");
+            ?? throw new UnknownScannerException();
             var parsers = sp.GetServices<IApplicationModuleParser<DotNetAssembly>>();
             return new DotNetGitlabScanner(trackedApplication, mediator, parsers, loggerFactory.CreateLogger<DotNetGitlabScanner>());
         });
@@ -40,7 +40,7 @@ public static class ScannerRegistratorExtensions
             var loggerFactory = sp.GetRequiredService<ILoggerFactory>();
             var mediator = sp.GetRequiredService<IMediator>();
             var trackedApplication = settings.Value.Applications.SingleOrDefault(s => s.ScannerName.Equals(trackerName, StringComparison.OrdinalIgnoreCase))
-            ?? throw new ArgumentException("Unknown ScannerName.");
+            ?? throw new UnknownScannerException();
             var parsers = sp.GetServices<IApplicationModuleParser<PhpModule>>();
             return new PhpGitlabScanner(trackedApplication, mediator, parsers, loggerFactory.CreateLogger<PhpGitlabScanner>());
         });

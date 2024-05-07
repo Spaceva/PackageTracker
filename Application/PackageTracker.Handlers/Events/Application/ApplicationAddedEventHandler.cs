@@ -9,7 +9,7 @@ internal class ApplicationAddedEventHandler(INotificationsRepository notificatio
 {
     public async Task Handle(ApplicationAddedEvent notification, CancellationToken cancellationToken)
     {
-        logger.LogInformation($"Added {{ApplicationPath}} > '{{ApplicationName}}' ({{ApplicationType}} application). Source: {{ApplicationRepositoryType}}.", notification.Path, notification.Name, notification.ApplicationType, notification.RepositoryType);
+        logger.LogInformation("Added {ApplicationPath} > '{ApplicationName}' ({ApplicationType} application). Source: {ApplicationRepositoryType}.", notification.Path, notification.Name, notification.ApplicationType, notification.RepositoryType);
 
         await notificationsRepository.SaveAsync(new Domain.Notifications.Model.Notification
         {

@@ -9,7 +9,7 @@ internal class ApplicationUpdatedEventHandler(INotificationsRepository notificat
 {
     public async Task Handle(ApplicationUpdatedEvent notification, CancellationToken cancellationToken)
     {
-        logger.LogInformation($"Updated {{ApplicationPath}} > '{{ApplicationName}}' ({{ApplicationType}} application), source: {{ApplicationRepositoryType}}. IsSoonDecommissionned = {{IsSoonDecommissionned}}, IsDeadLink = {{IsDeadLink}}", notification.Path, notification.Name, notification.ApplicationType, notification.RepositoryType, notification.IsSoonDecommissionned, notification.IsDeadLink);
+        logger.LogInformation("Updated {ApplicationPath} > '{ApplicationName}' ({ApplicationType} application), source: {ApplicationRepositoryType}. IsSoonDecommissionned = {IsSoonDecommissionned}, IsDeadLink = {IsDeadLink}", notification.Path, notification.Name, notification.ApplicationType, notification.RepositoryType, notification.IsSoonDecommissionned, notification.IsDeadLink);
 
         await notificationsRepository.SaveAsync(new Domain.Notifications.Model.Notification
         {

@@ -9,7 +9,7 @@ internal class FrameworkDeletedEventHandler(INotificationsRepository notificatio
 {
     public async Task Handle(FrameworkDeletedEvent notification, CancellationToken cancellationToken)
     {
-        logger.LogInformation($"Deleted {{FrameworkName}} {{FrameworkVersion}}.", notification.Name, notification.Version);
+        logger.LogInformation("Deleted {FrameworkName} {FrameworkVersion}.", notification.Name, notification.Version);
 
         await notificationsRepository.SaveAsync(new Domain.Notifications.Model.Notification
         {

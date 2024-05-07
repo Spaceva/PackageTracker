@@ -26,5 +26,5 @@ internal class PublicNugetServerFetcher(IOptionsMonitor<FetcherSettings> fetcher
                       .ToList();
 
     protected override Package CreatePackage(string packageName, ICollection<PackageVersion> packageVersions)
-     => new NugetPackage() { Name = packageName, Versions = packageVersions, RegistryUrl = RegistryUrl, Link = $"{RegistryUrl}/{packageName}" };
+     => new NugetPackage() { Name = packageName, Versions = packageVersions, RegistryUrl = RegistryUrl, Link = $"{RegistryUrl}/packages/{packageName}" };
 }

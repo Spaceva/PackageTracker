@@ -89,6 +89,12 @@ internal class ApplicationNoCacheEnricher(MongoDbContext dbContext, bool showOnl
             return framework;
         }
 
+        if (module is JavaModule javaModule)
+        {
+            _ = frameworks.TryGetValue((JavaModule.FrameworkName, javaModule.FrameworkVersion), out var framework);
+            return framework;
+        }
+
         return null;
     }
 }

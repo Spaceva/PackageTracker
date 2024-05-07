@@ -14,6 +14,8 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IApplicationModuleParser<DotNetAssembly>, DotNetFrameworkAssemblyParser>();
 
         services.AddScoped<IApplicationModuleParser<PhpModule>, PhpModuleParser>();
+
+        services.AddScoped<IApplicationModuleParser<JavaModule>, JavaModuleParser>();
         return services;
     }
 }
