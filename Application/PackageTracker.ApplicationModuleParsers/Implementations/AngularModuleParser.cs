@@ -12,7 +12,8 @@ internal class AngularModuleParser(IPackagesRepository packagesRepository, ILogg
     {
         try
         {
-            var librairiesProperties = Dependencies(fileContent);
+            var jsonObject = JsonNode.Parse(fileContent, new JsonNodeOptions { PropertyNameCaseInsensitive = true }, new JsonDocumentOptions { AllowTrailingCommas = true }) ?? throw new JsonException("Parsing failed.");
+            var librairiesProperties = Dependencies(jsonObject);
             return Array.Exists(librairiesProperties, l => l.Name == Constants.Application.Angular.VersionPropertyName);
         }
         catch (Exception)
