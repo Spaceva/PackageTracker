@@ -33,7 +33,6 @@ internal class JavaModuleParser(IPackagesRepository packagesRepository, ILogger<
 
     public override async Task<JavaModule> ParseModuleAsync(string fileContent, string fileName, CancellationToken cancellationToken)
     {
-        var javaVersionPosition = FindJavaVersionPosition(fileContent);
         var cleanFileContent = fileContent.Trim();
         var pomFileRootNode = XElement.Parse(cleanFileContent);
 

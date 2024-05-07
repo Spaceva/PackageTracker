@@ -10,7 +10,7 @@ internal class ApplicationModuleAddedEventHandler(INotificationsRepository notif
     public async Task Handle(ApplicationModuleAddedEvent notification, CancellationToken cancellationToken)
     {
         var singleOrPlural = notification.PackageVersions.Count > 1 ? "s" : string.Empty;
-        logger.LogInformation("Added '{ModuleName}' module to '{ApplicationName}', on branch '{BranchName}' ({ApplicationType} application) - Counting {PackagesCount} package{singleOrPlural}.", notification.ModuleName, notification.ApplicationName, notification.BranchName, notification.Type, notification.PackageVersions.Count, singleOrPlural);
+        logger.LogInformation("Added '{ModuleName}' module to '{ApplicationName}', on branch '{BranchName}' ({ApplicationType} application) - Counting {PackagesCount} package{SingleOrPlural}.", notification.ModuleName, notification.ApplicationName, notification.BranchName, notification.Type, notification.PackageVersions.Count, singleOrPlural);
 
         await notificationsRepository.SaveAsync(new Domain.Notifications.Model.Notification
         {

@@ -23,7 +23,7 @@ internal class AzureDevOpsHttpClient : IDisposable
     {
         var response = await httpClient.GetAsync(Constants.Urls.RepositoriesList, cancellationToken);
         response.EnsureJSONSuccess();
-        var responseDecoded = await response.Content.ReadFromJsonAsync<RepositoriesListHttpResponse>(Constants.JsonSettings.JsonSerializerOptions, cancellationToken) ?? throw new HttpRequestException("Serialization failed.");
+        var responseDecoded = await response.Content.ReadFromJsonAsync<RepositoriesListHttpResponse>(Constants.JsonSettings.JsonSerializerOptions, cancellationToken) ?? throw new SerializationFailedException();
         return responseDecoded.Value;
     }
 
@@ -32,7 +32,7 @@ internal class AzureDevOpsHttpClient : IDisposable
         var response = await httpClient.GetAsync(string.Format(Constants.Urls.RepositoryBranchsList, repositoryId), cancellationToken);
         response.EnsureJSONSuccess();
 
-        var responseDecoded = await response.Content.ReadFromJsonAsync<RepositoryBranchsListHttpResponse>(Constants.JsonSettings.JsonSerializerOptions, cancellationToken) ?? throw new HttpRequestException("Serialization failed.");
+        var responseDecoded = await response.Content.ReadFromJsonAsync<RepositoryBranchsListHttpResponse>(Constants.JsonSettings.JsonSerializerOptions, cancellationToken) ?? throw new SerializationFailedException();
         return responseDecoded.Value;
     }
 
@@ -43,7 +43,7 @@ internal class AzureDevOpsHttpClient : IDisposable
         var response = await httpClient.GetAsync(string.Format(Constants.Urls.FilesList, repositoryId, rootId, branch), cancellationToken);
         response.EnsureJSONSuccess();
 
-        var responseDecoded = await response.Content.ReadFromJsonAsync<TreeListHttpResponse>(Constants.JsonSettings.JsonSerializerOptions, cancellationToken) ?? throw new HttpRequestException("Serialization failed.");
+        var responseDecoded = await response.Content.ReadFromJsonAsync<TreeListHttpResponse>(Constants.JsonSettings.JsonSerializerOptions, cancellationToken) ?? throw new SerializationFailedException();
         return responseDecoded.TreeEntries;
     }
 
@@ -60,7 +60,7 @@ internal class AzureDevOpsHttpClient : IDisposable
         var response = await httpClient.GetAsync(string.Format(Constants.Urls.LastCommit, repositoryId, branchName), cancellationToken);
         response.EnsureSuccessStatusCode();
 
-        var responseDecoded = await response.Content.ReadFromJsonAsync<GetLastCommitHttpResponse>(Constants.JsonSettings.JsonSerializerOptions, cancellationToken) ?? throw new HttpRequestException("Serialization failed.");
+        var responseDecoded = await response.Content.ReadFromJsonAsync<GetLastCommitHttpResponse>(Constants.JsonSettings.JsonSerializerOptions, cancellationToken) ?? throw new SerializationFailedException();
         return responseDecoded.LastCommitDate;
     }
 
@@ -75,7 +75,7 @@ internal class AzureDevOpsHttpClient : IDisposable
         var response = await httpClient.GetAsync(string.Format(Constants.Urls.RootDetail, repositoryId), cancellationToken);
         response.EnsureJSONSuccess();
 
-        var responseDecoded = await response.Content.ReadFromJsonAsync<Folder>(Constants.JsonSettings.JsonSerializerOptions, cancellationToken) ?? throw new HttpRequestException("Serialization failed.");
+        var responseDecoded = await response.Content.ReadFromJsonAsync<Folder>(Constants.JsonSettings.JsonSerializerOptions, cancellationToken) ?? throw new SerializationFailedException();
         return responseDecoded.ObjectId;
     }
 

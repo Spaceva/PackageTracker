@@ -10,7 +10,7 @@ internal class ApplicationBranchAddedEventHandler(INotificationsRepository notif
     public async Task Handle(ApplicationBranchAddedEvent notification, CancellationToken cancellationToken)
     {
         var singleOrPlural = notification.Modules.Count > 1 ? "s" : string.Empty;
-        logger.LogInformation("Added '{BranchName}' branch to '{ApplicationName}' ({ApplicationType} application) - Counting {ModulesCount} module{singleOrPlural}.", notification.BranchName, notification.ApplicationName, notification.Type, notification.Modules.Count, singleOrPlural);
+        logger.LogInformation("Added '{BranchName}' branch to '{ApplicationName}' ({ApplicationType} application) - Counting {ModulesCount} module{SingleOrPlural}.", notification.BranchName, notification.ApplicationName, notification.Type, notification.Modules.Count, singleOrPlural);
 
         await notificationsRepository.SaveAsync(new Domain.Notifications.Model.Notification
         {

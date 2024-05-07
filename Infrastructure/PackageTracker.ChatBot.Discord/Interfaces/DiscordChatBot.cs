@@ -545,20 +545,20 @@ public abstract class DiscordChatBot(IServiceProvider serviceProvider) : ChatBot
     private Task HandleReadyAsync()
     {
         ReadyEvent.Set();
-        Logger.LogInformation("{BotName} is {state}.", BotName, "ready");
+        Logger.LogInformation("{BotName} is {BotState}.", BotName, "ready");
         return Task.CompletedTask;
     }
 
     private Task HandleLoggedInAsync()
     {
-        Logger.LogInformation("{BotName} is logged {state}.", BotName, "in");
+        Logger.LogInformation("{BotName} is logged {BotState}.", BotName, "in");
         return Task.CompletedTask;
     }
 
     private Task HandleLoggedOutAsync()
     {
         ReadyEvent.Set();
-        Logger.LogInformation("{BotName} is logged {state}.", BotName, "out");
+        Logger.LogInformation("{BotName} is logged {BotState}.", BotName, "out");
         return Task.CompletedTask;
     }
 
@@ -585,7 +585,7 @@ public abstract class DiscordChatBot(IServiceProvider serviceProvider) : ChatBot
 
     private Task HandleConnectedAsync()
     {
-        Logger.LogInformation("{BotName} is {state}.", BotName, "connected");
+        Logger.LogInformation("{BotName} is {BotState}.", BotName, "connected");
         isReady = true;
         return Task.CompletedTask;
     }

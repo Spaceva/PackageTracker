@@ -1,17 +1,14 @@
 html {
     font-size: 14px;
     font-family: 'Cascadia Code',sans-serif;
+    position: relative;
+    min-height: 100%;
 }
 
 @media (min-width: 768px) {
     html {
         font-size: 16px;
     }
-}
-
-html {
-    position: relative;
-    min-height: 100%;
 }
 
 body {

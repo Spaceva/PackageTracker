@@ -15,7 +15,7 @@ internal class ApplicationScannedEventHandler(IApplicationsRepository applicatio
         if (existingApplication is null)
         {
             var singleOrPluralBranch = scannedApplication.Branchs.Count > 1 ? "s" : string.Empty;
-            logger.LogInformation("New {ApplicationType} application detected : '{ApplicationName}' ({BranchsCount} branch{singleOrPluralBranch}).", scannedApplication.Type, scannedApplication.Name, scannedApplication.Branchs.Count, singleOrPluralBranch);
+            logger.LogInformation("New {ApplicationType} application detected : '{ApplicationName}' ({BranchsCount} branch{SingleOrPluralBranch}).", scannedApplication.Type, scannedApplication.Name, scannedApplication.Branchs.Count, singleOrPluralBranch);
             await mediator.Send(new CreateApplicationCommand(notification), cancellationToken);
             return;
         }

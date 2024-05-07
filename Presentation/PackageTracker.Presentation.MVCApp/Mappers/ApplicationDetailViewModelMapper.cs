@@ -18,11 +18,11 @@ internal static class ApplicationDetailViewModelMapper
             ApplicationRepositoryType = application.RepositoryType.ToString(),
             ApplicationIsSoonDecommissioned = application.IsSoonDecommissioned,
             ApplicationIsDeadLink = application.IsDeadLink,
-            Packages = application.Branchs.OrderBy(branch => branch.Name).SelectMany(MapToApplicationPackageRow).ToArray()
+            Packages = [.. application.Branchs.OrderBy(branch => branch.Name).SelectMany(MapToApplicationPackageRow)]
         };
     }
 
-    private static ApplicationDetailViewModel.ApplicationPackage[] MapToApplicationPackageRow(ApplicationBranch branch)
+    private static List<ApplicationDetailViewModel.ApplicationPackage> MapToApplicationPackageRow(ApplicationBranch branch)
     {
         var rows = new List<ApplicationDetailViewModel.ApplicationPackage>();
         foreach (var module in branch.Modules.OrderBy(m => m.Name))
@@ -30,10 +30,10 @@ internal static class ApplicationDetailViewModelMapper
             rows.AddRange(MapToApplicationPackageRow(branch, module));
         }
 
-        return [.. rows];
+        return rows;
     }
 
-    private static IEnumerable<ApplicationDetailViewModel.ApplicationPackage> MapToApplicationPackageRow(ApplicationBranch branch, ApplicationModule module)
+    private static List<ApplicationDetailViewModel.ApplicationPackage> MapToApplicationPackageRow(ApplicationBranch branch, ApplicationModule module)
     {
         var metadata = module.ParseMetadata();
         var mainFrameworkVersion = metadata.FrameworkVersion;

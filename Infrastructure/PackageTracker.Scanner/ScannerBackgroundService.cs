@@ -26,7 +26,7 @@ internal class ScannerBackgroundService(IEnumerable<IApplicationsScanner> applic
         try
         {
             var deadLinksApplication = await scanner.FindDeadLinksAsync(stoppingToken);
-            Logger.LogInformation("{Scanner} found {count} deadlink(s).", scanner.GetType().Name, deadLinksApplication.Count);
+            Logger.LogInformation("{Scanner} found {DeadLinksCount} deadlink(s).", scanner.GetType().Name, deadLinksApplication.Count);
             await Parallel.ForEachAsync(deadLinksApplication, stoppingToken, PublishDeadLinkApplicationDetected);
         }
         catch (TaskCanceledException)
@@ -42,7 +42,7 @@ internal class ScannerBackgroundService(IEnumerable<IApplicationsScanner> applic
         try
         {
             var scannedApplications = await scanner.ScanRemoteAsync(stoppingToken);
-            Logger.LogInformation("{Scanner} found {count} remote application(s).", scanner.GetType().Name, scannedApplications.Count);
+            Logger.LogInformation("{Scanner} found {RemoteApplicationsCount} remote application(s).", scanner.GetType().Name, scannedApplications.Count);
             await Parallel.ForEachAsync(scannedApplications, stoppingToken, PublishApplicationScanned);
         }
         catch (TaskCanceledException)
