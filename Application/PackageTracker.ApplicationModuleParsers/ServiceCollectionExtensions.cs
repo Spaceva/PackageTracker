@@ -1,6 +1,5 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using PackageTracker.Domain.Application;
-using PackageTracker.Domain.Application.Model;
 
 namespace PackageTracker.ApplicationModuleParsers;
 
@@ -8,14 +7,11 @@ public static class ServiceCollectionExtensions
 {
     public static IServiceCollection AddApplicationModuleParsers(this IServiceCollection services)
     {
-        services.AddScoped<IApplicationModuleParser<AngularModule>, AngularModuleParser>();
-
-        services.AddScoped<IApplicationModuleParser<DotNetAssembly>, DotNetAssemblyParser>();
-        services.AddScoped<IApplicationModuleParser<DotNetAssembly>, DotNetFrameworkAssemblyParser>();
-
-        services.AddScoped<IApplicationModuleParser<PhpModule>, PhpModuleParser>();
-
-        services.AddScoped<IApplicationModuleParser<JavaModule>, JavaModuleParser>();
+        services.AddScoped<IApplicationModuleParser, AngularModuleParser>();
+        services.AddScoped<IApplicationModuleParser, DotNetAssemblyParser>();
+        services.AddScoped<IApplicationModuleParser, DotNetFrameworkAssemblyParser>();
+        services.AddScoped<IApplicationModuleParser, PhpModuleParser>();
+        services.AddScoped<IApplicationModuleParser, JavaModuleParser>();
         return services;
     }
 }

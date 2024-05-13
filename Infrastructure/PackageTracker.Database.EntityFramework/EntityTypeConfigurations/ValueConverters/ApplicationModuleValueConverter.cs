@@ -5,8 +5,9 @@ namespace PackageTracker.Database.EntityFramework;
 internal class ApplicationModuleValueConverter : ValueConverter<ApplicationModule, ApplicationModuleModel>
 {
     private static readonly ApplicationPackageValueConverter applicationPackageValueConverter = new();
+
     private static ApplicationModuleModel ToModel(ApplicationModule entity)
-        => new ApplicationModuleModel
+        => new()
         {
             ModuleType = entity.GetType().ToApplicationType(),
             Name = entity.Name,

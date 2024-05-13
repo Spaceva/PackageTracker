@@ -9,7 +9,7 @@ using static PackageTracker.Scanner.ScannerSettings;
 using Application = Domain.Application.Model.Application;
 using RepositoryType = Domain.Application.Model.RepositoryType;
 
-internal sealed class JavaGitHubScanner(Func<IGitHubClient, string, Task<IReadOnlyList<Repository>>> getRepositoriesDelegate, TrackedApplication trackedApplication, IMediator mediator, IEnumerable<IApplicationModuleParser<JavaModule>> dotNetAssemblyParsers, ILogger<JavaGitHubScanner> logger)
+internal sealed class JavaGitHubScanner(Func<IGitHubClient, string, Task<IReadOnlyList<Repository>>> getRepositoriesDelegate, TrackedApplication trackedApplication, IMediator mediator, IEnumerable<IApplicationModuleParser> dotNetAssemblyParsers, ILogger<JavaGitHubScanner> logger)
     : GitHubScanner<JavaModule>(getRepositoriesDelegate, trackedApplication, mediator, dotNetAssemblyParsers, logger)
 {
     private protected override Application Application(string applicationName, string repositoryPath, string repositoryLink, IReadOnlyCollection<ApplicationBranch> applicationBranches)
@@ -19,7 +19,4 @@ internal sealed class JavaGitHubScanner(Func<IGitHubClient, string, Task<IReadOn
     => new JavaApplicationBranch { Name = branchName, RepositoryLink = repositoryLink, Modules = [.. applicationModules], LastCommit = lastCommit };
 
     private protected override ApplicationType LookedUpApplicationType => ApplicationType.Java;
-
-    protected override bool TreeItemMatchPattern(TreeItem item)
-     => item.Path.EndsWith("pom.xml", StringComparison.OrdinalIgnoreCase);
 }

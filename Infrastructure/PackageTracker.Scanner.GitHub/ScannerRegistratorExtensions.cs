@@ -4,7 +4,6 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Octokit;
 using PackageTracker.Domain.Application;
-using PackageTracker.Domain.Application.Model;
 
 namespace PackageTracker.Scanner.GitHub;
 
@@ -34,7 +33,7 @@ public static class ScannerRegistratorExtensions
             var loggerFactory = sp.GetRequiredService<ILoggerFactory>();
             var mediator = sp.GetRequiredService<IMediator>();
             var trackedApplication = settings.Value.Applications.SingleOrDefault(s => s.ScannerName.Equals(trackerName, StringComparison.OrdinalIgnoreCase)) ?? throw new UnknownScannerException();
-            var parsers = sp.GetServices<IApplicationModuleParser<AngularModule>>();
+            var parsers = sp.GetServices<IApplicationModuleParser>();
             return new AngularGitHubScanner(getRepositoriesDelegate, trackedApplication, mediator, parsers, loggerFactory.CreateLogger<AngularGitHubScanner>());
         });
 
@@ -45,7 +44,7 @@ public static class ScannerRegistratorExtensions
             var loggerFactory = sp.GetRequiredService<ILoggerFactory>();
             var mediator = sp.GetRequiredService<IMediator>();
             var trackedApplication = settings.Value.Applications.SingleOrDefault(s => s.ScannerName.Equals(trackerName, StringComparison.OrdinalIgnoreCase)) ?? throw new UnknownScannerException();
-            var parsers = sp.GetServices<IApplicationModuleParser<DotNetAssembly>>();
+            var parsers = sp.GetServices<IApplicationModuleParser>();
             return new DotNetGitHubScanner(getRepositoriesDelegate, trackedApplication, mediator, parsers, loggerFactory.CreateLogger<DotNetGitHubScanner>());
         });
 
@@ -56,7 +55,7 @@ public static class ScannerRegistratorExtensions
             var loggerFactory = sp.GetRequiredService<ILoggerFactory>();
             var mediator = sp.GetRequiredService<IMediator>();
             var trackedApplication = settings.Value.Applications.SingleOrDefault(s => s.ScannerName.Equals(trackerName, StringComparison.OrdinalIgnoreCase)) ?? throw new UnknownScannerException();
-            var parsers = sp.GetServices<IApplicationModuleParser<PhpModule>>();
+            var parsers = sp.GetServices<IApplicationModuleParser>();
             return new PhpGitHubScanner(getRepositoriesDelegate, trackedApplication, mediator, parsers, loggerFactory.CreateLogger<PhpGitHubScanner>());
         });
 
@@ -67,7 +66,7 @@ public static class ScannerRegistratorExtensions
         var loggerFactory = sp.GetRequiredService<ILoggerFactory>();
         var mediator = sp.GetRequiredService<IMediator>();
         var trackedApplication = settings.Value.Applications.SingleOrDefault(s => s.ScannerName.Equals(trackerName, StringComparison.OrdinalIgnoreCase)) ?? throw new UnknownScannerException();
-        var parsers = sp.GetServices<IApplicationModuleParser<JavaModule>>();
+        var parsers = sp.GetServices<IApplicationModuleParser>();
         return new JavaGitHubScanner(getRepositoriesDelegate, trackedApplication, mediator, parsers, loggerFactory.CreateLogger<JavaGitHubScanner>());
     });
 }

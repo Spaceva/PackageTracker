@@ -8,11 +8,11 @@ using Application = PackageTracker.Domain.Application.Model.Application;
 
 namespace PackageTracker.Scanner.GitHub;
 
-internal abstract class GitHubScanner<TApplicationModule>(Func<IGitHubClient, string, Task<IReadOnlyList<Repository>>> getRepositoriesDelegate, ScannerSettings.TrackedApplication trackedApplication, IMediator mediator, IEnumerable<IApplicationModuleParser<TApplicationModule>> moduleParsers, ILogger logger)
+internal abstract class GitHubScanner<TApplicationModule>(Func<IGitHubClient, string, Task<IReadOnlyList<Repository>>> getRepositoriesDelegate, ScannerSettings.TrackedApplication trackedApplication, IMediator mediator, IEnumerable<IApplicationModuleParser> moduleParsers, ILogger logger)
     : GitHubScanner(getRepositoriesDelegate, trackedApplication, mediator, logger)
     where TApplicationModule : ApplicationModule
 {
-    private protected IEnumerable<IApplicationModuleParser<TApplicationModule>> ModuleParsers => moduleParsers;
+    private protected IEnumerable<IApplicationModuleParser> ModuleParsers => moduleParsers;
 
     public override async Task<IReadOnlyCollection<Application>> ScanRemoteAsync(CancellationToken cancellationToken)
     {
@@ -120,13 +120,11 @@ internal abstract class GitHubScanner<TApplicationModule>(Func<IGitHubClient, st
     private protected async Task<IReadOnlyCollection<RepositoryContent>> FindModuleFiles(Repository repository, Branch branch)
     {
         var treeResponse = await GitHubClient.Git.Tree.GetRecursive(repository.Id, branch.Commit.Sha);
-        var fileHeaders = treeResponse.Tree.Where(TreeItemMatchPattern);
+        var fileHeaders = treeResponse.Tree.Where(t => moduleParsers.Any(mp => mp.IsModuleFile(t.Path)));
         var filesTask = fileHeaders.Select(fh => GitHubClient.Repository.Content.GetAllContentsByRef(repository.Owner.Login, repository.Name, fh.Path, branch.Commit.Sha));
         var content = await Task.WhenAll(filesTask);
         return [.. content.Select(a => a[0])];
     }
-
-    protected abstract bool TreeItemMatchPattern(TreeItem item);
 
     private protected async Task<IReadOnlyCollection<Branch>> FindAllLongTermBranchs(long repositoryId)
     {
@@ -154,7 +152,7 @@ internal abstract class GitHubScanner<TApplicationModule>(Func<IGitHubClient, st
                     continue;
                 }
 
-                modules.Add(module);
+                modules.Add((TApplicationModule)module);
             }
             catch (Exception ex)
             {
@@ -165,7 +163,7 @@ internal abstract class GitHubScanner<TApplicationModule>(Func<IGitHubClient, st
         return modules;
     }
 
-    private async Task<TApplicationModule?> ScanModuleAsync(RepositoryContent moduleFile, CancellationToken cancellationToken)
+    private async Task<ApplicationModule?> ScanModuleAsync(RepositoryContent moduleFile, CancellationToken cancellationToken)
     {
         var moduleParser = ModuleParsers.FirstOrDefault(mp => mp.CanParse(moduleFile.Content));
         if (moduleParser is null)

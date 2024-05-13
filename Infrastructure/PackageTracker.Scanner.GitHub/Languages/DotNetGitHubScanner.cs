@@ -9,7 +9,7 @@ using static PackageTracker.Scanner.ScannerSettings;
 using Application = Domain.Application.Model.Application;
 using RepositoryType = Domain.Application.Model.RepositoryType;
 
-internal sealed class DotNetGitHubScanner(Func<IGitHubClient, string, Task<IReadOnlyList<Repository>>> getRepositoriesDelegate, TrackedApplication trackedApplication, IMediator mediator, IEnumerable<IApplicationModuleParser<DotNetAssembly>> dotNetAssemblyParsers, ILogger<DotNetGitHubScanner> logger)
+internal sealed class DotNetGitHubScanner(Func<IGitHubClient, string, Task<IReadOnlyList<Repository>>> getRepositoriesDelegate, TrackedApplication trackedApplication, IMediator mediator, IEnumerable<IApplicationModuleParser> dotNetAssemblyParsers, ILogger<DotNetGitHubScanner> logger)
     : GitHubScanner<DotNetAssembly>(getRepositoriesDelegate, trackedApplication, mediator, dotNetAssemblyParsers, logger)
 {
     private protected override Application Application(string applicationName, string repositoryPath, string repositoryLink, IReadOnlyCollection<ApplicationBranch> applicationBranches)
@@ -19,7 +19,4 @@ internal sealed class DotNetGitHubScanner(Func<IGitHubClient, string, Task<IRead
     => new DotNetApplicationBranch { Name = branchName, RepositoryLink = repositoryLink, Modules = [.. applicationModules], LastCommit = lastCommit };
 
     private protected override ApplicationType LookedUpApplicationType => ApplicationType.DotNet;
-
-    protected override bool TreeItemMatchPattern(TreeItem item)
-     => item.Path.EndsWith(".csproj", StringComparison.OrdinalIgnoreCase);
 }

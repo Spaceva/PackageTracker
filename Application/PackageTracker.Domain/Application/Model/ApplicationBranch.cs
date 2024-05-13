@@ -28,4 +28,15 @@ public abstract class ApplicationBranch
             return packagesWithMinVersion;
         }
     }
+
+    public static ApplicationBranch From(string branchName, string repositoryLink, IEnumerable<ApplicationModule> applicationModules, DateTime? lastCommitDate)
+    {
+        var applicationType = applicationModules.Select(p => p.GetType().ToApplicationType()).Max();
+        var applicationBranch = (ApplicationBranch)Activator.CreateInstance(applicationType.ToApplicationBranchType())!;
+        applicationBranch.Name = branchName;
+        applicationBranch.RepositoryLink = repositoryLink;
+        applicationBranch.Modules = [.. applicationModules];
+        applicationBranch.LastCommit = lastCommitDate;
+        return applicationBranch;
+    }
 }

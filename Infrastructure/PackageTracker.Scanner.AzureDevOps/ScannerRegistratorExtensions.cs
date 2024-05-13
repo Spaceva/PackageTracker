@@ -1,7 +1,6 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using PackageTracker.Domain.Application.Model;
 using PackageTracker.Domain.Application;
 using MediatR;
 
@@ -9,7 +8,7 @@ namespace PackageTracker.Scanner.AzureDevOps;
 
 public static class ScannerRegistratorExtensions
 {
-    public static IScannerRegistrator AddAngularAzureDevOpsScanner(this IScannerRegistrator services, string trackerName)
+    public static IScannerRegistrator AddAzureDevOpsScanner(this IScannerRegistrator services, string trackerName)
     => services.Register(sp =>
         {
             var settings = sp.GetRequiredService<IOptions<ScannerSettings>>();
@@ -17,18 +16,7 @@ public static class ScannerRegistratorExtensions
             var mediator = sp.GetRequiredService<IMediator>();
             var trackedApplication = settings.Value.Applications.SingleOrDefault(s => s.ScannerName.Equals(trackerName, StringComparison.OrdinalIgnoreCase))
             ?? throw new UnknownScannerException();
-            var parsers = sp.GetRequiredService<IEnumerable<IApplicationModuleParser<AngularModule>>>();
-            return new AngularAzureDevOpsScanner(trackedApplication, mediator, parsers, loggerFactory.CreateLogger<AngularAzureDevOpsScanner>(), settings.Value);
-        });
-    public static IScannerRegistrator AddDotNetAzureDevOpsScanner(this IScannerRegistrator services, string trackerName)
-     => services.Register(sp =>
-        {
-            var settings = sp.GetRequiredService<IOptions<ScannerSettings>>();
-            var loggerFactory = sp.GetRequiredService<ILoggerFactory>();
-            var mediator = sp.GetRequiredService<IMediator>();
-            var trackedApplication = settings.Value.Applications.SingleOrDefault(s => s.ScannerName.Equals(trackerName, StringComparison.OrdinalIgnoreCase))
-            ?? throw new UnknownScannerException();
-            var parsers = sp.GetRequiredService<IEnumerable<IApplicationModuleParser<DotNetAssembly>>>();
-            return new DotNetAzureDevOpsScanner(trackedApplication, mediator, parsers, loggerFactory.CreateLogger<DotNetAzureDevOpsScanner>(), settings.Value);
+            var parsers = sp.GetRequiredService<IEnumerable<IApplicationModuleParser>>();
+            return new AzureDevOpsScanner(trackedApplication, mediator, parsers, loggerFactory.CreateLogger<AzureDevOpsScanner>(), settings.Value);
         });
 }

@@ -6,7 +6,7 @@ using Microsoft.Extensions.Logging;
 
 namespace PackageTracker.ApplicationModuleParsers;
 
-internal class AngularModuleParser(IPackagesRepository packagesRepository, ILogger<AngularModuleParser> logger) : ApplicationModuleParser<AngularModule>(packagesRepository, logger)
+internal class AngularModuleParser(IPackagesRepository packagesRepository, ILogger<AngularModuleParser> logger) : ApplicationModuleParser(packagesRepository, logger)
 {
     public override bool CanParse(string fileContent)
     {
@@ -22,7 +22,12 @@ internal class AngularModuleParser(IPackagesRepository packagesRepository, ILogg
         }
     }
 
-    public override async Task<AngularModule> ParseModuleAsync(string fileContent, string fileName, CancellationToken cancellationToken)
+    public override bool IsModuleFile(string fileAbsolutePath)
+    => fileAbsolutePath.EndsWith("package.json", StringComparison.OrdinalIgnoreCase)
+        && !fileAbsolutePath.Contains("public", StringComparison.OrdinalIgnoreCase)
+        && !fileAbsolutePath.Contains("resource", StringComparison.OrdinalIgnoreCase);
+
+    public override async Task<ApplicationModule> ParseModuleAsync(string fileContent, string fileName, CancellationToken cancellationToken)
     {
         var jsonObject = JsonNode.Parse(fileContent, new JsonNodeOptions { PropertyNameCaseInsensitive = true }, new JsonDocumentOptions { AllowTrailingCommas = true }) ?? throw new JsonException("Parsing failed.");
         var moduleName = jsonObject[Constants.Application.Angular.NameProperty]?.AsValue()?.GetValue<string>() ?? fileName;

@@ -9,7 +9,7 @@ using static PackageTracker.Scanner.ScannerSettings;
 using Application = Domain.Application.Model.Application;
 using RepositoryType = Domain.Application.Model.RepositoryType;
 
-internal sealed class AngularGitHubScanner(Func<IGitHubClient, string, Task<IReadOnlyList<Repository>>> getRepositoriesDelegate, TrackedApplication trackedApplication, IMediator mediator, IEnumerable<IApplicationModuleParser<AngularModule>> angularModuleParsers, ILogger<AngularGitHubScanner> logger) 
+internal sealed class AngularGitHubScanner(Func<IGitHubClient, string, Task<IReadOnlyList<Repository>>> getRepositoriesDelegate, TrackedApplication trackedApplication, IMediator mediator, IEnumerable<IApplicationModuleParser> angularModuleParsers, ILogger<AngularGitHubScanner> logger) 
     : GitHubScanner<AngularModule>(getRepositoriesDelegate, trackedApplication, mediator, angularModuleParsers, logger)
 {
     private protected override Application Application(string applicationName, string repositoryPath, string repositoryLink, IReadOnlyCollection<ApplicationBranch> applicationBranches)
@@ -19,9 +19,4 @@ internal sealed class AngularGitHubScanner(Func<IGitHubClient, string, Task<IRea
     => new AngularApplicationBranch { Name = branchName, RepositoryLink = repositoryLink, Modules = [.. applicationModules], LastCommit = lastCommit };
 
     private protected override ApplicationType LookedUpApplicationType => ApplicationType.Angular;
-
-    protected override bool TreeItemMatchPattern(TreeItem item)
-     => item.Path.EndsWith("package.json", StringComparison.OrdinalIgnoreCase)
-        && !item.Path.Contains("public", StringComparison.OrdinalIgnoreCase)
-        && !item.Path.Contains("resource", StringComparison.OrdinalIgnoreCase);
 }

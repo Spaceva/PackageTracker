@@ -17,4 +17,16 @@ public abstract class Application
     public bool IsSoonDecommissioned { get; set; }
 
     public bool IsDeadLink { get; set; }
+
+    public static Application From(string applicationName, string repositoryPath, string repositoryLink, IReadOnlyCollection<ApplicationBranch> applicationBranches, RepositoryType repositoryType)
+    {
+        var applicationType = applicationBranches.Select(p => p.GetType().ToApplicationType()).Max();
+        var application = (Application)Activator.CreateInstance(applicationType.ToApplicationType())!;
+        application.Name = applicationName;
+        application.RepositoryLink = repositoryLink;
+        application.Path = repositoryPath;
+        application.Branchs = [.. applicationBranches];
+        application.RepositoryType = repositoryType;
+        return application;
+    }
 }

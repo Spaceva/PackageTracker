@@ -6,7 +6,7 @@ using Microsoft.Extensions.Logging;
 
 namespace PackageTracker.ApplicationModuleParsers;
 
-internal class PhpModuleParser(IPackagesRepository packagesRepository, ILogger<PhpModuleParser> logger) : ApplicationModuleParser<PhpModule>(packagesRepository, logger)
+internal class PhpModuleParser(IPackagesRepository packagesRepository, ILogger<PhpModuleParser> logger) : ApplicationModuleParser(packagesRepository, logger)
 {
     public override bool CanParse(string fileContent)
     {
@@ -23,7 +23,12 @@ internal class PhpModuleParser(IPackagesRepository packagesRepository, ILogger<P
         }
     }
 
-    public override async Task<PhpModule> ParseModuleAsync(string fileContent, string fileName, CancellationToken cancellationToken)
+    public override bool IsModuleFile(string fileAbsolutePath)
+     => fileAbsolutePath.EndsWith("composer.json", StringComparison.OrdinalIgnoreCase)
+        && !fileAbsolutePath.Contains("public", StringComparison.OrdinalIgnoreCase)
+        && !fileAbsolutePath.Contains("resource", StringComparison.OrdinalIgnoreCase);
+
+    public override async Task<ApplicationModule> ParseModuleAsync(string fileContent, string fileName, CancellationToken cancellationToken)
     {
         var jsonObject = JsonNode.Parse(fileContent, new JsonNodeOptions { PropertyNameCaseInsensitive = true }, new JsonDocumentOptions { AllowTrailingCommas = true }) ?? throw new JsonException("Parsing failed.");
         var moduleName = jsonObject[Constants.Application.Php.NameProperty]?.AsValue()?.GetValue<string>() ?? fileName;
