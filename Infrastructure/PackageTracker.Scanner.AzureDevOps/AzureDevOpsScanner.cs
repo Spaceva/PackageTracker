@@ -4,7 +4,6 @@ using PackageTracker.Domain.Application;
 using PackageTracker.Domain.Application.Model;
 using PackageTracker.Infrastructure.Http;
 using PackageTracker.Scanner.AzureDevOps.Model;
-using System.Collections.Concurrent;
 using static PackageTracker.Scanner.ScannerSettings;
 using DownloadedFile = (string Name, string Content);
 
@@ -23,42 +22,17 @@ internal class AzureDevOpsScanner(IHttpProxy? httpProxy, TrackedApplication trac
         }
     }
 
-    public override async Task<IReadOnlyCollection<Application>> ScanRemoteAsync(CancellationToken cancellationToken)
-    {
-        var projectsInformation = new ConcurrentBag<Application>();
-        var repositories = await AzureDevOpsClient.ListRepositoriesAsync(cancellationToken);
-        try
-        {
-            await Parallel.ForEachAsync(repositories, cancellationToken, async (repository, cancellationToken) =>
-            {
-                Logger.LogDebug("Scanning {ScannerType} Repository '{RepositoryName}' ...", RepositoryType.AzureDevOps, repository.Name);
-                var application = await ScanRepositoryAsync(repository, cancellationToken);
-                if (application is not null)
-                {
-                    projectsInformation.Add(application);
-                }
-            });
-        }
-        catch (TaskCanceledException)
-        {
-            Logger.LogWarning("Operation cancelled.");
-            return [];
-        }
-        catch (OperationCanceledException)
-        {
-            Logger.LogWarning("Operation cancelled.");
-            return [];
-        }
-
-        return projectsInformation;
-    }
-
     protected override RepositoryType RepositoryType => RepositoryType.AzureDevOps;
 
     protected override UntypedApplication AsUntypedApplication(Repository repository)
      => new() { Name = repository.Name, Path = repository.Project.Name, RepositoryLink = repository.WebUrl, Branchs = [], RepositoryType = RepositoryType.AzureDevOps };
 
     protected override string BranchLinkSuffix(string branchName) => string.Empty;
+
+    protected override Task CheckTokenExpirationAsync(CancellationToken cancellationToken)
+    {
+        return Task.CompletedTask;
+    }
 
     protected override void Dispose(bool isDisposing)
     {
@@ -69,13 +43,9 @@ internal class AzureDevOpsScanner(IHttpProxy? httpProxy, TrackedApplication trac
 
     protected override bool IsNotArchived(Repository repository) => !repository.IsDisabled && !repository.IsInMaintenance;
 
-    private async Task<IReadOnlyCollection<RepositoryBranch>> FindAllLongTermBranchs(string repositoryId, CancellationToken cancellationToken)
-    {
-        var branches = await AzureDevOpsClient.ListRepositoryBranchsAsync(repositoryId, cancellationToken);
-        return branches.Where(b => Scanner.Constants.Git.ValidBranches.Contains(b.Name.Split('/')[^1])).ToArray();
-    }
+    protected override string NameOf(Repository repository) => repository.Name;
 
-    private async Task<Application?> ScanRepositoryAsync(Repository repository, CancellationToken cancellationToken)
+    protected override async Task<Application?> ScanRepositoryAsync(Repository repository, CancellationToken cancellationToken)
     {
         try
         {
@@ -128,6 +98,12 @@ internal class AzureDevOpsScanner(IHttpProxy? httpProxy, TrackedApplication trac
         }
 
         return null;
+    }
+
+    private async Task<IReadOnlyCollection<RepositoryBranch>> FindAllLongTermBranchs(string repositoryId, CancellationToken cancellationToken)
+    {
+        var branches = await AzureDevOpsClient.ListRepositoryBranchsAsync(repositoryId, cancellationToken);
+        return branches.Where(b => Scanner.Constants.Git.ValidBranches.Contains(b.Name.Split('/')[^1])).ToArray();
     }
 
     private async Task<DownloadedFile[]> DownloadFilesAsync(Repository repository, RepositoryBranch branch, IEnumerable<Model.File> moduleFilesMetadata, CancellationToken cancellationToken)

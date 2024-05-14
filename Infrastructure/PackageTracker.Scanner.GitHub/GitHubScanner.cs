@@ -3,7 +3,6 @@ using Microsoft.Extensions.Logging;
 using Octokit;
 using PackageTracker.Domain.Application;
 using PackageTracker.Domain.Application.Model;
-using System.Collections.Concurrent;
 using static PackageTracker.Scanner.ScannerSettings;
 using Application = PackageTracker.Domain.Application.Model.Application;
 using RepositoryType = PackageTracker.Domain.Application.Model.RepositoryType;
@@ -17,61 +16,26 @@ internal class GitHubScanner(Func<IGitHubClient, string, Task<IReadOnlyList<Repo
 
     private readonly IGitHubClient gitHubClient = new GitHubClient(new ProductHeaderValue($"PackageTracker-Scanner-{trackedApplication.ScannerName}")) { Credentials = new Credentials(trackedApplication.AccessToken), };
 
-    public override async Task<IReadOnlyCollection<Application>> ScanRemoteAsync(CancellationToken cancellationToken)
-    {
-        var rateLimits = await gitHubClient.RateLimit.GetRateLimits();
-        if (rateLimits.Rate.Remaining == 0)
-        {
-            throw new ApiException("Rate limit exceeded", System.Net.HttpStatusCode.TooManyRequests);
-        }
-        else if ((double)rateLimits.Rate.Remaining / rateLimits.Rate.Limit < 0.15d)
-        {
-            Logger.LogWarning("Rate limit almost reached: {Remaining} remaining.", rateLimits.Rate.Remaining);
-        }
-
-        var applications = new ConcurrentBag<Application>();
-        var repositories = await getRepositoriesDelegate(gitHubClient, OrganizationOrUserName);
-        using var semaphore = new SemaphoreSlim(MaximumConcurrencyCalls, MaximumConcurrencyCalls);
-        try
-        {
-            await Parallel.ForEachAsync(repositories, cancellationToken, async (repository, cancellationToken) =>
-            {
-                try
-                {
-                    await semaphore.WaitAsync(cancellationToken);
-                    Logger.LogDebug("Scanning {ScannerType} Repository '{RepositoryName}' ...", Domain.Application.Model.RepositoryType.GitHub, repository.Name);
-                    var application = await ScanRepositoryAsync(repository, cancellationToken);
-                    if (application is not null)
-                    {
-                        applications.Add(application);
-                    }
-                }
-                finally
-                {
-                    semaphore.Release();
-                }
-            });
-        }
-        catch (TaskCanceledException)
-        {
-            Logger.LogWarning("Operation cancelled.");
-            return [];
-        }
-        catch (OperationCanceledException)
-        {
-            Logger.LogWarning("Operation cancelled.");
-            return [];
-        }
-
-        return applications;
-    }
-
     protected override RepositoryType RepositoryType => RepositoryType.GitHub;
 
     protected override UntypedApplication AsUntypedApplication(Repository repository)
      => new() { Name = repository.Name, Path = repository.FullName.Replace("/", ">"), RepositoryLink = repository.HtmlUrl, Branchs = [], RepositoryType = RepositoryType.GitHub };
 
     protected override string BranchLinkSuffix(string branchName) => $"/tree/{branchName}";
+
+    protected override async Task CheckTokenExpirationAsync(CancellationToken cancellationToken)
+    {
+        var rateLimits = await gitHubClient.RateLimit.GetRateLimits();
+        if (rateLimits.Rate.Remaining == 0)
+        {
+            throw new ApiException("Rate limit exceeded", System.Net.HttpStatusCode.TooManyRequests);
+        }
+
+        if ((double)rateLimits.Rate.Remaining / rateLimits.Rate.Limit < 0.15d)
+        {
+            Logger.LogWarning("Rate limit almost reached: {Remaining} remaining.", rateLimits.Rate.Remaining);
+        }
+    }
 
     protected override void Dispose(bool isDisposing)
     {
@@ -82,7 +46,9 @@ internal class GitHubScanner(Func<IGitHubClient, string, Task<IReadOnlyList<Repo
 
     protected override bool IsNotArchived(Repository repository) => !repository.Archived;
 
-    private async Task<Application?> ScanRepositoryAsync(Repository repository, CancellationToken cancellationToken)
+    protected override string NameOf(Repository repository) => repository.Name;
+
+    protected override async Task<Application?> ScanRepositoryAsync(Repository repository, CancellationToken cancellationToken)
     {
         try
         {
