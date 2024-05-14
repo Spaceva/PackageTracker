@@ -3,8 +3,6 @@ using Microsoft.Extensions.Logging;
 using Octokit;
 using PackageTracker.Domain.Application;
 using PackageTracker.Domain.Application.Model;
-using PackageTracker.Domain.Package.Model;
-using PackageTracker.Messages.Queries;
 using System.Collections.Concurrent;
 using static PackageTracker.Scanner.ScannerSettings;
 using Application = PackageTracker.Domain.Application.Model.Application;
@@ -12,22 +10,14 @@ using RepositoryType = PackageTracker.Domain.Application.Model.RepositoryType;
 
 namespace PackageTracker.Scanner.GitHub;
 
-internal class GitHubScanner(Func<IGitHubClient, string, Task<IReadOnlyList<Repository>>> getRepositoriesDelegate, TrackedApplication trackedApplication, IMediator mediator, IEnumerable<IApplicationModuleParser> moduleParsers, ILogger logger) : IApplicationsScanner
+internal class GitHubScanner(Func<IGitHubClient, string, Task<IReadOnlyList<Repository>>> getRepositoriesDelegate, TrackedApplication trackedApplication, IEnumerable<IApplicationModuleParser> moduleParsers, ILogger logger, IMediator mediator)
+    : BaseScanner<Repository>(trackedApplication, moduleParsers, logger, mediator)
 {
     private const string GITHUB_MAIN_HOST = "https://github.com/";
 
-    private readonly IGitHubClient gitHubClient = new GitHubClient(new ProductHeaderValue($"PackageTracker-Scanner-{trackedApplication.ScannerName}"))
-    {
-        Credentials = new Credentials(trackedApplication.AccessToken),
-    };
+    private readonly IGitHubClient gitHubClient = new GitHubClient(new ProductHeaderValue($"PackageTracker-Scanner-{trackedApplication.ScannerName}")) { Credentials = new Credentials(trackedApplication.AccessToken), };
 
-    private readonly int maximumConcurrencyCalls = trackedApplication.MaximumConcurrencyCalls;
-
-    private readonly string organizationOrUserName = trackedApplication.RepositoryRootLink.Replace(GITHUB_MAIN_HOST, string.Empty);
-
-    private readonly Func<IGitHubClient, string, Task<IReadOnlyList<Repository>>> getRepositories = getRepositoriesDelegate;
-
-    public async Task<IReadOnlyCollection<Application>> ScanRemoteAsync(CancellationToken cancellationToken)
+    public override async Task<IReadOnlyCollection<Application>> ScanRemoteAsync(CancellationToken cancellationToken)
     {
         var rateLimits = await gitHubClient.RateLimit.GetRateLimits();
         if (rateLimits.Rate.Remaining == 0)
@@ -36,12 +26,12 @@ internal class GitHubScanner(Func<IGitHubClient, string, Task<IReadOnlyList<Repo
         }
         else if ((double)rateLimits.Rate.Remaining / rateLimits.Rate.Limit < 0.15d)
         {
-            logger.LogWarning("Rate limit almost reached: {Remaining} remaining.", rateLimits.Rate.Remaining);
+            Logger.LogWarning("Rate limit almost reached: {Remaining} remaining.", rateLimits.Rate.Remaining);
         }
 
         var applications = new ConcurrentBag<Application>();
-        var repositories = await getRepositories(gitHubClient, organizationOrUserName);
-        using var semaphore = new SemaphoreSlim(maximumConcurrencyCalls, maximumConcurrencyCalls);
+        var repositories = await getRepositoriesDelegate(gitHubClient, OrganizationOrUserName);
+        using var semaphore = new SemaphoreSlim(MaximumConcurrencyCalls, MaximumConcurrencyCalls);
         try
         {
             await Parallel.ForEachAsync(repositories, cancellationToken, async (repository, cancellationToken) =>
@@ -49,7 +39,7 @@ internal class GitHubScanner(Func<IGitHubClient, string, Task<IReadOnlyList<Repo
                 try
                 {
                     await semaphore.WaitAsync(cancellationToken);
-                    logger.LogDebug("Scanning {ScannerType} Repository '{RepositoryName}' ...", Domain.Application.Model.RepositoryType.GitHub, repository.Name);
+                    Logger.LogDebug("Scanning {ScannerType} Repository '{RepositoryName}' ...", Domain.Application.Model.RepositoryType.GitHub, repository.Name);
                     var application = await ScanRepositoryAsync(repository, cancellationToken);
                     if (application is not null)
                     {
@@ -64,43 +54,33 @@ internal class GitHubScanner(Func<IGitHubClient, string, Task<IReadOnlyList<Repo
         }
         catch (TaskCanceledException)
         {
-            logger.LogWarning("Operation cancelled.");
+            Logger.LogWarning("Operation cancelled.");
             return [];
         }
         catch (OperationCanceledException)
         {
-            logger.LogWarning("Operation cancelled.");
+            Logger.LogWarning("Operation cancelled.");
             return [];
         }
 
         return applications;
     }
 
-    public async Task<IReadOnlyCollection<Application>> FindDeadLinksAsync(CancellationToken cancellationToken)
+    protected override RepositoryType RepositoryType => RepositoryType.GitHub;
+
+    protected override UntypedApplication AsUntypedApplication(Repository repository)
+     => new() { Name = repository.Name, Path = repository.FullName.Replace("/", ">"), RepositoryLink = repository.HtmlUrl, Branchs = [], RepositoryType = RepositoryType.GitHub };
+
+    protected override string BranchLinkSuffix(string branchName) => $"/tree/{branchName}";
+
+    protected override void Dispose(bool isDisposing)
     {
-        var response = await mediator.Send(new GetApplicationsQuery { SearchCriteria = new ApplicationSearchCriteria { RepositoryTypes = [RepositoryType.GitHub], ShowDeadLink = true } }, cancellationToken);
-        var localApplications = response.Applications;
-
-        var repositories = await getRepositories(gitHubClient, organizationOrUserName);
-        var remoteApplications = repositories.Where(p => !p.Archived).Select(repo => new UntypedApplication { Name = repo.Name, Path = repo.FullName.Replace("/", ">"), RepositoryLink = repo.HtmlUrl, Branchs = [] }).ToArray();
-
-        var comparer = new ApplicationBasicComparer();
-        return [.. localApplications.Where(app => !remoteApplications.Contains(app, comparer))];
+        // Left empty intentionally.
     }
 
-    public void Dispose()
-    {
-        Dispose(true);
-        GC.SuppressFinalize(this);
-    }
+    protected override async Task<IEnumerable<Repository>> GetRepositoriesAsync(CancellationToken cancellationToken) => await getRepositoriesDelegate(gitHubClient, OrganizationOrUserName);
 
-    protected virtual void Dispose(bool disposing)
-    {
-        // Left empty intentionally
-    }
-
-    private static string BranchLinkSuffix(string branchName)
-    => $"/tree/{branchName}";
+    protected override bool IsNotArchived(Repository repository) => !repository.Archived;
 
     private async Task<Application?> ScanRepositoryAsync(Repository repository, CancellationToken cancellationToken)
     {
@@ -141,11 +121,11 @@ internal class GitHubScanner(Func<IGitHubClient, string, Task<IReadOnlyList<Repo
         }
         catch (ApiException ex)
         {
-            logger.LogWarning("Application {ApplicationName} skipped because of GitHub Error : {ExceptionMessage}.", repository.Name, ex.Message);
+            Logger.LogWarning("Application {ApplicationName} skipped because of GitHub Error : {ExceptionMessage}.", repository.Name, ex.Message);
         }
         catch (Exception ex)
         {
-            logger.LogWarning("Application {ApplicationName} skipped because of {ExceptionType} : {ExceptionMessage}.", repository.Name, ex.GetType().Name, ex.Message);
+            Logger.LogWarning("Application {ApplicationName} skipped because of {ExceptionType} : {ExceptionMessage}.", repository.Name, ex.GetType().Name, ex.Message);
         }
 
         return null;
@@ -154,7 +134,7 @@ internal class GitHubScanner(Func<IGitHubClient, string, Task<IReadOnlyList<Repo
     private async Task<IReadOnlyCollection<RepositoryContent>> FindModuleFiles(Repository repository, Branch branch)
     {
         var treeResponse = await gitHubClient.Git.Tree.GetRecursive(repository.Id, branch.Commit.Sha);
-        var fileHeaders = treeResponse.Tree.Where(t => moduleParsers.Any(mp => mp.IsModuleFile(t.Path)));
+        var fileHeaders = treeResponse.Tree.Where(t => ModuleParsers.Any(mp => mp.IsModuleFile(t.Path)));
         var filesTask = fileHeaders.Select(fh => gitHubClient.Repository.Content.GetAllContentsByRef(repository.Owner.Login, repository.Name, fh.Path, branch.Commit.Sha));
         var content = await Task.WhenAll(filesTask);
         return [.. content.Select(a => a[0])];
@@ -190,7 +170,7 @@ internal class GitHubScanner(Func<IGitHubClient, string, Task<IReadOnlyList<Repo
             }
             catch (Exception ex)
             {
-                logger.LogWarning("Module {ModuleName} in Branch {BranchName}, Application {ApplicationName} skipped because of {ExceptionType} : {ExceptionMessage}.", moduleFile.Name, branch.Name, repository.Name, ex.GetType().Name, ex.Message);
+                Logger.LogWarning("Module {ModuleName} in Branch {BranchName}, Application {ApplicationName} skipped because of {ExceptionType} : {ExceptionMessage}.", moduleFile.Name, branch.Name, repository.Name, ex.GetType().Name, ex.Message);
             }
         }
 
@@ -199,7 +179,7 @@ internal class GitHubScanner(Func<IGitHubClient, string, Task<IReadOnlyList<Repo
 
     private async Task<ApplicationModule?> ScanModuleAsync(RepositoryContent moduleFile, CancellationToken cancellationToken)
     {
-        var moduleParser = moduleParsers.FirstOrDefault(mp => mp.CanParse(moduleFile.Content));
+        var moduleParser = ModuleParsers.FirstOrDefault(mp => mp.CanParse(moduleFile.Content));
         if (moduleParser is null)
         {
             return null;
@@ -207,4 +187,6 @@ internal class GitHubScanner(Func<IGitHubClient, string, Task<IReadOnlyList<Repo
 
         return await moduleParser.ParseModuleAsync(moduleFile.Content, moduleFile.Name, cancellationToken);
     }
+
+    private string OrganizationOrUserName => TrackedApplication.RepositoryRootLink.Replace(GITHUB_MAIN_HOST, string.Empty);
 }

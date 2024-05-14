@@ -14,9 +14,8 @@ public static class ScannerRegistratorExtensions
             var settings = sp.GetRequiredService<IOptions<ScannerSettings>>();
             var loggerFactory = sp.GetRequiredService<ILoggerFactory>();
             var mediator = sp.GetRequiredService<IMediator>();
-            var trackedApplication = settings.Value.Applications.SingleOrDefault(s => s.ScannerName.Equals(trackerName, StringComparison.OrdinalIgnoreCase))
-            ?? throw new UnknownScannerException();
+            var trackedApplication = settings.Value.Applications.SingleOrDefault(s => s.ScannerName.Equals(trackerName, StringComparison.OrdinalIgnoreCase)) ?? throw new UnknownScannerException();
             var parsers = sp.GetServices<IApplicationModuleParser>();
-            return new GitlabScanner(trackedApplication, parsers, mediator, loggerFactory.CreateLogger<GitlabScanner>());
+            return new GitlabScanner(trackedApplication, parsers, loggerFactory.CreateLogger<GitlabScanner>(), mediator);
         });
 }

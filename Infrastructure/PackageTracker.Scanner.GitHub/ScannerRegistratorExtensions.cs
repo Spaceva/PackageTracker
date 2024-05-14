@@ -22,6 +22,6 @@ public static class ScannerRegistratorExtensions
             var mediator = sp.GetRequiredService<IMediator>();
             var trackedApplication = settings.Value.Applications.SingleOrDefault(s => s.ScannerName.Equals(trackerName, StringComparison.OrdinalIgnoreCase)) ?? throw new UnknownScannerException();
             var parsers = sp.GetServices<IApplicationModuleParser>();
-            return new GitHubScanner(getRepositoriesDelegate, trackedApplication, mediator, parsers, loggerFactory.CreateLogger<GitHubScanner>());
+            return new GitHubScanner(getRepositoriesDelegate, trackedApplication, parsers, loggerFactory.CreateLogger<GitHubScanner>(), mediator);
         });
 }

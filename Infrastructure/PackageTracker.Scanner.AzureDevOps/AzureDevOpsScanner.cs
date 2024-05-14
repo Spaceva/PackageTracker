@@ -2,9 +2,7 @@
 using Microsoft.Extensions.Logging;
 using PackageTracker.Domain.Application;
 using PackageTracker.Domain.Application.Model;
-using PackageTracker.Domain.Package.Model;
 using PackageTracker.Infrastructure.Http;
-using PackageTracker.Messages.Queries;
 using PackageTracker.Scanner.AzureDevOps.Model;
 using System.Collections.Concurrent;
 using static PackageTracker.Scanner.ScannerSettings;
@@ -12,32 +10,20 @@ using DownloadedFile = (string Name, string Content);
 
 namespace PackageTracker.Scanner.AzureDevOps;
 
-internal class AzureDevOpsScanner(TrackedApplication trackedApplication, IMediator mediator, IEnumerable<IApplicationModuleParser> moduleParsers, ILogger logger, IHttpProxy? httpProxy) : IApplicationsScanner
+internal class AzureDevOpsScanner(IHttpProxy? httpProxy, TrackedApplication trackedApplication, IEnumerable<IApplicationModuleParser> moduleParsers, ILogger logger, IMediator mediator)
+    : BaseScanner<Repository>(trackedApplication, moduleParsers, logger, mediator)
 {
     private AzureDevOpsHttpClient? azureDevOpsClient;
-
     private AzureDevOpsHttpClient AzureDevOpsClient
     {
         get
         {
-            azureDevOpsClient ??= new(trackedApplication.RepositoryRootLink, trackedApplication.AccessToken, httpProxy);
+            azureDevOpsClient ??= new(TrackedApplication.RepositoryRootLink, TrackedApplication.AccessToken, httpProxy);
             return azureDevOpsClient;
         }
     }
 
-    public async Task<IReadOnlyCollection<Application>> FindDeadLinksAsync(CancellationToken cancellationToken)
-    {
-        var response = await mediator.Send(new GetApplicationsQuery { SearchCriteria = new ApplicationSearchCriteria { RepositoryTypes = [RepositoryType.AzureDevOps], ShowDeadLink = true } }, cancellationToken);
-        var localApplications = response.Applications;
-
-        var repositories = await AzureDevOpsClient.ListRepositoriesAsync(cancellationToken);
-        var remoteApplications = repositories.Select(repository => new UntypedApplication { Name = repository.Name, Path = repository.Project.Name, RepositoryLink = repository.WebUrl, Branchs = [], RepositoryType = RepositoryType.AzureDevOps }).ToArray();
-
-        var comparer = new ApplicationBasicComparer();
-        return [.. localApplications.Where(app => !remoteApplications.Contains(app, comparer))];
-    }
-
-    public async Task<IReadOnlyCollection<Application>> ScanRemoteAsync(CancellationToken cancellationToken)
+    public override async Task<IReadOnlyCollection<Application>> ScanRemoteAsync(CancellationToken cancellationToken)
     {
         var projectsInformation = new ConcurrentBag<Application>();
         var repositories = await AzureDevOpsClient.ListRepositoriesAsync(cancellationToken);
@@ -45,7 +31,7 @@ internal class AzureDevOpsScanner(TrackedApplication trackedApplication, IMediat
         {
             await Parallel.ForEachAsync(repositories, cancellationToken, async (repository, cancellationToken) =>
             {
-                logger.LogDebug("Scanning {ScannerType} Repository '{RepositoryName}' ...", RepositoryType.AzureDevOps, repository.Name);
+                Logger.LogDebug("Scanning {ScannerType} Repository '{RepositoryName}' ...", RepositoryType.AzureDevOps, repository.Name);
                 var application = await ScanRepositoryAsync(repository, cancellationToken);
                 if (application is not null)
                 {
@@ -55,30 +41,35 @@ internal class AzureDevOpsScanner(TrackedApplication trackedApplication, IMediat
         }
         catch (TaskCanceledException)
         {
-            logger.LogWarning("Operation cancelled.");
+            Logger.LogWarning("Operation cancelled.");
             return [];
         }
         catch (OperationCanceledException)
         {
-            logger.LogWarning("Operation cancelled.");
+            Logger.LogWarning("Operation cancelled.");
             return [];
         }
 
         return projectsInformation;
     }
 
-    public void Dispose()
-    {
-        Dispose(true);
-        GC.SuppressFinalize(this);
-    }
+    protected override RepositoryType RepositoryType => RepositoryType.AzureDevOps;
 
-    protected virtual void Dispose(bool isDisposing)
+    protected override UntypedApplication AsUntypedApplication(Repository repository)
+     => new() { Name = repository.Name, Path = repository.Project.Name, RepositoryLink = repository.WebUrl, Branchs = [], RepositoryType = RepositoryType.AzureDevOps };
+
+    protected override string BranchLinkSuffix(string branchName) => string.Empty;
+
+    protected override void Dispose(bool isDisposing)
     {
         AzureDevOpsClient.Dispose();
     }
 
-    private protected async Task<IReadOnlyCollection<RepositoryBranch>> FindAllLongTermBranchs(string repositoryId, CancellationToken cancellationToken)
+    protected override async Task<IEnumerable<Repository>> GetRepositoriesAsync(CancellationToken cancellationToken) => await AzureDevOpsClient.ListRepositoriesAsync(cancellationToken);
+
+    protected override bool IsNotArchived(Repository repository) => !repository.IsDisabled && !repository.IsInMaintenance;
+
+    private async Task<IReadOnlyCollection<RepositoryBranch>> FindAllLongTermBranchs(string repositoryId, CancellationToken cancellationToken)
     {
         var branches = await AzureDevOpsClient.ListRepositoryBranchsAsync(repositoryId, cancellationToken);
         return branches.Where(b => Scanner.Constants.Git.ValidBranches.Contains(b.Name.Split('/')[^1])).ToArray();
@@ -101,7 +92,7 @@ internal class AzureDevOpsScanner(TrackedApplication trackedApplication, IMediat
                 }
 
                 var downloadedFiles = await DownloadFilesAsync(repository, branch, moduleFilesMetadata, cancellationToken);
-                var moduleParser = moduleParsers.FirstOrDefault(mp => Array.TrueForAll(downloadedFiles, f => mp.CanParse(f.Content)));
+                var moduleParser = ModuleParsers.FirstOrDefault(mp => Array.TrueForAll(downloadedFiles, f => mp.CanParse(f.Content)));
                 if (moduleParser is null)
                 {
                     return null;
@@ -113,7 +104,7 @@ internal class AzureDevOpsScanner(TrackedApplication trackedApplication, IMediat
                 var branchName = branch.Name.Split('/')[^1];
                 var lastCommitDate = await AzureDevOpsClient.GetLastCommitAsync(repository.Id, branchName, cancellationToken);
 
-                applicationBranchs.Add(ApplicationBranch.From(branchName, branch.Url, modules, lastCommitDate));
+                applicationBranchs.Add(ApplicationBranch.From(branchName, branch.Url + BranchLinkSuffix(branch.Name), modules, lastCommitDate));
             }
 
             if (applicationBranchs.Count == 0)
@@ -133,7 +124,7 @@ internal class AzureDevOpsScanner(TrackedApplication trackedApplication, IMediat
         }
         catch (Exception ex)
         {
-            logger.LogWarning("Application {ApplicationName} skipped because of {ExceptionType} : {ExceptionMessage}.", repository.Name, ex.GetType().Name, ex.Message);
+            Logger.LogWarning("Application {ApplicationName} skipped because of {ExceptionType} : {ExceptionMessage}.", repository.Name, ex.GetType().Name, ex.Message);
         }
 
         return null;
@@ -148,6 +139,6 @@ internal class AzureDevOpsScanner(TrackedApplication trackedApplication, IMediat
 
     private IEnumerable<Model.File> FindModuleFiles(IEnumerable<Model.File> files)
     {
-        return files.Where(f => moduleParsers.Any(p => p.IsModuleFile(f.RelativePath)));
+        return files.Where(f => ModuleParsers.Any(p => p.IsModuleFile(f.RelativePath)));
     }
 }
