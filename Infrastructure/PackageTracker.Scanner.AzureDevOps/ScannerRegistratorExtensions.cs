@@ -14,8 +14,7 @@ public static class ScannerRegistratorExtensions
             var settings = sp.GetRequiredService<IOptions<ScannerSettings>>();
             var loggerFactory = sp.GetRequiredService<ILoggerFactory>();
             var mediator = sp.GetRequiredService<IMediator>();
-            var trackedApplication = settings.Value.Applications.SingleOrDefault(s => s.ScannerName.Equals(trackerName, StringComparison.OrdinalIgnoreCase))
-            ?? throw new UnknownScannerException();
+            var trackedApplication = settings.Value.Applications.SingleOrDefault(s => s.ScannerName.Equals(trackerName, StringComparison.OrdinalIgnoreCase)) ?? throw new UnknownScannerException();
             var parsers = sp.GetRequiredService<IEnumerable<IApplicationModuleParser>>();
             return new AzureDevOpsScanner(trackedApplication, mediator, parsers, loggerFactory.CreateLogger<AzureDevOpsScanner>(), settings.Value);
         });

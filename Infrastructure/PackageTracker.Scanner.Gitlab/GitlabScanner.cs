@@ -19,7 +19,11 @@ internal class GitlabScanner(TrackedApplication trackedApplication, IEnumerable<
 {
     private static readonly TimeSpan DefaultTokenExpirationWarningThreshold = TimeSpan.FromDays(7);
 
-    private readonly GitLabClient GitLabClient = new(trackedApplication.RepositoryRootLink, trackedApplication.AccessToken);
+    private readonly GitLabClient gitLabClient = new(trackedApplication.RepositoryRootLink, trackedApplication.AccessToken);
+
+    private readonly TimeSpan tokenExpirationWarningThreshold = trackedApplication.TokenExpirationWarningThreshold ?? DefaultTokenExpirationWarningThreshold;
+
+    private readonly int maximumConcurrencyCalls = trackedApplication.MaximumConcurrencyCalls;
 
     private HttpClient? httpClient;
     private HttpClient HttpClient
@@ -36,16 +40,12 @@ internal class GitlabScanner(TrackedApplication trackedApplication, IEnumerable<
         }
     }
 
-    private TimeSpan TokenExpirationWarningThreshold => trackedApplication.TokenExpirationWarningThreshold ?? DefaultTokenExpirationWarningThreshold;
-
-    private int MaximumConcurrencyCalls => trackedApplication.MaximumConcurrencyCalls;
-
     public async Task<IReadOnlyCollection<Application>> FindDeadLinksAsync(CancellationToken cancellationToken)
     {
         var response = await mediator.Send(new GetApplicationsQuery { SearchCriteria = new ApplicationSearchCriteria { RepositoryTypes = [RepositoryType.Gitlab], ShowDeadLink = true } }, cancellationToken);
         var localApplications = response.Applications;
 
-        var projects = await GitLabClient.Projects.GetAsync(opt => { });
+        var projects = await gitLabClient.Projects.GetAsync(opt => { });
         var remoteApplications = projects.Where(p => !p.Archived).Select(project => new UntypedApplication { Name = project.Name, Path = project.Namespace.FullPath.Replace("/", ">"), RepositoryLink = project.HttpUrlToRepo.Replace(".git", "/"), Branchs = [] }).ToArray();
 
         var comparer = new ApplicationBasicComparer();
@@ -64,8 +64,8 @@ internal class GitlabScanner(TrackedApplication trackedApplication, IEnumerable<
         CheckTokenExpirationWarning(tokenLifeSpan);
 
         var applications = new ConcurrentBag<Application>();
-        var projects = await GitLabClient.Projects.GetAsync(opt => { });
-        using var semaphore = new SemaphoreSlim(MaximumConcurrencyCalls, MaximumConcurrencyCalls);
+        var projects = await gitLabClient.Projects.GetAsync(opt => { });
+        using var semaphore = new SemaphoreSlim(maximumConcurrencyCalls, maximumConcurrencyCalls);
         try
         {
             await Parallel.ForEachAsync(projects.Where<Project>(p => !p.Archived), cancellationToken, async (project, cancellationToken) =>
@@ -168,7 +168,7 @@ internal class GitlabScanner(TrackedApplication trackedApplication, IEnumerable<
 
     private void CheckTokenExpirationWarning(TimeSpan tokenLifeSpan)
     {
-        if (tokenLifeSpan < TokenExpirationWarningThreshold)
+        if (tokenLifeSpan < tokenExpirationWarningThreshold)
         {
             logger.LogWarning("Token is expiring soon : {TokenLifeSpan}", tokenLifeSpan.ToString(@"dd\:hh\:mm\:ss"));
         }
@@ -179,15 +179,15 @@ internal class GitlabScanner(TrackedApplication trackedApplication, IEnumerable<
 
     private async Task<IReadOnlyCollection<File>> FindModuleFiles(int projectId, string branchName)
     {
-        var tree = await GitLabClient.Trees.GetAsync(projectId, o => { o.Recursive = true; o.Reference = branchName; });
+        var tree = await gitLabClient.Trees.GetAsync(projectId, o => { o.Recursive = true; o.Reference = branchName; });
         var fileHeaders = tree.Where(f => moduleParsers.Any(p => p.IsModuleFile(f.Path)));
-        var filesTask = fileHeaders.Select(fh => GitLabClient.Files.GetAsync(projectId, fh.Path, branchName));
+        var filesTask = fileHeaders.Select(fh => gitLabClient.Files.GetAsync(projectId, fh.Path, branchName));
         return await Task.WhenAll(filesTask);
     }
 
     private async Task<IReadOnlyCollection<Branch>> FindAllLongTermBranchs(int projectId)
     {
-        var branches = await GitLabClient.Branches.GetAsync(projectId, o => { });
+        var branches = await gitLabClient.Branches.GetAsync(projectId, o => { });
         var branchsNames = branches.Select(b => b.Name).Intersect(Constants.Git.ValidBranches);
         return branches.Where(b => branchsNames.Contains(b.Name)).ToArray();
     }
