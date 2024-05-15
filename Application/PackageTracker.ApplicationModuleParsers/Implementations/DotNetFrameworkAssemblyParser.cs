@@ -4,7 +4,7 @@ using PackageTracker.Domain.Package;
 using System.Xml.Linq;
 
 namespace PackageTracker.ApplicationModuleParsers;
-internal class DotNetFrameworkAssemblyParser(IPackagesRepository packagesRepository, ILogger<DotNetAssemblyParser> logger) : ApplicationModuleParser<DotNetAssembly>(packagesRepository, logger)
+internal class DotNetFrameworkAssemblyParser(IPackagesRepository packagesRepository, ILogger<DotNetAssemblyParser> logger) : ApplicationModuleParser(packagesRepository, logger)
 {
     public override bool CanParse(string fileContent)
     {
@@ -30,7 +30,10 @@ internal class DotNetFrameworkAssemblyParser(IPackagesRepository packagesReposit
         }
     }
 
-    public override async Task<DotNetAssembly> ParseModuleAsync(string fileContent, string fileName, CancellationToken cancellationToken)
+    public override bool IsModuleFile(string fileAbsolutePath)
+    => fileAbsolutePath.EndsWith(".csproj", StringComparison.OrdinalIgnoreCase);
+
+    public override async Task<ApplicationModule> ParseModuleAsync(string fileContent, string fileName, CancellationToken cancellationToken)
     {
         var projectPosition = fileContent.IndexOf("<Project");
         var cleanFileContent = fileContent[projectPosition..].Trim();

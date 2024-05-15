@@ -5,7 +5,7 @@ using PackageTracker.Domain.Package.Model;
 using System.Xml.Linq;
 
 namespace PackageTracker.ApplicationModuleParsers;
-internal class JavaModuleParser(IPackagesRepository packagesRepository, ILogger<JavaModuleParser> logger) : ApplicationModuleParser<JavaModule>(packagesRepository, logger)
+internal class JavaModuleParser(IPackagesRepository packagesRepository, ILogger<JavaModuleParser> logger) : ApplicationModuleParser(packagesRepository, logger)
 {
     public override bool CanParse(string fileContent)
     {
@@ -31,7 +31,10 @@ internal class JavaModuleParser(IPackagesRepository packagesRepository, ILogger<
         }
     }
 
-    public override async Task<JavaModule> ParseModuleAsync(string fileContent, string fileName, CancellationToken cancellationToken)
+    public override bool IsModuleFile(string fileAbsolutePath)
+    => fileAbsolutePath.EndsWith("pom.xml", StringComparison.OrdinalIgnoreCase);
+
+    public override async Task<ApplicationModule> ParseModuleAsync(string fileContent, string fileName, CancellationToken cancellationToken)
     {
         var cleanFileContent = fileContent.Trim();
         var pomFileRootNode = XElement.Parse(cleanFileContent);

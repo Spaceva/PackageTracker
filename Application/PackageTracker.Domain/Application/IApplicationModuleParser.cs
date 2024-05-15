@@ -2,9 +2,11 @@
 
 namespace PackageTracker.Domain.Application;
 
-public interface IApplicationModuleParser<TApplicationModule> where TApplicationModule : ApplicationModule
+public interface IApplicationModuleParser
 {
-    Task<TApplicationModule> ParseModuleAsync(string fileContent, string fileName, CancellationToken cancellationToken);
-
     bool CanParse(string fileContent);
+
+    bool IsModuleFile(string fileAbsolutePath);
+
+    Task<ApplicationModule> ParseModuleAsync(string fileContent, string fileName, CancellationToken cancellationToken);
 }

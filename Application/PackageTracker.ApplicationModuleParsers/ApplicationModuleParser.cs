@@ -7,11 +7,13 @@ using PackageTracker.Domain.Package.Model;
 
 namespace PackageTracker.ApplicationModuleParsers;
 
-internal abstract class ApplicationModuleParser<TApplicationModule>(IPackagesRepository packagesRepository, ILogger logger) : IApplicationModuleParser<TApplicationModule> where TApplicationModule : ApplicationModule
+internal abstract class ApplicationModuleParser(IPackagesRepository packagesRepository, ILogger logger) : IApplicationModuleParser
 {
     public abstract bool CanParse(string fileContent);
 
-    public abstract Task<TApplicationModule> ParseModuleAsync(string fileContent, string fileName, CancellationToken cancellationToken);
+    public abstract bool IsModuleFile(string fileAbsolutePath);
+
+    public abstract Task<ApplicationModule> ParseModuleAsync(string fileContent, string fileName, CancellationToken cancellationToken);
 
     protected async Task<ApplicationPackage> ApplicationPackage(string name, string version, CancellationToken cancellationToken)
     {

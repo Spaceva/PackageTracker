@@ -9,9 +9,15 @@ public static class ServiceCollectionExtensions
 {
     public static IScannerRegistrator AddScanner(this IServiceCollection services, IConfiguration configuration)
     {
+        var scannerConfigurationSection = configuration.GetRequiredSection("Scanner");
+
+        var scannerSettings = scannerConfigurationSection.Get<ScannerSettings>();
+
+        ArgumentNullException.ThrowIfNull(scannerSettings);
+
         services.AddScopedBackgroundService<ScannerBackgroundService>();
 
-        services.Configure<ScannerSettings>(configuration.GetSection("Scanner"));
+        services.Configure<ScannerSettings>(scannerConfigurationSection);
 
         return new ScannerRegistrator(services);
     }
