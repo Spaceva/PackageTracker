@@ -1,6 +1,7 @@
 ﻿using GitLabApiClient;
 using GitLabApiClient.Models.Branches.Responses;
 using GitLabApiClient.Models.Projects.Responses;
+using GitLabApiClient.Models.Users.Responses;
 using MediatR;
 using Microsoft.Extensions.Logging;
 using PackageTracker.Domain.Application;
@@ -15,16 +16,34 @@ namespace PackageTracker.Scanner.Gitlab;
 internal class GitlabScanner(TrackedApplication trackedApplication, IEnumerable<IApplicationModuleParser> moduleParsers, ILogger logger, IMediator mediator)
     : BaseScanner<Project>(trackedApplication, moduleParsers, logger, mediator)
 {
+    private const string PUBLIC_HOST = "https://gitlab.com";
+
     private static readonly TimeSpan DefaultTokenExpirationWarningThreshold = TimeSpan.FromDays(7);
 
     private TimeSpan TokenExpirationWarningThreshold => TrackedApplication.TokenExpirationWarningThreshold ?? DefaultTokenExpirationWarningThreshold;
+
+    private string? userName;
 
     private GitLabClient? gitLabClient;
     private GitLabClient GitLabClient
     {
         get
         {
-            gitLabClient ??= new(TrackedApplication.RepositoryRootLink, TrackedApplication.AccessToken);
+            if (gitLabClient is null)
+            {
+                if (TrackedApplication.RepositoryRootLink.StartsWith(PUBLIC_HOST))
+                {
+                    gitLabClient = new(PUBLIC_HOST, TrackedApplication.AccessToken);
+                    var uri = new Uri(TrackedApplication.RepositoryRootLink);
+                    userName = uri.LocalPath.Replace("/", string.Empty);
+                }
+                else
+                {
+                    gitLabClient = new(TrackedApplication.RepositoryRootLink, TrackedApplication.AccessToken);
+                    userName = string.Empty;
+                }
+            }
+
             return gitLabClient;
         }
     }
@@ -71,7 +90,17 @@ internal class GitlabScanner(TrackedApplication trackedApplication, IEnumerable<
         HttpClient.Dispose();
     }
 
-    protected override async Task<IEnumerable<Project>> GetRepositoriesAsync(CancellationToken cancellationToken) => await GitLabClient.Projects.GetAsync(opt => { });
+    protected override async Task<IEnumerable<Project>> GetRepositoriesAsync(CancellationToken cancellationToken)
+        => await GitLabClient.Projects.GetAsync(opt =>
+         {
+             opt.Simple = true;
+             if (string.IsNullOrWhiteSpace(userName))
+             {
+                 return;
+             }
+
+             opt.UserId = userName;
+         });
 
     protected override bool IsNotArchived(Project repository) => !repository.Archived;
 
