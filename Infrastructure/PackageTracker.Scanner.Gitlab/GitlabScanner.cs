@@ -1,7 +1,6 @@
 ﻿using GitLabApiClient;
 using GitLabApiClient.Models.Branches.Responses;
 using GitLabApiClient.Models.Projects.Responses;
-using GitLabApiClient.Models.Users.Responses;
 using MediatR;
 using Microsoft.Extensions.Logging;
 using PackageTracker.Domain.Application;

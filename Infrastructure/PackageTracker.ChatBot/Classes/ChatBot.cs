@@ -329,7 +329,7 @@ public abstract class ChatBot(IServiceProvider serviceProvider) : IChatBot
         if (splitSpace.Length >= 1 && (splitSpace[0].Contains("@" + BotName, StringComparison.InvariantCultureIgnoreCase) || !splitSpace[0].Contains('@')))
         {
             var command = splitSpace[0].Replace("@" + BotName, "")[CommandStarterChar.Length..];
-            var commandArgs = splitSpace.Length > 1 ? splitSpace.Skip(1).ToArray() : Array.Empty<string>();
+            var commandArgs = splitSpace.Length > 1 ? splitSpace.Skip(1).ToArray() : [];
             if (commandArgs.Length > 0)
             {
                 var args = string.Join(";", commandArgs);
