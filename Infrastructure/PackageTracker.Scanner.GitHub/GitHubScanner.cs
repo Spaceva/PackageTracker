@@ -14,7 +14,7 @@ internal class GitHubScanner(Func<IGitHubClient, string, Task<IReadOnlyList<Repo
 {
     private const string GITHUB_MAIN_HOST = "https://github.com/";
 
-    private readonly IGitHubClient gitHubClient = new GitHubClient(new ProductHeaderValue($"PackageTracker-Scanner-{trackedApplication.ScannerName}")) { Credentials = new Credentials(trackedApplication.AccessToken), };
+    private readonly IGitHubClient gitHubClient = new GitHubClient(new ProductHeaderValue($"PackageTracker-Scanner-{trackedApplication.ScannerType}")) { Credentials = new Credentials(trackedApplication.AccessToken), };
 
     protected override RepositoryType RepositoryType => RepositoryType.GitHub;
 

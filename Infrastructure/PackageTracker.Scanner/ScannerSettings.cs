@@ -13,7 +13,7 @@ public class ScannerSettings : IRepeatedBackgroundSettings, IHttpProxy
 
     public class TrackedApplication
     {
-        public string ScannerName { get; init; } = default!;
+        public string ScannerType { get; init; } = default!;
 
         public string RepositoryRootLink { get; init; } = default!;
 

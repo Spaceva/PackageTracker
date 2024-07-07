@@ -1,13 +1,15 @@
-﻿using Microsoft.Extensions.Configuration;
+﻿using MediatR;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using PackageTracker.Domain.Application;
 using PackageTracker.Infrastructure.BackgroundServices;
 
 namespace PackageTracker.Scanner;
 
 public static class ServiceCollectionExtensions
 {
-    public static IScannerRegistrator AddScanner(this IServiceCollection services, IConfiguration configuration)
+    public static IServiceCollection AddApplicationsScanner(this IServiceCollection services, IConfiguration configuration)
     {
         var scannerConfigurationSection = configuration.GetRequiredSection("Scanner");
 
@@ -19,10 +21,21 @@ public static class ServiceCollectionExtensions
 
         services.Configure<ScannerSettings>(scannerConfigurationSection);
 
-        return new ScannerRegistrator(services);
+        foreach (var trackedApplication in scannerSettings.Applications)
+        {
+            services.AddScoped(sp =>
+            {
+                var mediator = sp.GetRequiredService<IMediator>();
+                var parsers = sp.GetServices<IApplicationModuleParser>();
+                var registrator = sp.GetRequiredKeyedService<IScannerRegistrator>(trackedApplication.ScannerType);
+                return registrator.Register(sp, scannerSettings, trackedApplication, parsers, mediator);
+            });
+        }
+
+        return services;
     }
 
-    public static IConfigurationBuilder AddScannerConfiguration(this IConfigurationBuilder configuration, IHostEnvironment environment)
+    public static IConfigurationBuilder AddApplicationScannerConfiguration(this IConfigurationBuilder configuration, IHostEnvironment environment)
      => configuration.AddJsonFile("scanner.json", optional: true, reloadOnChange: true)
                      .AddJsonFile($"scanner.{environment.EnvironmentName}.json", optional: true, reloadOnChange: true);
 }

@@ -4,7 +4,7 @@ Track your favorites packages releases and pre-releases.
 
 # Setup
 ## Application Global Settings
-Use the `appsettings.json` configuration file to setup your database and qwactivate modules.
+Use the `appsettings.json` configuration file to setup your database and activate modules.
 ``` json
 {
   "AllowedHosts": "*",
@@ -108,25 +108,25 @@ Use the `scanner.json` configuration file.
     "TimeBetweenEachExecution": "HH:MM:SS",
     "Applications": [
       {
-        "ScannerName": "MyCustomAngularGitlab",
+        "ScannerType": "Gitlab",
         "RepositoryRootLink": "https://gitlab.custom.fr/",
         "AccessToken": "TOKEN_HERE",
         "TokenExpirationWarningThreshold": "DD:HH:MM:SS",
         "MaximumConcurrencyCalls": 10
       },
       {
-        "ScannerName": "MyCustomAzureDevops",
+        "ScannerType": "AzureDevops",
         "RepositoryRootLink": "https://custom.visualstudio.com/",
         "AccessToken": "TOKEN_HERE"
       },
       {
-        "ScannerName": "MyCustomGitHubOrganization",
+        "ScannerType": "GitHubOrganization",
         "RepositoryRootLink": "https://github.com/MyOrganizationName",
         "AccessToken": "TOKEN_HERE",
         "MaximumConcurrencyCalls": 10
       },
       {
-        "ScannerName": "MyCustomGitHubUser",
+        "ScannerType": "GitHubUser",
         "RepositoryRootLink": "https://github.com/UserName",
         "AccessToken": "TOKEN_HERE",
         "MaximumConcurrencyCalls": 10
@@ -135,6 +135,8 @@ Use the `scanner.json` configuration file.
   }
 }
 ```
+
+`Scanner > Applications[] > ScannerType` value can be in the following : [`Gitlab`,`AzureDevops`,`GitHubOrganization`,`GitHubUser`].
 
 ### Confluence Export
 Confluence exporting

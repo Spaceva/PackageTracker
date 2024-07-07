@@ -15,7 +15,7 @@ internal static class ConfigurationRegistrator
         configuration.AddJsonFile("logging.json", optional: true, reloadOnChange: true)
                         .AddJsonFile($"logging.{environment.EnvironmentName}.json", optional: true, reloadOnChange: true)
                         .AddFetcherConfiguration(environment)
-                        .AddScannerConfiguration(environment)
+                        .AddApplicationScannerConfiguration(environment)
                         .AddMonitorConfiguration(environment)
                         .AddConfluenceConfiguration(environment)
                         .AddDiscordConfiguration(environment)

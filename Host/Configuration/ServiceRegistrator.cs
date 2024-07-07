@@ -12,6 +12,9 @@ using PackageTracker.Presentation.WebApi;
 using PackageTracker.Presentation.MVCApp;
 using PackageTracker.Presentation.ExceptionHandlers;
 using PackageTracker.ChatBot.Discord.Notifications;
+using PackageTracker.Scanner.AzureDevOps;
+using PackageTracker.Scanner.GitHub;
+using PackageTracker.Scanner.Gitlab;
 
 namespace PackageTracker.Host.Configuration;
 internal static class ServiceRegistrator
@@ -67,8 +70,10 @@ internal static class ServiceRegistrator
 
         if (modules.GetValue<bool>("Scanner"))
         {
-            services.AddScanner(configuration);
-            // Add your scanner registrations here
+            services.AddApplicationsScanner(configuration)
+                    .AddAzureDevOps()
+                    .AddGitHub()
+                    .AddGitlab();
         }
 
         if (modules.GetValue<bool>("Monitor"))
@@ -76,7 +81,6 @@ internal static class ServiceRegistrator
             services.AddMonitor(configuration)
                     .AddGitHubMonitors()
                     .AddEndOfLifeMonitors();
-            // Add your monitor registrations here
         }
 
         if (modules.GetValue<bool>("ConfluenceExport"))
