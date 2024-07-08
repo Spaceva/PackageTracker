@@ -65,7 +65,6 @@ internal static class ServiceRegistrator
         {
             services.AddFetcher(configuration)
                     .AddPublicRegistriesFetchers();
-            // Add your fetcher registrations here
         }
 
         if (modules.GetValue<bool>("Scanner"))

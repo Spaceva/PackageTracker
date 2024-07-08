@@ -100,6 +100,12 @@ internal static class ApplicationDetailViewModelMapper
             return (frameworkVersion, PackageType.Npm.ToString());
         }
 
+        if (module is ReactModule reactModule)
+        {
+            var frameworkVersion = $"React v{reactModule.FrameworkVersion}";
+            return (frameworkVersion, PackageType.Npm.ToString());
+        }
+
         if (module is DotNetAssembly dotNetAssembly)
         {
             var frameworkVersion = $".NET {dotNetAssembly.FrameworkVersion}";

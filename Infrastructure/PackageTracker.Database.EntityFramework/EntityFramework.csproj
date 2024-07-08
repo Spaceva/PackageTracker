@@ -19,6 +19,7 @@
 
 	<ItemGroup>
 		<ProjectReference Include="..\..\Application\PackageTracker.Domain\Domain.csproj" />
+		<ProjectReference Include="..\PackageTracker.Database.Common\Common.csproj" />
 		<ProjectReference Include="..\PackageTracker.Database.MemoryCache\MemoryCache.csproj" />
 	</ItemGroup>
 

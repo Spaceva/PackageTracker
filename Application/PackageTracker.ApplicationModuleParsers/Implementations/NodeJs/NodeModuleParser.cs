@@ -6,15 +6,17 @@ using Microsoft.Extensions.Logging;
 
 namespace PackageTracker.ApplicationModuleParsers;
 
-internal class AngularModuleParser(IPackagesRepository packagesRepository, ILogger<AngularModuleParser> logger) : ApplicationModuleParser(packagesRepository, logger)
+internal abstract class NodeModuleParser(IPackagesRepository packagesRepository, ILogger logger) : ApplicationModuleParser(packagesRepository, logger)
 {
+    protected abstract string FrameworkPackageName { get; }
+
     public override bool CanParse(string fileContent)
     {
         try
         {
             var jsonObject = JsonNode.Parse(fileContent, new JsonNodeOptions { PropertyNameCaseInsensitive = true }, new JsonDocumentOptions { AllowTrailingCommas = true }) ?? throw new JsonException("Parsing failed.");
             var librairiesProperties = Dependencies(jsonObject);
-            return Array.Exists(librairiesProperties, l => l.Name == Constants.Application.Angular.VersionPropertyName);
+            return Array.Exists(librairiesProperties, l => l.Name == FrameworkPackageName);
         }
         catch (Exception)
         {
@@ -30,20 +32,22 @@ internal class AngularModuleParser(IPackagesRepository packagesRepository, ILogg
     public override async Task<ApplicationModule> ParseModuleAsync(string fileContent, string fileName, CancellationToken cancellationToken)
     {
         var jsonObject = JsonNode.Parse(fileContent, new JsonNodeOptions { PropertyNameCaseInsensitive = true }, new JsonDocumentOptions { AllowTrailingCommas = true }) ?? throw new JsonException("Parsing failed.");
-        var moduleName = jsonObject[Constants.Application.Angular.NameProperty]?.AsValue()?.GetValue<string>() ?? fileName;
+        var moduleName = jsonObject[Constants.Application.NodeJs.NameProperty]?.AsValue()?.GetValue<string>() ?? fileName;
         var dependencies = Dependencies(jsonObject);
 
-        var angularVersion = dependencies.SingleOrDefault(l => l.Name == Constants.Application.Angular.VersionPropertyName).Version ?? throw new JsonException("Missing Angular package");
+        var frameworkVersion = dependencies.SingleOrDefault(l => l.Name == FrameworkPackageName).Version ?? throw new JsonException($"Missing {FrameworkPackageName} package.");
         var packagesTask = dependencies.Select(l => ApplicationPackage(l.Name, l.Version, cancellationToken));
         var packages = await Task.WhenAll(packagesTask);
 
-        return new AngularModule { Name = moduleName, FrameworkVersion = angularVersion, Packages = packages };
+        return ApplicationModule(moduleName, frameworkVersion, packages ?? []);
     }
+
+    protected abstract ApplicationModule ApplicationModule(string moduleName, string frameworkVersion, ApplicationPackage[] packages);
 
     private static (string Name, string Version)[] Dependencies(JsonNode jsonObject)
     {
-        var dependencies = jsonObject[Constants.Application.Angular.PackagesProperty]?.AsObject() ?? [];
-        var devDependencies = jsonObject[Constants.Application.Angular.DevPackagesProperty]?.AsObject() ?? [];
+        var dependencies = jsonObject[Constants.Application.NodeJs.PackagesProperty]?.AsObject() ?? [];
+        var devDependencies = jsonObject[Constants.Application.NodeJs.DevPackagesProperty]?.AsObject() ?? [];
 
         return dependencies
                 .Union(devDependencies)

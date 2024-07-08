@@ -90,7 +90,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Notifications", "Infrastruc
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Telegram", "Telegram", "{44CB802C-F850-44B2-BF59-8A4B9D784A8C}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Telegram", "Infrastructure\PackageTracker.ChatBot.Telegram\Telegram.csproj", "{476075DF-60C7-4E8B-B881-6FEA10029E59}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Telegram", "Infrastructure\PackageTracker.ChatBot.Telegram\Telegram.csproj", "{476075DF-60C7-4E8B-B881-6FEA10029E59}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Common", "Infrastructure\PackageTracker.Database.Common\Common.csproj", "{513228AC-DB71-4369-AB5B-1F593740F73C}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -202,6 +204,10 @@ Global
 		{476075DF-60C7-4E8B-B881-6FEA10029E59}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{476075DF-60C7-4E8B-B881-6FEA10029E59}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{476075DF-60C7-4E8B-B881-6FEA10029E59}.Release|Any CPU.Build.0 = Release|Any CPU
+		{513228AC-DB71-4369-AB5B-1F593740F73C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{513228AC-DB71-4369-AB5B-1F593740F73C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{513228AC-DB71-4369-AB5B-1F593740F73C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{513228AC-DB71-4369-AB5B-1F593740F73C}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -244,6 +250,7 @@ Global
 		{5070D09C-D581-46A4-BABB-8A25B540897B} = {1A56B625-7729-416B-ABBE-F634A1689FEF}
 		{44CB802C-F850-44B2-BF59-8A4B9D784A8C} = {1A56B625-7729-416B-ABBE-F634A1689FEF}
 		{476075DF-60C7-4E8B-B881-6FEA10029E59} = {44CB802C-F850-44B2-BF59-8A4B9D784A8C}
+		{513228AC-DB71-4369-AB5B-1F593740F73C} = {E0EDD194-1949-4936-BA97-075826BD9B9E}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {88515F1C-4F05-443B-A5A5-6F0DED2BF9AB}

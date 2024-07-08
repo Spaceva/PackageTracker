@@ -30,6 +30,7 @@ public static class ApplicationTypeExtensions
             ApplicationType.Php => typeof(PhpApplication),
             ApplicationType.Java => typeof(JavaApplication),
             ApplicationType.DotNet => typeof(DotNetApplication),
+            ApplicationType.React => typeof(ReactApplication),
             _ => throw new ArgumentOutOfRangeException(nameof(applicationType))
         };
     }
@@ -42,6 +43,7 @@ public static class ApplicationTypeExtensions
             ApplicationType.Php => typeof(PhpApplicationBranch),
             ApplicationType.Java => typeof(JavaApplicationBranch),
             ApplicationType.DotNet => typeof(DotNetApplicationBranch),
+            ApplicationType.React => typeof(ReactApplicationBranch),
             _ => throw new ArgumentOutOfRangeException(nameof(applicationType))
         };
     }
@@ -54,6 +56,7 @@ public static class ApplicationTypeExtensions
             ApplicationType.Php => typeof(PhpModule),
             ApplicationType.Java => typeof(JavaModule),
             ApplicationType.DotNet => typeof(DotNetAssembly),
+            ApplicationType.React => typeof(ReactModule),
             _ => throw new ArgumentOutOfRangeException(nameof(applicationType))
         };
     }
@@ -66,6 +69,7 @@ public static class ApplicationTypeExtensions
             nameof(PhpApplication) => ApplicationType.Php,
             nameof(JavaApplication) => ApplicationType.Java,
             nameof(DotNetApplication) => ApplicationType.DotNet,
+            nameof(ReactApplication) => ApplicationType.React,
             _ => throw new ArgumentOutOfRangeException(nameof(type)),
         };
     }
@@ -78,6 +82,7 @@ public static class ApplicationTypeExtensions
             nameof(PhpApplicationBranch) => ApplicationType.Php,
             nameof(JavaApplicationBranch) => ApplicationType.Java,
             nameof(DotNetApplicationBranch) => ApplicationType.DotNet,
+            nameof(ReactApplicationBranch) => ApplicationType.DotNet,
             _ => throw new ArgumentOutOfRangeException(nameof(type)),
         };
     }
@@ -90,6 +95,7 @@ public static class ApplicationTypeExtensions
             nameof(PhpModule) => ApplicationType.Php,
             nameof(JavaModule) => ApplicationType.Java,
             nameof(DotNetAssembly) => ApplicationType.DotNet,
+            nameof(ReactApplication) => ApplicationType.React,
             _ => throw new ArgumentOutOfRangeException(nameof(type)),
         };
     }

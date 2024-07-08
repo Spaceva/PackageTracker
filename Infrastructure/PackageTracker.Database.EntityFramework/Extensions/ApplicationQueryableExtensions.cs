@@ -58,6 +58,10 @@ internal static class ApplicationQueryableExtensions
         {
             applicationTypesFilters.Add(x => x is JavaApplication);
         }
+        if (searchCriteria.Contains(ApplicationType.React))
+        {
+            applicationTypesFilters.Add(x => x is ReactApplication);
+        }
         var applicationTypesFilter = applicationTypesFilters.CombineOr();
 
         return query.Where(app => applicationTypesFilter(app));

@@ -20,12 +20,13 @@ internal static partial class Constants
             public const string XMLLibraryVersionSubAttribute = "Version";
         }
 
-        public static class Angular
+        public static class NodeJs
         {
             public const string NameProperty = "name";
             public const string PackagesProperty = "dependencies";
             public const string DevPackagesProperty = "devDependencies";
-            public const string VersionPropertyName = "@angular/cli";
+            public const string AngularVersionPropertyName = "@angular/cli";
+            public const string ReactVersionPropertyName = "@angular/cli";
         }
 
         public static class Php

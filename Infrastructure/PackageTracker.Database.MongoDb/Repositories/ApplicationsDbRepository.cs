@@ -47,7 +47,7 @@ internal class ApplicationsDbRepository([FromKeyedServices(MemoryCache.Constants
         }
         else
         {
-            var enricher = new ApplicationWithCacheEnricher(packagesRepository, frameworksRepository);
+            var enricher = new Common.Enrichers.ApplicationWithCacheEnricher(packagesRepository, frameworksRepository);
             await enricher.EnrichApplicationsAsync(applications, cancellationToken);
         }
 
@@ -71,7 +71,7 @@ internal class ApplicationsDbRepository([FromKeyedServices(MemoryCache.Constants
         }
         else
         {
-            var enricher = new ApplicationWithCacheEnricher(packagesRepository, frameworksRepository);
+            var enricher = new Common.Enrichers.ApplicationWithCacheEnricher(packagesRepository, frameworksRepository);
             await enricher.EnrichApplicationAsync(application, cancellationToken);
         }
 

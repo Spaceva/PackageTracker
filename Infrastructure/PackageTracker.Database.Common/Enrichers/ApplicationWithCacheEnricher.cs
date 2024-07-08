@@ -4,8 +4,8 @@ using PackageTracker.Domain.Framework.Model;
 using PackageTracker.Domain.Package;
 using PackageTracker.Domain.Package.Model;
 
-namespace PackageTracker.Database.EntityFramework.Repositories.Enrichers;
-internal class ApplicationWithCacheEnricher(IPackagesRepository packagesRepository, IFrameworkRepository frameworksRepository, bool showOnlyTrackedPackages = false)
+namespace PackageTracker.Database.Common.Enrichers;
+public class ApplicationWithCacheEnricher(IPackagesRepository packagesRepository, IFrameworkRepository frameworksRepository, bool showOnlyTrackedPackages = false)
 {
     public async Task EnrichApplicationsAsync(IEnumerable<Application> applications, CancellationToken cancellationToken)
     {
@@ -66,6 +66,12 @@ internal class ApplicationWithCacheEnricher(IPackagesRepository packagesReposito
         {
             return await frameworksRepository.TryGetByVersionAsync(AngularModule.FrameworkName, angularModule.FrameworkVersion, cancellationToken);
         }
+
+        if (module is ReactModule reactModule)
+        {
+            return await frameworksRepository.TryGetByVersionAsync(ReactModule.FrameworkName, reactModule.FrameworkVersion, cancellationToken);
+        }
+
 
         if (module is PhpModule phpModule)
         {
