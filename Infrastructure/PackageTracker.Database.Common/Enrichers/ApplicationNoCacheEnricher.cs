@@ -3,7 +3,7 @@ using PackageTracker.Domain.Framework.Model;
 using PackageTracker.Domain.Package.Model;
 
 namespace PackageTracker.Database.Common.Enrichers;
-public abstract class ApplicationNoCacheEnricher(bool showOnlyTrackedPackages = false)
+public abstract class ApplicationNoCacheEnricher(bool showOnlyTrackedPackages = false) : IApplicationEnricher
 {
     public async Task EnrichApplicationAsync(Application application, CancellationToken cancellationToken = default)
         => await EnrichApplicationsAsync([application], cancellationToken);

@@ -1,5 +1,6 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using PackageTracker.Database.Common.Enrichers;
 using PackageTracker.Database.MongoDb.Core;
 using PackageTracker.Database.MongoDb.Model;
 using PackageTracker.Database.MongoDb.Repositories.Base;
@@ -14,6 +15,8 @@ using System.Web;
 namespace PackageTracker.Database.MongoDb.Repositories;
 internal class ApplicationsDbRepository([FromKeyedServices(MemoryCache.Constants.SERVICEKEY)] IPackagesRepository? packagesRepository, [FromKeyedServices(MemoryCache.Constants.SERVICEKEY)] IFrameworkRepository? frameworksRepository, MongoDbContext dbContext, ILogger<ApplicationsDbRepository> logger) : BaseDbRepository<ApplicationDbModel>(dbContext, logger), IApplicationsRepository
 {
+    private bool HasCache => packagesRepository is not null && frameworksRepository is not null;
+
     public async Task<bool> ExistsAsync(string name, ApplicationType applicationType, string repositoryLink, CancellationToken cancellationToken = default)
     {
         return await AnyAsync(Filter.Eq(a => a.Name, name) & Filter.Eq(a => a.AppType, applicationType.ToString()) & Filter.Eq(a => a.RepositoryLink, HttpUtility.UrlEncode(repositoryLink)), cancellationToken);
@@ -40,16 +43,8 @@ internal class ApplicationsDbRepository([FromKeyedServices(MemoryCache.Constants
 
         IReadOnlyCollection<Application> applications = [.. results.Select(app => app.ToDomain())];
 
-        if (packagesRepository is null || frameworksRepository is null)
-        {
-            var enricher = new ApplicationNoCacheEnricher(DbContext, searchCriteria.ShowOnlyTracked);
-            await enricher.EnrichApplicationsAsync(applications, cancellationToken);
-        }
-        else
-        {
-            var enricher = new Common.Enrichers.ApplicationWithCacheEnricher(packagesRepository, frameworksRepository);
-            await enricher.EnrichApplicationsAsync(applications, cancellationToken);
-        }
+        IApplicationEnricher enricher = HasCache ? new ApplicationWithCacheEnricher(packagesRepository!, frameworksRepository!, searchCriteria.ShowOnlyTracked) : new Repositories.Enrichers.ApplicationNoCacheEnricher(DbContext, searchCriteria.ShowOnlyTracked);
+        await enricher.EnrichApplicationsAsync(applications, cancellationToken);
 
         return applications;
     }
@@ -64,16 +59,8 @@ internal class ApplicationsDbRepository([FromKeyedServices(MemoryCache.Constants
 
         var application = applicationDb.ToDomain();
 
-        if (packagesRepository is null || frameworksRepository is null)
-        {
-            var enricher = new ApplicationNoCacheEnricher(DbContext);
-            await enricher.EnrichApplicationAsync(application, cancellationToken);
-        }
-        else
-        {
-            var enricher = new Common.Enrichers.ApplicationWithCacheEnricher(packagesRepository, frameworksRepository);
-            await enricher.EnrichApplicationAsync(application, cancellationToken);
-        }
+        IApplicationEnricher enricher = HasCache ? new ApplicationWithCacheEnricher(packagesRepository!, frameworksRepository!) : new Repositories.Enrichers.ApplicationNoCacheEnricher(DbContext);
+        await enricher.EnrichApplicationAsync(application, cancellationToken);
 
         return application;
     }

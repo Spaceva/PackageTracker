@@ -3,16 +3,8 @@ using PackageTracker.Domain.Framework;
 using PackageTracker.Domain.Package;
 
 namespace PackageTracker.Database.Common.Enrichers;
-public class ApplicationWithCacheEnricher(IPackagesRepository packagesRepository, IFrameworkRepository frameworkRepository, bool showOnlyTrackedPackages = false)
+public class ApplicationWithCacheEnricher(IPackagesRepository packagesRepository, IFrameworkRepository frameworkRepository, bool showOnlyTrackedPackages = false) : IApplicationEnricher
 {
-    public async Task EnrichApplicationsAsync(IEnumerable<Application> applications, CancellationToken cancellationToken)
-    {
-        foreach (var application in applications)
-        {
-            await EnrichApplicationAsync(application, cancellationToken);
-        }
-    }
-
     public async Task EnrichApplicationAsync(Application application, CancellationToken cancellationToken = default)
     {
         application.Name = application.Name.Replace($" ({application.Type})", string.Empty);
@@ -39,6 +31,14 @@ public class ApplicationWithCacheEnricher(IPackagesRepository packagesRepository
                     module.Packages = [.. module.Packages.Where(p => p.IsPackageTracked)];
                 }
             }
+        }
+    }
+
+    public async Task EnrichApplicationsAsync(IEnumerable<Application> applications, CancellationToken cancellationToken)
+    {
+        foreach (var application in applications)
+        {
+            await EnrichApplicationAsync(application, cancellationToken);
         }
     }
 }
