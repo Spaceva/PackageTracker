@@ -21,16 +21,16 @@ public abstract class ApplicationNoCacheEnricher(bool showOnlyTrackedPackages = 
 
     protected abstract Task<IDictionary<string, Package>> GetAllPackagesAsync(IReadOnlyCollection<string> packagesName, CancellationToken cancellationToken = default);
 
-    protected abstract Task<IDictionary<(string Name, string Version), Framework>> GetAllFrameworksAsync(CancellationToken cancellationToken);
+    protected abstract Task<IReadOnlyCollection<Framework>> GetAllFrameworksAsync(CancellationToken cancellationToken);
 
-    private void EnrichApplication(Application application, IDictionary<string, Package> packagesByName, IDictionary<(string Name, string Version), Framework> frameworks, CancellationToken cancellationToken = default)
+    private void EnrichApplication(Application application, IDictionary<string, Package> packagesByName, IReadOnlyCollection<Framework> frameworks, CancellationToken cancellationToken = default)
     {
         application.Name = application.Name.Replace($" ({application.Type})", string.Empty);
         foreach (var branch in application.Branchs)
         {
             foreach (var module in branch.Modules)
             {
-                module.Framework = MatchFramework(module, frameworks);
+                module.Framework = module.TryGetFramework(frameworks);
                 foreach (var package in module.Packages)
                 {
                     cancellationToken.ThrowIfCancellationRequested();
@@ -49,37 +49,5 @@ public abstract class ApplicationNoCacheEnricher(bool showOnlyTrackedPackages = 
                 }
             }
         }
-    }
-
-    private static Framework? MatchFramework(ApplicationModule module, IDictionary<(string Name, string Version), Framework> frameworks)
-    {
-        if (module is DotNetAssembly dotNetAssembly)
-        {
-            _ = frameworks.TryGetValue((DotNetAssembly.FrameworkName, dotNetAssembly.FrameworkVersion + ".0"), out var framework)
-                || frameworks.TryGetValue((DotNetAssembly.FrameworkNameLegacy, dotNetAssembly.FrameworkVersion.Replace("Framework", string.Empty).Trim()), out framework)
-                || frameworks.TryGetValue((DotNetAssembly.FrameworkNameStandard, dotNetAssembly.FrameworkVersion.Replace("Standard", string.Empty).Trim()), out framework);
-            return framework;
-        }
-
-        if (module is AngularModule angularModule)
-        {
-            frameworks.TryGetValue((AngularModule.FrameworkName, angularModule.FrameworkVersion), out var framework);
-            return framework;
-        }
-
-        if (module is ReactModule reactModule)
-        {
-            frameworks.TryGetValue((ReactModule.FrameworkName, reactModule.FrameworkVersion), out var framework);
-            return framework;
-        }
-
-        if (module is PhpModule phpModule)
-        {
-            _ = frameworks.TryGetValue((PhpModule.FrameworkName, phpModule.FrameworkVersion), out var framework)
-                || frameworks.TryGetValue((PhpModule.FrameworkName, new PackageVersion(phpModule.FrameworkVersion).ToStringMajorMinor()), out framework);
-            return framework;
-        }
-
-        return null;
     }
 }

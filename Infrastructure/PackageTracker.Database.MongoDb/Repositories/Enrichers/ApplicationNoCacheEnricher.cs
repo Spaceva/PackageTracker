@@ -15,11 +15,10 @@ internal class ApplicationNoCacheEnricher(MongoDbContext dbContext, bool showOnl
         return packages.Select(p => p.ToDomain()).ToDictionary(p => p.Name);
     }
 
-    protected override async Task<IDictionary<(string Name, string Version), Framework>> GetAllFrameworksAsync(CancellationToken cancellationToken)
+    protected override async Task<IReadOnlyCollection<Framework>> GetAllFrameworksAsync(CancellationToken cancellationToken)
     {
         var collection = dbContext.GetCollection<FrameworkDbModel>();
         var frameworksCursor = await collection.FindAsync(Builders<FrameworkDbModel>.Filter.Empty, cancellationToken: cancellationToken);
-        var frameworks = await frameworksCursor.ToListAsync(cancellationToken: cancellationToken);
-        return frameworks.ToDictionary(f => (f.Name, f.Version), f => (Framework)f);
+        return await frameworksCursor.ToListAsync(cancellationToken: cancellationToken);
     }
 }

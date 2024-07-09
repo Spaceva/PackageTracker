@@ -1,11 +1,9 @@
 ﻿using PackageTracker.Domain.Application.Model;
 using PackageTracker.Domain.Framework;
-using PackageTracker.Domain.Framework.Model;
 using PackageTracker.Domain.Package;
-using PackageTracker.Domain.Package.Model;
 
 namespace PackageTracker.Database.Common.Enrichers;
-public class ApplicationWithCacheEnricher(IPackagesRepository packagesRepository, IFrameworkRepository frameworksRepository, bool showOnlyTrackedPackages = false)
+public class ApplicationWithCacheEnricher(IPackagesRepository packagesRepository, IFrameworkRepository frameworkRepository, bool showOnlyTrackedPackages = false)
 {
     public async Task EnrichApplicationsAsync(IEnumerable<Application> applications, CancellationToken cancellationToken)
     {
@@ -22,7 +20,7 @@ public class ApplicationWithCacheEnricher(IPackagesRepository packagesRepository
         {
             foreach (var module in branch.Modules)
             {
-                module.Framework = await MatchFrameworkAsync(module, cancellationToken);
+                module.Framework = await module.TryGetFrameworkAsync(frameworkRepository, cancellationToken);
                 foreach (var package in module.Packages)
                 {
                     cancellationToken.ThrowIfCancellationRequested();
@@ -42,43 +40,5 @@ public class ApplicationWithCacheEnricher(IPackagesRepository packagesRepository
                 }
             }
         }
-    }
-
-    private async Task<Framework?> MatchFrameworkAsync(ApplicationModule module, CancellationToken cancellationToken = default)
-    {
-        if (module is DotNetAssembly dotNetAssembly)
-        {
-            var framework = await frameworksRepository.TryGetByVersionAsync(DotNetAssembly.FrameworkName, dotNetAssembly.FrameworkVersion + ".0", cancellationToken);
-            if (framework is not null)
-            {
-                return framework;
-            }
-            framework = await frameworksRepository.TryGetByVersionAsync(DotNetAssembly.FrameworkNameLegacy, dotNetAssembly.FrameworkVersion.Replace("Framework", string.Empty).Trim(), cancellationToken);
-            if (framework is not null)
-            {
-                return framework;
-            }
-
-            return await frameworksRepository.TryGetByVersionAsync(DotNetAssembly.FrameworkNameStandard, dotNetAssembly.FrameworkVersion.Replace("Standard", string.Empty).Trim(), cancellationToken);
-        }
-
-        if (module is AngularModule angularModule)
-        {
-            return await frameworksRepository.TryGetByVersionAsync(AngularModule.FrameworkName, angularModule.FrameworkVersion, cancellationToken);
-        }
-
-        if (module is ReactModule reactModule)
-        {
-            return await frameworksRepository.TryGetByVersionAsync(ReactModule.FrameworkName, reactModule.FrameworkVersion, cancellationToken);
-        }
-
-
-        if (module is PhpModule phpModule)
-        {
-            return await frameworksRepository.TryGetByVersionAsync(PhpModule.FrameworkName, phpModule.FrameworkVersion, cancellationToken)
-                            ?? await frameworksRepository.TryGetByVersionAsync(PhpModule.FrameworkName, new PackageVersion(phpModule.FrameworkVersion).ToStringMajorMinor(), cancellationToken);
-        }
-
-        return null;
     }
 }

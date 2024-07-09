@@ -11,8 +11,8 @@ internal class ApplicationNoCacheEnricher(PackageTrackerDbContext dbContext, boo
         return await dbContext.Packages.AsNoTracking().Where(p => packagesName.Contains(p.Name)).ToDictionaryAsync(x => x.Name, cancellationToken: cancellationToken);
     }
 
-    protected override async Task<IDictionary<(string Name, string Version), Framework>> GetAllFrameworksAsync(CancellationToken cancellationToken)
+    protected override async Task<IReadOnlyCollection<Framework>> GetAllFrameworksAsync(CancellationToken cancellationToken)
     {
-        return await dbContext.Frameworks.AsNoTracking().ToDictionaryAsync(f => (f.Name, f.Version), cancellationToken);
+        return await dbContext.Frameworks.AsNoTracking().ToArrayAsync(cancellationToken);
     }
 }
