@@ -14,7 +14,7 @@ internal abstract class EndOfLifeFrameworkMonitor : IFrameworkMonitor
     {
         this.framework = framework;
         Logger = logger;
-        HttpClient = HttpClientFactory.Build(httpProxy, Constants.Host);
+        HttpClient = HttpClientFactory.Build(httpProxy, Constants.Host, true);
         HttpClient.DefaultRequestHeaders.UserAgent.Add(new System.Net.Http.Headers.ProductInfoHeaderValue("PackageTracker", "v1.1.0"));
     }
 
