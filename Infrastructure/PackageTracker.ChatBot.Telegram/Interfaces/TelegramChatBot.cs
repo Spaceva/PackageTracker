@@ -34,7 +34,7 @@ public abstract class TelegramChatBot(IServiceProvider serviceProvider) : ChatBo
 
             if (string.IsNullOrEmpty(botName))
             {
-                botName = TelegramBotClient.GetMeAsync().GetAwaiter().GetResult().Username!;
+                botName = TelegramBotClient.GetMe().GetAwaiter().GetResult().Username!;
             }
             return botName;
         }
@@ -50,7 +50,7 @@ public abstract class TelegramChatBot(IServiceProvider serviceProvider) : ChatBo
 
             if (botID is null || string.IsNullOrEmpty(botID))
             {
-                botID = TelegramBotClient!.GetMeAsync().GetAwaiter().GetResult().Id!;
+                botID = TelegramBotClient!.GetMe().GetAwaiter().GetResult().Id!;
             }
 
             return botID;
@@ -69,20 +69,20 @@ public abstract class TelegramChatBot(IServiceProvider serviceProvider) : ChatBo
 
     public async Task<Dictionary<UserId, ChatPermission>> GetChatAdminsAsync(ChatId chatId, CancellationToken cancellationToken = default)
     {
-        var admins = await TelegramBotClient!.GetChatAdministratorsAsync(chatId.ToString(), cancellationToken: cancellationToken);
+        var admins = await TelegramBotClient!.GetChatAdministrators(chatId.ToString(), cancellationToken: cancellationToken);
         return admins.ToDictionary(kvp => (UserId)kvp.User.Id.ToString(), kvp => (ChatPermission)(int)kvp.Status);
     }
 
     public async Task<ChatPermission?> GetChatPermissionAsync(ChatId chatId, UserId userId, CancellationToken cancellationToken = default)
     {
-        var rights = await TelegramBotClient!.GetChatMemberAsync(chatId.ToString(), userId, cancellationToken: cancellationToken);
+        var rights = await TelegramBotClient!.GetChatMember(chatId.ToString(), userId, cancellationToken: cancellationToken);
         return (int?)rights?.Status;
     }
 
     public async Task SendLocationAsync(ChatId chatId, float lat, float lng, CancellationToken cancellationToken = default)
     {
         Logger.LogDebug("Sending Location (lat:{Latitude},lng:{Longitude}) to Chat {ChatId}.", lat, lng, chatId);
-        await TelegramBotClient!.SendLocationAsync(chatId.ToString(), lat, lng, cancellationToken: cancellationToken);
+        await TelegramBotClient!.SendLocation(chatId.ToString(), lat, lng, cancellationToken: cancellationToken);
     }
 
     public IReplyMarkup? BuildButtons(params Tuple<string, string>[] buttons) => BuildButtons(b => InlineKeyboardButton.WithCallbackData(b.Item1, b.Item2), buttons);
@@ -106,7 +106,7 @@ public abstract class TelegramChatBot(IServiceProvider serviceProvider) : ChatBo
 
         if (buttonsCount <= 4)
         {
-            return new InlineKeyboardMarkup(new InlineKeyboardButton[][] { buttons.Select(b => mapperToButton(b)).ToArray() });
+            return new InlineKeyboardMarkup([buttons.Select(b => mapperToButton(b)).ToArray()]);
         }
 
         var rowContent = new List<InlineKeyboardButton>();
@@ -147,7 +147,7 @@ public abstract class TelegramChatBot(IServiceProvider serviceProvider) : ChatBo
         UnbindEvents();
         try
         {
-            await TelegramBotClient!.CloseAsync(cancellationToken);
+            await TelegramBotClient!.Close(cancellationToken);
         }
         catch (ApiRequestException exception)
         {
@@ -176,8 +176,8 @@ public abstract class TelegramChatBot(IServiceProvider serviceProvider) : ChatBo
         return genUpdate;
     }
 
-    protected override sealed async Task SimulateTypingInternalAsync(ChatId chatId, CancellationToken cancellationToken = default) 
-        => await TelegramBotClient!.SendChatActionAsync(chatId.ToString(), ChatAction.Typing, cancellationToken: cancellationToken);
+    protected override sealed async Task SimulateTypingInternalAsync(ChatId chatId, CancellationToken cancellationToken = default)
+        => await TelegramBotClient!.SendChatAction(chatId.ToString(), ChatAction.Typing, cancellationToken: cancellationToken);
 
     protected override sealed async Task HandleUpdateAsync(IIncomingMessage incomingMessage, CancellationToken cancellationToken = default)
     {
@@ -202,7 +202,7 @@ public abstract class TelegramChatBot(IServiceProvider serviceProvider) : ChatBo
             UpdateType.ChatJoinRequest => HandleChatJoinRequestUpdateAsync,
             _ => throw new NotImplementedException()
         };
-        
+
         try
         {
             await handleUpdateAsync(telegramIncomingMessage, cancellationToken);
@@ -284,24 +284,24 @@ public abstract class TelegramChatBot(IServiceProvider serviceProvider) : ChatBo
         }
     }
 
-    protected override sealed async Task SendTextMessageToChatInternalAsync(ChatId chatId, string message, TelegramSendingMessageOptions? messageOptions = null, CancellationToken cancellationToken = default) => await TelegramBotClient!.SendTextMessageAsync(chatId.ToString(), message, disableWebPagePreview: messageOptions is not null && messageOptions.DisableWebPagePreview, disableNotification: messageOptions is not null && messageOptions.DisableNotification, replyToMessageId: messageOptions is not null ? messageOptions.ReplyToMessageId : 0, replyMarkup: messageOptions?.ReplyMarkup, parseMode: ParseMode.Html, cancellationToken: cancellationToken);
+    protected override sealed async Task SendTextMessageToChatInternalAsync(ChatId chatId, string message, TelegramSendingMessageOptions? messageOptions = null, CancellationToken cancellationToken = default) => await TelegramBotClient!.SendMessage(chatId.ToString(), message, linkPreviewOptions: messageOptions?.LinkPreviewOptions, disableNotification: messageOptions is not null && messageOptions.DisableNotification, replyParameters: messageOptions?.ReplyParameters, replyMarkup: messageOptions?.ReplyMarkup, parseMode: ParseMode.Html, cancellationToken: cancellationToken);
 
-    protected override sealed async Task SendTextMessageToUserInternalAsync(UserId userId, string message, TelegramSendingMessageOptions? messageOptions = null, CancellationToken cancellationToken = default) => await TelegramBotClient!.SendTextMessageAsync(userId.ToString(), message, disableWebPagePreview: messageOptions is not null && messageOptions.DisableWebPagePreview, disableNotification: messageOptions is not null && messageOptions.DisableNotification, replyToMessageId: messageOptions is not null ? messageOptions.ReplyToMessageId : 0, replyMarkup: messageOptions?.ReplyMarkup, parseMode: ParseMode.Html, cancellationToken: cancellationToken);
+    protected override sealed async Task SendTextMessageToUserInternalAsync(UserId userId, string message, TelegramSendingMessageOptions? messageOptions = null, CancellationToken cancellationToken = default) => await TelegramBotClient!.SendMessage(userId.ToString(), message, linkPreviewOptions: messageOptions?.LinkPreviewOptions, disableNotification: messageOptions is not null && messageOptions.DisableNotification, replyParameters: messageOptions?.ReplyParameters, replyMarkup: messageOptions?.ReplyMarkup, parseMode: ParseMode.Html, cancellationToken: cancellationToken);
 
     protected override sealed async Task SendFileToChatInternalAsync(ChatId chatId, Stream dataStream, string fileName, string? message = null, TelegramSendingMessageOptions? messageOptions = null, CancellationToken cancellationToken = default)
     {
         var file = new InputFileStream(dataStream, fileName);
-        await TelegramBotClient!.SendDocumentAsync(chatId.ToString(), file, caption: message, disableNotification: messageOptions is not null && messageOptions.DisableNotification, replyToMessageId: messageOptions is not null ? messageOptions.ReplyToMessageId : 0, replyMarkup: messageOptions?.ReplyMarkup, parseMode: ParseMode.Html, cancellationToken: cancellationToken);
+        await TelegramBotClient!.SendDocument(chatId.ToString(), file, caption: message, disableNotification: messageOptions is not null && messageOptions.DisableNotification, replyParameters: messageOptions?.ReplyParameters, replyMarkup: messageOptions?.ReplyMarkup, parseMode: ParseMode.Html, cancellationToken: cancellationToken);
     }
 
     protected override sealed async Task SendFileToUserInternalAsync(UserId userId, Stream dataStream, string fileName, string? message = null, TelegramSendingMessageOptions? messageOptions = null, CancellationToken cancellationToken = default)
     {
         var file = new InputFileStream(dataStream, fileName);
-        await TelegramBotClient!.SendDocumentAsync(userId.ToString(), file, caption: message, disableNotification: messageOptions is not null && messageOptions.DisableNotification, replyToMessageId: messageOptions is not null ? messageOptions.ReplyToMessageId : 0, replyMarkup: messageOptions?.ReplyMarkup, parseMode: ParseMode.Html, cancellationToken: cancellationToken);
+        await TelegramBotClient!.SendDocument(userId.ToString(), file, caption: message, disableNotification: messageOptions is not null && messageOptions.DisableNotification, replyParameters: messageOptions?.ReplyParameters, replyMarkup: messageOptions?.ReplyMarkup, parseMode: ParseMode.Html, cancellationToken: cancellationToken);
     }
 
     protected override sealed async Task EditMessageInternalAsync(ChatId chatId, MessageId messageId, string newMessageContent, TelegramSendingMessageOptions? messageOptions = null, CancellationToken cancellationToken = default)
-        => await TelegramBotClient!.EditMessageTextAsync(chatId.ToString(), messageId, newMessageContent, disableWebPagePreview: messageOptions is not null && messageOptions.DisableWebPagePreview, replyMarkup: null, parseMode: ParseMode.Html, cancellationToken: cancellationToken);
+        => await TelegramBotClient!.EditMessageText(chatId.ToString(), messageId, newMessageContent, linkPreviewOptions: messageOptions?.LinkPreviewOptions, replyMarkup: null, parseMode: ParseMode.Html, cancellationToken: cancellationToken);
 
     protected abstract Task HandleMessagePinnedAsync(TelegramIncomingMessage incomingMessage, UserId pinnerUserId, string content);
 
