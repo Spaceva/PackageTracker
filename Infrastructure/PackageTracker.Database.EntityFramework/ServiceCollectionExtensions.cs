@@ -10,10 +10,16 @@ using PackageTracker.Infrastructure;
 namespace PackageTracker.Database.EntityFramework;
 public static class ServiceCollectionExtensions
 {
-    public static IServiceCollection AddEFDatabase(this IServiceCollection services, IConfiguration configuration)
+    public static IServiceCollection AddSqlServerEFDatabase(this IServiceCollection services, IConfiguration configuration)
     {
-        services.AddSqlServer<PackageTrackerDbContext>(configuration.GetConnectionString("Database"));
         services.AddDbRepositories();
+        services.AddSqlServer<PackageTrackerDbContext>(configuration.GetConnectionString("Database"));
+        return services;
+    }
+    public static IServiceCollection AddInMemoryEFDatabase(this IServiceCollection services, IConfiguration configuration)
+    {
+        services.AddDbRepositories();
+        services.AddDbContext<PackageTrackerDbContext>(opt => opt.UseInMemoryDatabase(nameof(PackageTrackerDbContext)));
         return services;
     }
 

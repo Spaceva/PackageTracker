@@ -1,19 +1,15 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
-using PackageTracker.Database.Common.Enrichers;
 using PackageTracker.Database.EntityFramework.Extensions;
+using PackageTracker.Database.EntityFramework.Repositories.Enrichers;
 using PackageTracker.Domain.Application;
 using PackageTracker.Domain.Application.Exceptions;
 using PackageTracker.Domain.Application.Model;
-using PackageTracker.Domain.Framework;
-using PackageTracker.Domain.Package;
 using PackageTracker.Infrastructure;
 
 namespace PackageTracker.Database.EntityFramework;
-internal class ApplicationsDbRepository([FromKeyedServices(MemoryCache.Constants.SERVICEKEY)] IPackagesRepository? packagesRepository, [FromKeyedServices(MemoryCache.Constants.SERVICEKEY)] IFrameworkRepository? frameworksRepository, IServiceScopeFactory serviceScopeFactory) : IApplicationsRepository
+internal class ApplicationsDbRepository(IServiceScopeFactory serviceScopeFactory) : IApplicationsRepository
 {
-    private bool HasCache => packagesRepository is not null && frameworksRepository is not null;
-
     public async Task<bool> ExistsAsync(string name, ApplicationType applicationType, string repositoryLink, CancellationToken cancellationToken = default)
     {
         using var scope = serviceScopeFactory.CreateScope();
@@ -57,7 +53,7 @@ internal class ApplicationsDbRepository([FromKeyedServices(MemoryCache.Constants
             return null;
         }
 
-        IApplicationEnricher enricher = HasCache ? new ApplicationWithCacheEnricher(packagesRepository!, frameworksRepository!) : new Repositories.Enrichers.ApplicationNoCacheEnricher(dbContext);
+        var enricher = scope.ServiceProvider.GetApplicationEnricher(dbContext);
         await enricher.EnrichApplicationAsync(existingApplication, cancellationToken);
 
         return existingApplication;
@@ -88,7 +84,7 @@ internal class ApplicationsDbRepository([FromKeyedServices(MemoryCache.Constants
 
         applications = [.. query];
 
-        IApplicationEnricher enricher = HasCache ? new ApplicationWithCacheEnricher(packagesRepository!, frameworksRepository!, searchCriteria.ShowOnlyTracked) : new Repositories.Enrichers.ApplicationNoCacheEnricher(dbContext, searchCriteria.ShowOnlyTracked);
+        var enricher = scope.ServiceProvider.GetApplicationEnricher(dbContext, searchCriteria.ShowOnlyTracked);
         await enricher.EnrichApplicationsAsync(applications, cancellationToken);
         
         query = applications.AsQueryable().FilterByFrameworkStatus(searchCriteria).ApplyPagination(a => a.Name, skip, take);

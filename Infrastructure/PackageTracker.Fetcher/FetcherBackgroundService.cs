@@ -12,7 +12,7 @@ namespace PackageTracker.Fetcher;
 internal class FetcherBackgroundService(IServiceProvider serviceProvider, IOptionsMonitor<FetcherSettings> fetcherSettings, IMediator mediator, IPackagesRepository packagesRepository, ILogger<FetcherBackgroundService> logger) : RepeatedBackgroundService(logger, TimeSpan.FromSeconds(1))
 {
     private IEnumerable<IPackagesFetcher> PackagesFetchers => serviceProvider.GetServices<IPackagesFetcher>();
-    private readonly PackageType[] packagesType = [.. Enum.GetValues(typeof(PackageType)).OfType<PackageType>()];
+    private readonly PackageType[] packagesType = [.. Enum.GetValues<PackageType>().OfType<PackageType>()];
 
     protected override Task CloseServiceAsync()
     {

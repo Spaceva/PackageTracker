@@ -46,13 +46,12 @@ internal class PhpModuleParser(IPackagesRepository packagesRepository, ILogger<P
         var dependencies = jsonObject[Constants.Application.Php.PackagesProperty]?.AsObject() ?? [];
         var devDependencies = jsonObject[Constants.Application.Php.DevPackagesProperty]?.AsObject() ?? [];
 
-        return dependencies
+        return [.. dependencies
                 .Union(devDependencies)
                 .Where(d => d.Value is not null)
                 .Select(dependency => (Name: dependency.Key, Version: dependency.Value!.GetValue<string>()))
                 .Select(dependency => (dependency.Name, Version: NormalizeVersion(CleanPackagistVersion(dependency.Version))))
-                .Where(d => Domain.Package.Constants.RegularExpressions.AnyVersionNumber.IsMatch(d.Version))
-                .ToArray();
+                .Where(d => Domain.Package.Constants.RegularExpressions.AnyVersionNumber.IsMatch(d.Version))];
     }
 
     private static string CleanPackagistVersion(string version)

@@ -18,6 +18,6 @@ public static class ServiceConfigurator
             opt.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
         });
 
-        services.ConfigureOptions(typeof(UIConfigureOptions));
+        services.ConfigureOptions<UIConfigureOptions>();
     }
 }

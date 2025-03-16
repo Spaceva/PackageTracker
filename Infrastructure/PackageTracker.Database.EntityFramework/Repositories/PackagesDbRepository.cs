@@ -6,10 +6,12 @@ using PackageTracker.Domain.Package.Model;
 using PackageTracker.Infrastructure;
 
 namespace PackageTracker.Database.EntityFramework;
-internal class PackagesDbRepository([FromKeyedServices(MemoryCache.Constants.SERVICEKEY)] IPackagesRepository? cacheRepository, IServiceScopeFactory serviceScopeFactory) : IPackagesRepository
+internal class PackagesDbRepository(IServiceScopeFactory serviceScopeFactory) : IPackagesRepository
 {
     public async Task<bool> ExistsAsync(string packageName, CancellationToken cancellationToken = default)
     {
+        using var scope = serviceScopeFactory.CreateScope();
+        var cacheRepository = scope.ServiceProvider.GetKeyedService<IPackagesRepository>(MemoryCache.Constants.SERVICEKEY);
         if (cacheRepository is null)
         {
             return await ExistsNoCacheAsync(packageName, cancellationToken);
@@ -31,6 +33,7 @@ internal class PackagesDbRepository([FromKeyedServices(MemoryCache.Constants.SER
         dbContext.Packages.Add(package);
         dbContext.SaveChanges();
 
+        var cacheRepository = scope.ServiceProvider.GetKeyedService<IPackagesRepository>(MemoryCache.Constants.SERVICEKEY);
         if (cacheRepository is not null)
         {
             await cacheRepository.AddAsync(package, cancellationToken);
@@ -69,6 +72,8 @@ internal class PackagesDbRepository([FromKeyedServices(MemoryCache.Constants.SER
 
     public async Task<Package?> TryGetByNameAsync(string packageName, CancellationToken cancellationToken = default)
     {
+        using var scope = serviceScopeFactory.CreateScope();
+        var cacheRepository = scope.ServiceProvider.GetKeyedService<IPackagesRepository>(MemoryCache.Constants.SERVICEKEY);
         if (cacheRepository is null)
         {
             return await TryGetByNameNoCacheAsync(packageName, cancellationToken);
@@ -97,6 +102,7 @@ internal class PackagesDbRepository([FromKeyedServices(MemoryCache.Constants.SER
         dbContext.Packages.Remove(existingPackage);
         dbContext.SaveChanges();
 
+        var cacheRepository = scope.ServiceProvider.GetKeyedService<IPackagesRepository>(MemoryCache.Constants.SERVICEKEY);
         if (cacheRepository is not null)
         {
             await cacheRepository.DeleteByNameAsync(packageName, cancellationToken);
@@ -113,6 +119,7 @@ internal class PackagesDbRepository([FromKeyedServices(MemoryCache.Constants.SER
         packageFromDb.Versions = package.Versions;
         dbContext.SaveChanges();
 
+        var cacheRepository = scope.ServiceProvider.GetKeyedService<IPackagesRepository>(MemoryCache.Constants.SERVICEKEY);
         if (cacheRepository is not null)
         {
             await cacheRepository.UpdateAsync(packageFromDb, cancellationToken);

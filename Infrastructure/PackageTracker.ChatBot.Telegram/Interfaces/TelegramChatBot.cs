@@ -85,17 +85,17 @@ public abstract class TelegramChatBot(IServiceProvider serviceProvider) : ChatBo
         await TelegramBotClient!.SendLocation(chatId.ToString(), lat, lng, cancellationToken: cancellationToken);
     }
 
-    public IReplyMarkup? BuildButtons(params Tuple<string, string>[] buttons) => BuildButtons(b => InlineKeyboardButton.WithCallbackData(b.Item1, b.Item2), buttons);
+    public ReplyMarkup? BuildButtons(params Tuple<string, string>[] buttons) => BuildButtons(b => InlineKeyboardButton.WithCallbackData(b.Item1, b.Item2), buttons);
 
-    public IReplyMarkup? BuildButtons(params string[] buttons) => BuildButtons(b => InlineKeyboardButton.WithCallbackData(b, b), buttons);
+    public ReplyMarkup? BuildButtons(params string[] buttons) => BuildButtons(b => InlineKeyboardButton.WithCallbackData(b, b), buttons);
 
-    public IReplyMarkup? BuildButtons(IEnumerable<KeyValuePair<string, string>> buttons) => BuildButtons(b => InlineKeyboardButton.WithCallbackData(b.Key, b.Value), buttons.ToArray());
+    public ReplyMarkup? BuildButtons(IEnumerable<KeyValuePair<string, string>> buttons) => BuildButtons(b => InlineKeyboardButton.WithCallbackData(b.Key, b.Value), buttons.ToArray());
 
-    public IReplyMarkup? BuildButtons(IDictionary<string, string> buttons) => BuildButtons(buttons.AsEnumerable());
+    public ReplyMarkup? BuildButtons(IDictionary<string, string> buttons) => BuildButtons(buttons.AsEnumerable());
 
-    public IReplyMarkup? BuildButtons<TEnum>() => BuildButtons((value) => InlineKeyboardButton.WithCallbackData(Enum.GetName(typeof(TEnum), value!)!, value!.ToString()!), Enum.GetValues(typeof(TEnum)).OfType<TEnum>().ToArray());
+    public ReplyMarkup? BuildButtons<TEnum>() => BuildButtons((value) => InlineKeyboardButton.WithCallbackData(Enum.GetName(typeof(TEnum), value!)!, value!.ToString()!), Enum.GetValues(typeof(TEnum)).OfType<TEnum>().ToArray());
 
-    public IReplyMarkup? BuildButtons<T>(Func<T, InlineKeyboardButton> mapperToButton, params T[] buttons)
+    public ReplyMarkup? BuildButtons<T>(Func<T, InlineKeyboardButton> mapperToButton, params T[] buttons)
     {
         var rows = new List<InlineKeyboardButton[]>();
         var buttonsCount = buttons.Length;
@@ -106,7 +106,7 @@ public abstract class TelegramChatBot(IServiceProvider serviceProvider) : ChatBo
 
         if (buttonsCount <= 4)
         {
-            return new InlineKeyboardMarkup([buttons.Select(b => mapperToButton(b)).ToArray()]);
+            return new InlineKeyboardMarkup([[.. buttons.Select(b => mapperToButton(b))]]);
         }
 
         var rowContent = new List<InlineKeyboardButton>();
@@ -129,13 +129,13 @@ public abstract class TelegramChatBot(IServiceProvider serviceProvider) : ChatBo
         return new InlineKeyboardMarkup(rows.ToArray());
     }
 
-    public IReplyMarkup? BuildButtons<T>(IEnumerable<IEnumerable<T>> buttons, Func<T, InlineKeyboardButton> mapperToButton)
+    public ReplyMarkup? BuildButtons<T>(IEnumerable<IEnumerable<T>> buttons, Func<T, InlineKeyboardButton> mapperToButton)
     {
         var rows = new List<InlineKeyboardButton[]>();
 
         foreach (var row in buttons)
         {
-            rows.Add(row.Select(b => mapperToButton(b)).ToArray());
+            rows.Add([.. row.Select(b => mapperToButton(b))]);
         }
 
         return new InlineKeyboardMarkup(rows.ToArray());

@@ -78,7 +78,7 @@ internal abstract class NpmFrameworkEndOfLifeMonitor(string framework, ILogger l
     }
 
     private Framework[] Map(IReadOnlyCollection<EndOfLifeHttpResponseElement> elements)
-     => elements.Select(ToFramework).ToArray();
+     => [.. elements.Select(ToFramework)];
 
     private Framework ToFramework(EndOfLifeHttpResponseElement source)
     {

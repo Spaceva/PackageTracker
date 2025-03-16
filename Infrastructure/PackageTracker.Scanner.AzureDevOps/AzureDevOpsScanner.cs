@@ -103,7 +103,7 @@ internal class AzureDevOpsScanner(IHttpProxy? httpProxy, TrackedApplication trac
     private async Task<IReadOnlyCollection<RepositoryBranch>> FindAllLongTermBranchs(string repositoryId, CancellationToken cancellationToken)
     {
         var branches = await AzureDevOpsClient.ListRepositoryBranchsAsync(repositoryId, cancellationToken);
-        return branches.Where(b => Scanner.Constants.Git.ValidBranches.Contains(b.Name.Split('/')[^1])).ToArray();
+        return [.. branches.Where(b => Scanner.Constants.Git.ValidBranches.Contains(b.Name.Split('/')[^1]))];
     }
 
     private async Task<DownloadedFile[]> DownloadFilesAsync(Repository repository, RepositoryBranch branch, IEnumerable<Model.File> moduleFilesMetadata, CancellationToken cancellationToken)

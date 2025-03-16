@@ -122,7 +122,7 @@ internal class GitlabScanner(TrackedApplication trackedApplication, IEnumerable<
 
                 var lastCommitDate = DateTimeOffset.Parse(branch.Commit.CommittedDate, CultureInfo.CurrentCulture);
 
-                applicationBranchs.Add(ApplicationBranch.From(branch.Name, repository.HttpUrlToRepo.Replace(".git", "/") + BranchLinkSuffix(branch.Name), modules.Where(m => m is not null).ToArray(), lastCommitDate.UtcDateTime));
+                applicationBranchs.Add(ApplicationBranch.From(branch.Name, repository.HttpUrlToRepo.Replace(".git", "/") + BranchLinkSuffix(branch.Name), [.. modules.Where(m => m is not null)], lastCommitDate.UtcDateTime));
             }
 
             if (applicationBranchs.Count == 0)
@@ -164,7 +164,7 @@ internal class GitlabScanner(TrackedApplication trackedApplication, IEnumerable<
     {
         var branches = await GitLabClient.Branches.GetAsync(projectId, o => { });
         var branchsNames = branches.Select(b => b.Name).Intersect(Constants.Git.ValidBranches);
-        return branches.Where(b => branchsNames.Contains(b.Name)).ToArray();
+        return [.. branches.Where(b => branchsNames.Contains(b.Name))];
     }
 
     private async Task<IEnumerable<ApplicationModule>> ScanBranchAsync(Project project, string branchName, CancellationToken cancellationToken)

@@ -8,5 +8,5 @@ public class TelegramSendingMessageOptions : ISendingMessageOptions
     public LinkPreviewOptions LinkPreviewOptions { get; set; } = true;
     public bool DisableNotification { get; set; } = false;
     public ReplyParameters? ReplyParameters { get; set; } = null;
-    public IReplyMarkup? ReplyMarkup { get; set; } = null;
+    public ReplyMarkup? ReplyMarkup { get; set; } = null;
 }

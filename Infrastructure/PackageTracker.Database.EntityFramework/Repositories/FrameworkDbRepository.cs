@@ -5,12 +5,15 @@ using PackageTracker.Domain.Framework;
 using PackageTracker.Domain.Framework.Exceptions;
 using PackageTracker.Domain.Framework.Model;
 using PackageTracker.Infrastructure;
+using System;
 
 namespace PackageTracker.Database.EntityFramework;
-internal class FrameworkDbRepository([FromKeyedServices(MemoryCache.Constants.SERVICEKEY)] IFrameworkRepository? cacheRepository, IServiceScopeFactory serviceScopeFactory) : IFrameworkRepository
+internal class FrameworkDbRepository(IServiceScopeFactory serviceScopeFactory) : IFrameworkRepository
 {
     public async Task<bool> ExistsAsync(string name, string version, CancellationToken cancellationToken = default)
     {
+        using var scope = serviceScopeFactory.CreateScope();
+        var cacheRepository = scope.ServiceProvider.GetKeyedService<IFrameworkRepository>(MemoryCache.Constants.SERVICEKEY);
         if (cacheRepository is null)
         {
             return await ExistsNoCacheAsync(name, version, cancellationToken);
@@ -24,6 +27,8 @@ internal class FrameworkDbRepository([FromKeyedServices(MemoryCache.Constants.SE
 
     public async Task<Framework?> TryGetByVersionAsync(string name, string version, CancellationToken cancellationToken = default)
     {
+        using var scope = serviceScopeFactory.CreateScope();
+        var cacheRepository = scope.ServiceProvider.GetKeyedService<IFrameworkRepository>(MemoryCache.Constants.SERVICEKEY);
         if (cacheRepository is null)
         {
             return await TryGetByVersionNoCacheAsync(name, version, cancellationToken);
@@ -54,6 +59,7 @@ internal class FrameworkDbRepository([FromKeyedServices(MemoryCache.Constants.SE
         dbContext.Frameworks.Remove(existingFramework);
         dbContext.SaveChanges();
 
+        var cacheRepository = scope.ServiceProvider.GetKeyedService<IFrameworkRepository>(MemoryCache.Constants.SERVICEKEY);
         if (cacheRepository is not null)
         {
             await cacheRepository.DeleteByVersionAsync(name, version, cancellationToken);
@@ -81,6 +87,7 @@ internal class FrameworkDbRepository([FromKeyedServices(MemoryCache.Constants.SE
 
         dbContext.SaveChanges();
 
+        var cacheRepository = scope.ServiceProvider.GetKeyedService<IFrameworkRepository>(MemoryCache.Constants.SERVICEKEY);
         if (cacheRepository is not null)
         {
             await cacheRepository.SaveAsync(framework, cancellationToken);

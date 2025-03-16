@@ -21,9 +21,7 @@ public abstract class Package
                 .FirstOrDefault();
 
     public IReadOnlyCollection<string> VersionLabelsDescending()
-     => Versions.OrderDescendingUsing(_packageVersionComparer)
-                .Select(v => v.ToString())
-                .ToArray();
+     => [.. Versions.OrderDescendingUsing(_packageVersionComparer).Select(v => v.ToString())];
 
     public string? LatestVersion => VersionLabelsDescending().FirstOrDefault();
 

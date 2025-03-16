@@ -20,10 +20,9 @@ internal class PublicNugetServerFetcher(IOptionsMonitor<FetcherSettings> fetcher
     protected override string PackageRelativeUri(string packageName) => $"v3-flatcontainer/{packageName.ToLower()}/index.json";
 
     internal static ICollection<PackageVersion> NugetPackageVersions(JsonElement jsonElement)
-        => jsonElement.Deserialize<string[]>()!
+        => [.. jsonElement.Deserialize<string[]>()!
                       .Where(v => RegularExpressions.AnyVersionNumber.IsMatch(v))
-                      .Select(v => new PackageVersion(v))
-                      .ToList();
+                      .Select(v => new PackageVersion(v))];
 
     protected override Package CreatePackage(string packageName, ICollection<PackageVersion> packageVersions)
      => new NugetPackage() { Name = packageName, Versions = packageVersions, RegistryUrl = RegistryUrl, Link = $"{RegistryUrl}/packages/{packageName}" };

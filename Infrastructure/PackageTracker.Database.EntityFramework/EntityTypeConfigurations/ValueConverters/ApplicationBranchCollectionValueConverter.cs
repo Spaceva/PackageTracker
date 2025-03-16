@@ -12,7 +12,7 @@ internal class ApplicationBranchCollectionValueConverter : ValueConverter<IColle
             ApplicationType = entity.GetType().ToApplicationType(),
             Name = entity.Name,
             Link = entity.RepositoryLink,
-            Modules = entity.Modules.Select(x => (ApplicationModuleModel)applicationModuleValueConverter.ConvertToProvider(x)!).ToList(),
+            Modules = [.. entity.Modules.Select(x => (ApplicationModuleModel)applicationModuleValueConverter.ConvertToProvider(x)!)],
             LastCommit = entity.LastCommit
         };
 
@@ -21,7 +21,7 @@ internal class ApplicationBranchCollectionValueConverter : ValueConverter<IColle
         var applicationBranch = (ApplicationBranch)Activator.CreateInstance(model.ApplicationType.ToApplicationBranchType())!;
         applicationBranch.Name = model.Name;
         applicationBranch.RepositoryLink = model.Link;
-        applicationBranch.Modules = model.Modules.Select(m => (ApplicationModule)applicationModuleValueConverter.ConvertFromProvider(m)!).ToList();
+        applicationBranch.Modules = [.. model.Modules.Select(m => (ApplicationModule)applicationModuleValueConverter.ConvertFromProvider(m)!)];
         applicationBranch.LastCommit = model.LastCommit;
         return applicationBranch;
     }

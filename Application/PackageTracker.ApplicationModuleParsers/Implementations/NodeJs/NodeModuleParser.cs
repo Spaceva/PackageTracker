@@ -49,13 +49,12 @@ internal abstract class NodeModuleParser(IPackagesRepository packagesRepository,
         var dependencies = jsonObject[Constants.Application.NodeJs.PackagesProperty]?.AsObject() ?? [];
         var devDependencies = jsonObject[Constants.Application.NodeJs.DevPackagesProperty]?.AsObject() ?? [];
 
-        return dependencies
+        return [.. dependencies
                 .Union(devDependencies)
                 .Where(d => d.Value is not null)
                 .Select(dependency => (Name: dependency.Key, Version: dependency.Value!.GetValue<string>()))
                 .Select(dependency => (dependency.Name, Version: TransformVersion(dependency.Version)))
-                .Where(d => Domain.Package.Constants.RegularExpressions.AnyVersionNumber.IsMatch(d.Version))
-                .ToArray();
+                .Where(d => Domain.Package.Constants.RegularExpressions.AnyVersionNumber.IsMatch(d.Version))];
     }
 
     private static string TransformVersion(string version)

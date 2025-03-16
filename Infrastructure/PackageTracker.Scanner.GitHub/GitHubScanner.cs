@@ -14,7 +14,7 @@ internal class GitHubScanner(Func<IGitHubClient, string, Task<IReadOnlyList<Repo
 {
     private const string GITHUB_MAIN_HOST = "https://github.com/";
 
-    private readonly IGitHubClient gitHubClient = new GitHubClient(new ProductHeaderValue($"PackageTracker-Scanner-{trackedApplication.ScannerType}")) { Credentials = new Credentials(trackedApplication.AccessToken), };
+    private readonly GitHubClient gitHubClient = new (new ProductHeaderValue($"PackageTracker-Scanner-{trackedApplication.ScannerType}")) { Credentials = new Credentials(trackedApplication.AccessToken), };
 
     protected override RepositoryType RepositoryType => RepositoryType.GitHub;
 
@@ -67,7 +67,7 @@ internal class GitHubScanner(Func<IGitHubClient, string, Task<IReadOnlyList<Repo
                 var commitInfo = await gitHubClient.Git.Commit.Get(repository.Id, commitSha);
                 var lastCommitDate = commitInfo.Committer.Date;
 
-                applicationBranchs.Add(ApplicationBranch.From(branch.Name, repository.HtmlUrl + BranchLinkSuffix(branch.Name), modules.Where(m => m is not null).ToArray(), lastCommitDate.UtcDateTime));
+                applicationBranchs.Add(ApplicationBranch.From(branch.Name, repository.HtmlUrl + BranchLinkSuffix(branch.Name), [.. modules.Where(m => m is not null)], lastCommitDate.UtcDateTime));
             }
 
             if (applicationBranchs.Count == 0)
@@ -110,7 +110,7 @@ internal class GitHubScanner(Func<IGitHubClient, string, Task<IReadOnlyList<Repo
     {
         var branches = await gitHubClient.Repository.Branch.GetAll(repositoryId);
         var branchsNames = branches.Select(b => b.Name).Intersect(Constants.Git.ValidBranches);
-        return branches.Where(b => branchsNames.Contains(b.Name)).ToArray();
+        return [.. branches.Where(b => branchsNames.Contains(b.Name))];
     }
 
     private async Task<IEnumerable<ApplicationModule>> ScanBranchAsync(Repository repository, Branch branch, CancellationToken cancellationToken)

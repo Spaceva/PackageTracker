@@ -13,7 +13,7 @@ internal class GetLatestNotificationsQueryHandler(INotificationsRepository notif
         var skippedItems = request.PageNumber.HasValue && request.PageSize.HasValue ? (request.PageNumber.Value - 1) * request.PageSize.Value : 0;
         return new GetLatestNotificationsQueryResponse
         {
-            Notifications = notifications
+            Notifications = [.. notifications
                 .OrderByDescending(n => n.DateTime)
                 .Skip(skippedItems)
                 .Take(pageSize)
@@ -24,8 +24,7 @@ internal class GetLatestNotificationsQueryHandler(INotificationsRepository notif
                     Id = n.Id,
                     IsRead = n.IsRead,
                     Type = n.Type,
-                })
-                .ToArray(),
+                })],
         };
     }
 }

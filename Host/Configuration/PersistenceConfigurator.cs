@@ -13,23 +13,29 @@ internal static class PersistenceConfigurator
         var persistenceSettings = section.Get<PersistenceSettings>();
         ArgumentNullException.ThrowIfNull(persistenceSettings);
 
-        if (persistenceSettings.Type.Equals(Database.EntityFramework.Constants.PersistenceType))
+        if (persistenceSettings.Type.Equals(Database.EntityFramework.Constants.InMemory))
         {
-            services.AddEFDatabase(configuration);
-        }
-        else if (persistenceSettings.Type.Equals(Database.MongoDb.Constants.PersistenceType))
-        {
-            services.AddMongoDatabase(configuration);
-        }
-        else
-        {
-            throw new ArgumentOutOfRangeException(nameof(configuration), "Unknown Persistence Type");
+            services.AddInMemoryEFDatabase(configuration);
+            return;
         }
 
         if (persistenceSettings.UseMemoryCache)
         {
             services.WithMemoryCache();
         }
+
+        if (persistenceSettings.Type.Equals(Database.EntityFramework.Constants.SqlServer))
+        {
+            services.AddSqlServerEFDatabase(configuration);
+            return;
+        }
+        if (persistenceSettings.Type.Equals(Database.MongoDb.Constants.PersistenceType))
+        {
+            services.AddMongoDatabase(configuration);
+            return;
+        }
+     
+        throw new ArgumentOutOfRangeException(nameof(configuration), "Unknown Persistence Type");
     }
 
     public static void ConfigureDatabase(this IApplicationBuilder application)
@@ -46,7 +52,7 @@ internal static class PersistenceConfigurator
 
         var settingsValue = settings.Value;
         logger.LogInformation("Database Type: {DatabaseType}, Use of Memory Cache: {UseMemoryCache}.", settingsValue.Type, settingsValue.UseMemoryCache ? "Yes" : "No");
-        if (settingsValue.Type.Equals(Database.EntityFramework.Constants.PersistenceType))
+        if (settingsValue.Type.Equals(Database.EntityFramework.Constants.SqlServer))
         {
             application.ApplicationServices.EnsureDatabaseIsUpdatedAsync().Wait();
         }

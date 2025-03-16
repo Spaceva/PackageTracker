@@ -693,7 +693,7 @@ public abstract class DiscordChatBot(IServiceProvider serviceProvider) : ChatBot
         {
             var userMessages = await DownloadAllMessagesAsync(messagesCache);
             var channel = await channelCache.GetOrDownloadAsync();
-            await HandleMessagesBulkDeletedAsync(userMessages.ToArray(), channel);
+            await HandleMessagesBulkDeletedAsync([.. userMessages], channel);
         }
         catch (Exception ex)
         {

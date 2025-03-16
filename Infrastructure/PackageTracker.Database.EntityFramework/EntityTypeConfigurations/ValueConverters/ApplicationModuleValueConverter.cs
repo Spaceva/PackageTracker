@@ -11,7 +11,7 @@ internal class ApplicationModuleValueConverter : ValueConverter<ApplicationModul
         {
             ModuleType = entity.GetType().ToApplicationType(),
             Name = entity.Name,
-            Packages = entity.Packages.Select(x => (ApplicationPackageModel)applicationPackageValueConverter.ConvertToProvider(x)!).ToList(),
+            Packages = [.. entity.Packages.Select(x => (ApplicationPackageModel)applicationPackageValueConverter.ConvertToProvider(x)!)],
             FrameworkVersion = entity.FrameworkVersion,
         };
 
@@ -19,7 +19,7 @@ internal class ApplicationModuleValueConverter : ValueConverter<ApplicationModul
     {
         ApplicationModule applicationModule = (ApplicationModule)Activator.CreateInstance(model.ModuleType.ToApplicationModuleType())!;
         applicationModule.Name = model.Name;
-        applicationModule.Packages = model.Packages.Select(m => (ApplicationPackage)applicationPackageValueConverter.ConvertFromProvider(m)!).ToList();
+        applicationModule.Packages = [.. model.Packages.Select(m => (ApplicationPackage)applicationPackageValueConverter.ConvertFromProvider(m)!)];
         applicationModule.FrameworkVersion = model.FrameworkVersion;
         return applicationModule;
     }

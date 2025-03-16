@@ -56,7 +56,7 @@ internal class UpdateApplicationCommandHandler(IMediator mediator, IApplications
             notifications.Add(ApplicationUpdatedEvent(updatedApplication));
         }
 
-        return notifications.Union(BuildNotificationFromChangesBetween(updatedApplication, delta.UpdatedEntitiesCommon, delta.UpdatingEntitiesCommon)).ToArray();
+        return [.. notifications.Union(BuildNotificationFromChangesBetween(updatedApplication, delta.UpdatedEntitiesCommon, delta.UpdatingEntitiesCommon))];
     }
 
     private static IEnumerable<INotification> BuildNotificationFromChangesBetween(Application application, IEnumerable<ApplicationBranch> updatedBranchs, IEnumerable<ApplicationBranch> updatingBranchs)
@@ -153,10 +153,10 @@ internal class UpdateApplicationCommandHandler(IMediator mediator, IApplications
         => new() { ApplicationName = application.Name, BranchName = branch.Name, Type = application.Type };
 
     private static ApplicationBranchAddedEvent ApplicationBranchAddedEvent(Application application, ApplicationBranch branch)
-        => new() { ApplicationName = application.Name, BranchName = branch.Name, Modules = branch.Modules.Select(module => ApplicationModuleAddedEvent(application, branch, module)).ToArray(), Type = application.Type };
+        => new() { ApplicationName = application.Name, BranchName = branch.Name, Modules = [.. branch.Modules.Select(module => ApplicationModuleAddedEvent(application, branch, module))], Type = application.Type };
 
     private static ApplicationModuleAddedEvent ApplicationModuleAddedEvent(Application application, ApplicationBranch branch, ApplicationModule module)
-        => new() { ApplicationName = application.Name, BranchName = branch.Name, ModuleName = module.Name, Type = application.Type, PackageVersions = module.Packages.Select(package => ApplicationPackageVersionAddedEvent(application, branch, module, package)).ToArray() };
+        => new() { ApplicationName = application.Name, BranchName = branch.Name, ModuleName = module.Name, Type = application.Type, PackageVersions = [.. module.Packages.Select(package => ApplicationPackageVersionAddedEvent(application, branch, module, package))] };
 
     private static ApplicationModuleDeletedEvent ApplicationModuleDeletedEvent(Application application, ApplicationBranch branch, ApplicationModule module)
         => new() { ApplicationName = application.Name, BranchName = branch.Name, ModuleName = module.Name, Type = application.Type };
