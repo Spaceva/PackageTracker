@@ -11,11 +11,11 @@ internal class FrameworkLinkMapperAction(IApiDescriptionGroupCollectionProvider 
 {
     public void Process(Framework source, FrameworkDto destination, ResolutionContext context)
     {
-        var searchEndpoint = FindEndpoint(FrameworksApiEndpoints.SearchEndpointName);
-        var allEndpoint = FindEndpoint(FrameworksApiEndpoints.GetAllEndpointName);
-        var allActiveEndpoint = FindEndpoint(FrameworksApiEndpoints.GetAllActiveEndpointName);
-        var nameEndpoint = FindEndpoint(FrameworksApiEndpoints.GetByNameEndpointName);
-        var deleteEndpoint = FindEndpoint(FrameworksApiEndpoints.DeleteEndpointName);
+        var searchEndpoint = FindEndpoint(FrameworksApiEndpoints.EndpointNames.Search);
+        var allEndpoint = FindEndpoint(FrameworksApiEndpoints.EndpointNames.GetAll);
+        var allActiveEndpoint = FindEndpoint(FrameworksApiEndpoints.EndpointNames.GetAllActive);
+        var nameEndpoint = FindEndpoint(FrameworksApiEndpoints.EndpointNames.GetByName);
+        var deleteEndpoint = FindEndpoint(FrameworksApiEndpoints.EndpointNames.Delete);
 
         destination.Links = [
             Link(searchEndpoint, "search"),

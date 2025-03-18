@@ -16,21 +16,24 @@ namespace PackageTracker.Presentation.WebApi;
 
 internal static class ApplicationsApiEndpoints
 {
-    public const string SearchEndpointName = "Search Applications";
-    public const string DeleteEndpointName = "Delete Application";
-    public const string DecomissionEndpointName = "Decomission Application";
-    public const string CancelDecommissionEndpointName = "Cancel Decomission Application";
-    public const string UnmarkDeadLinkEndpointName = "Unmark Dead Link on Application";
+    public static class EndpointNames
+    {
+        public const string Search = "Search Applications";
+        public const string Delete = "Delete Application";
+        public const string Decomission = "Decomission Application";
+        public const string CancelDecommission = "Cancel Decomission Application";
+        public const string UnmarkDeadLink = "Unmark Dead Link on Application";
+    }
 
     public static IEndpointConventionBuilder MapApplicationsApiEndpoints(this RouteGroupBuilder route)
     {
-        route.MapPost("/search", Search).WithDisplayName(SearchEndpointName);
-        route.MapPost("/delete", Delete).WithDisplayName(DeleteEndpointName);
-        route.MapPost("/decommission", Decommission).WithDisplayName(DecomissionEndpointName);
-        route.MapPost("/decommission/cancel", CancelDecommission).WithDisplayName(CancelDecommissionEndpointName);
-        route.MapPost("/deadlink/unmark", UnmarkDeadLink).WithDisplayName(UnmarkDeadLinkEndpointName);
+        route.MapPost("/search", Search).WithDisplayNameAndSummary(EndpointNames.Search);
+        route.MapPost("/delete", Delete).WithDisplayNameAndSummary(EndpointNames.Delete);
+        route.MapPost("/decommission", Decommission).WithDisplayNameAndSummary(EndpointNames.Decomission);
+        route.MapPost("/decommission/cancel", CancelDecommission).WithDisplayNameAndSummary(EndpointNames.CancelDecommission);
+        route.MapPost("/deadlink/unmark", UnmarkDeadLink).WithDisplayNameAndSummary(EndpointNames.UnmarkDeadLink);
 
-        return route;
+        return route.WithTags("Applications");
     }
 
     private static async Task<Ok<IReadOnlyCollection<ApplicationDto>>> Search(ApplicationSearchCriteria? applicationSearchCriteria, IMediator mediator, IMapper mapper, CancellationToken cancellationToken)

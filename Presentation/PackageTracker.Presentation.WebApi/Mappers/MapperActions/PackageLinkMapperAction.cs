@@ -11,10 +11,10 @@ internal class PackageLinkMapperAction(IApiDescriptionGroupCollectionProvider ap
 {
     public void Process(Package source, PackageDto destination, ResolutionContext context)
     {
-        var searchEndpoint = FindEndpoint(PackagesApiEndpoints.SearchEndpointName);
-        var nameEndpoint = FindEndpoint(PackagesApiEndpoints.GetByNameEndpointName);
-        var deleteEndpoint = FindEndpoint(PackagesApiEndpoints.DeleteEndpointName);
-        var allEndpoint = FindEndpoint(PackagesApiEndpoints.GetAllEndpointName);
+        var searchEndpoint = FindEndpoint(PackagesApiEndpoints.EndpointNames.Search);
+        var nameEndpoint = FindEndpoint(PackagesApiEndpoints.EndpointNames.GetByName);
+        var deleteEndpoint = FindEndpoint(PackagesApiEndpoints.EndpointNames.Delete);
+        var allEndpoint = FindEndpoint(PackagesApiEndpoints.EndpointNames.GetAll);
 
         destination.Links = [
             Link(searchEndpoint, "search"),

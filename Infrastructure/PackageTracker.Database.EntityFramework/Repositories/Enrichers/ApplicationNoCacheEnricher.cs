@@ -1,7 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using PackageTracker.Domain.Framework.Model;
 using PackageTracker.Domain.Package.Model;
-using PackageTracker.Infrastructure;
 
 namespace PackageTracker.Database.EntityFramework.Repositories.Enrichers;
 internal class ApplicationNoCacheEnricher(PackageTrackerDbContext dbContext, bool showOnlyTrackedPackages = false) : Common.Enrichers.ApplicationNoCacheEnricher(showOnlyTrackedPackages)

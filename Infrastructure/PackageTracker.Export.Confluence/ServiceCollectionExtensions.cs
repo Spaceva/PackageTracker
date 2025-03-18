@@ -10,7 +10,7 @@ public static class ServiceCollectionExtensions
 {
     public static IConfluenceExportRegistrator AddConfluenceExport(this IServiceCollection services, IConfiguration configuration)
     {
-        services.Configure<ConfluenceSettings>(configuration.GetSection("Confluence"));
+        services.Configure<ConfluenceSettings>(configuration.GetSection(Constants.ModuleName));
         
         services.AddScoped<ConfluenceClientWrapper>();
         

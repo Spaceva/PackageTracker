@@ -1,4 +1,6 @@
 ﻿using AutoMapper;
+using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Http;
 using PackageTracker.Domain.Application.Model;
 using PackageTracker.Domain.Framework.Model;
 using PackageTracker.Domain.Package.Model;
@@ -33,5 +35,10 @@ internal static class MapperConfigurationExtensions
     public static IReadOnlyCollection<TDestination> MapCollection<TSource, TDestination>(this IMapper mapper, IReadOnlyCollection<TSource> collection)
     {
         return mapper.Map<IReadOnlyCollection<TSource>, IReadOnlyCollection<TDestination>>(collection);
+    }
+
+    public static void WithDisplayNameAndSummary(this IEndpointConventionBuilder endpointConventionBuilder, string name)
+    {
+        endpointConventionBuilder.WithDisplayName(name).WithSummary(name);
     }
 }

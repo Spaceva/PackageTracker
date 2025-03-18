@@ -4,31 +4,19 @@ Track your favorites packages releases and pre-releases.
 
 # Setup
 ## Application Global Settings
-Use the `appsettings.json` configuration file to setup your database and activate modules.
+Use the `appsettings.json` configuration file to setup your database.
 ``` json
 {
   "AllowedHosts": "*",
-  "ConnectionStrings": {
-    "Database": "YOUR_DATABASE_CONNECTION_STRING_HERE"
-  },
   "Persistence": {
-    "Type": "MongoDb | SqlServer",
-    "UseMemoryCache": true
-  },
-  "Modules": {
-    "Fetcher": false,
-    "Scanner": false,
-    "Monitor": false,
-    "ConfluenceExport": false,
-    "Discord": false,
-    "Telegram": false
+    "Type": "MongoDb | SqlServer | InMemory",
+    "UseMemoryCache": true,
+    "ConnectionString": "YOUR_DATABASE_CONNECTION_STRING_HERE"
   }
 }
 ```
 
-`Persistence > Type` value can be either `MongoDb` either `SqlServer`.
-
-Switch `Modules > *` to true to activate modules.
+`Persistence > Type` value can be : `MongoDb`, `SqlServer`, `InMemory`.
 
 ## Modules
 ### Fetcher

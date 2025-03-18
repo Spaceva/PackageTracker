@@ -11,7 +11,7 @@ public static class ServiceCollectionExtensions
     {
         services.AddScopedBackgroundService<MonitorBackgroundService>();
 
-        services.Configure<MonitorSettings>(configuration.GetSection("Monitor"));
+        services.Configure<MonitorSettings>(configuration.GetSection(Constants.ModuleName));
 
         return new MonitorRegistrator(services);
     }

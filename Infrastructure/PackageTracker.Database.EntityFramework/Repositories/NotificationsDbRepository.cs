@@ -3,7 +3,6 @@ using Microsoft.Extensions.DependencyInjection;
 using PackageTracker.Domain.Notifications;
 using PackageTracker.Domain.Notifications.Exceptions;
 using PackageTracker.Domain.Notifications.Model;
-using PackageTracker.Infrastructure;
 
 namespace PackageTracker.Database.EntityFramework;
 internal class NotificationsDbRepository(IServiceScopeFactory serviceScopeFactory) : INotificationsRepository
@@ -45,7 +44,19 @@ internal class NotificationsDbRepository(IServiceScopeFactory serviceScopeFactor
             throw new NotificationNotFoundException();
         }
 
-        await dbContext.Notifications.Where(n => ids.Contains(n.Id)).ExecuteUpdateAsync(s => s.SetProperty(n => n.IsRead, n => true), cancellationToken: cancellationToken);
+        try
+        {
+            await dbContext.Notifications.Where(n => ids.Contains(n.Id)).ExecuteUpdateAsync(s => s.SetProperty(n => n.IsRead, n => true), cancellationToken: cancellationToken);
+        }
+        catch (InvalidOperationException)
+        {
+            var notifications = await dbContext.Notifications.Where(n => ids.Contains(n.Id)).ToArrayAsync(cancellationToken);
+            foreach (var notification in notifications)
+            {
+                notification.IsRead = true;
+            }
+            await dbContext.SaveChangesAsync(cancellationToken);
+        }
     }
 
     public async Task MarkAllAsReadAsync(CancellationToken cancellationToken = default!)
@@ -53,7 +64,19 @@ internal class NotificationsDbRepository(IServiceScopeFactory serviceScopeFactor
         using var scope = serviceScopeFactory.CreateScope();
         using var dbContext = scope.ServiceProvider.GetRequiredService<PackageTrackerDbContext>();
 
-        await dbContext.Notifications.ExecuteUpdateAsync(s => s.SetProperty(n => n.IsRead, n => true), cancellationToken: cancellationToken);
+        try
+        {
+            await dbContext.Notifications.ExecuteUpdateAsync(s => s.SetProperty(n => n.IsRead, n => true), cancellationToken: cancellationToken);
+        }
+        catch (InvalidOperationException)
+        {
+            var notifications = await dbContext.Notifications.ToArrayAsync(cancellationToken);
+            foreach (var notification in notifications)
+            {
+                notification.IsRead = true;
+            }
+            await dbContext.SaveChangesAsync(cancellationToken);
+        }
     }
 
     public async Task SaveAsync(Notification notification, CancellationToken cancellationToken = default!)

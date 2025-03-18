@@ -5,7 +5,6 @@ using PackageTracker.Database.EntityFramework.Repositories.Enrichers;
 using PackageTracker.Domain.Application;
 using PackageTracker.Domain.Application.Exceptions;
 using PackageTracker.Domain.Application.Model;
-using PackageTracker.Infrastructure;
 
 namespace PackageTracker.Database.EntityFramework;
 internal class ApplicationsDbRepository(IServiceScopeFactory serviceScopeFactory) : IApplicationsRepository

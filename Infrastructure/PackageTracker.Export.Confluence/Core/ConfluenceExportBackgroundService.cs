@@ -1,13 +1,18 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using PackageTracker.Infrastructure.BackgroundServices;
+using PackageTracker.Domain.Modules;
+using PackageTracker.Infrastructure.Modules;
 
 namespace PackageTracker.Export.Confluence.Core;
-internal class ConfluenceExportBackgroundService(IPageContentGeneratorFactory pageContentGeneratorFactory,
+internal class ConfluenceExportBackgroundService(IServiceProvider serviceProvider,
     ConfluenceClientWrapper confluenceClientWrapper,
     IOptions<ConfluenceSettings> options,
-    ILogger<ConfluenceExportBackgroundService> logger) : RepeatedBackgroundService(logger)
+    IModuleManager moduleManager,
+    ILogger<ConfluenceExportBackgroundService> logger) : ModuleBackgroundService(logger, moduleManager, TimeSpan.FromSeconds(1))
 {
+    protected override string ModuleName => Constants.ModuleName;
+
     protected override Task CloseServiceAsync()
     {
         return Task.CompletedTask;
@@ -22,7 +27,7 @@ internal class ConfluenceExportBackgroundService(IPageContentGeneratorFactory pa
             Logger.LogInformation("Updating page '{PageName}'", confluencePage.Name);
             try
             {
-                var pageContentGenerator = pageContentGeneratorFactory.CreatePageContentGenerator(confluencePage.Name, confluencePage.Id);
+                var pageContentGenerator = serviceProvider.GetRequiredKeyedService<IPageContentGenerator>($"{confluencePage.Id}-{confluencePage.Name}");
                 var newContent = await pageContentGenerator.GenerateContentAsync(stoppingToken);
                 await confluenceClientWrapper.UpdatePageAsync(confluencePage.Id, newContent, stoppingToken);
             }

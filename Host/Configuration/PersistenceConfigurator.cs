@@ -2,6 +2,7 @@
 using PackageTracker.Database.EntityFramework;
 using PackageTracker.Database.MemoryCache;
 using PackageTracker.Database.MongoDb;
+using PackageTracker.Domain.Modules;
 
 namespace PackageTracker.Host.Configuration;
 internal static class PersistenceConfigurator
@@ -15,7 +16,7 @@ internal static class PersistenceConfigurator
 
         if (persistenceSettings.Type.Equals(Database.EntityFramework.Constants.InMemory))
         {
-            services.AddInMemoryEFDatabase(configuration);
+            services.AddInMemoryEFDatabase();
             return;
         }
 
@@ -34,14 +35,14 @@ internal static class PersistenceConfigurator
             services.AddMongoDatabase(configuration);
             return;
         }
-     
+
         throw new ArgumentOutOfRangeException(nameof(configuration), "Unknown Persistence Type");
     }
 
     public static void ConfigureDatabase(this IApplicationBuilder application)
     {
         var loggerFactory = application.ApplicationServices.GetRequiredService<ILoggerFactory>();
-        var logger = loggerFactory.CreateLogger("Database");
+        var logger = loggerFactory.CreateLogger("Persistence");
 
         var settings = application.ApplicationServices.GetRequiredService<IOptions<PersistenceSettings>>();
         if (settings is null || settings.Value is null)
@@ -52,6 +53,10 @@ internal static class PersistenceConfigurator
 
         var settingsValue = settings.Value;
         logger.LogInformation("Database Type: {DatabaseType}, Use of Memory Cache: {UseMemoryCache}.", settingsValue.Type, settingsValue.UseMemoryCache ? "Yes" : "No");
+
+        var moduleManager = application.ApplicationServices.GetRequiredService<IModuleManager>();
+        moduleManager.RegisterModulesAsync().Wait();
+
         if (settingsValue.Type.Equals(Database.EntityFramework.Constants.SqlServer))
         {
             application.ApplicationServices.EnsureDatabaseIsUpdatedAsync().Wait();

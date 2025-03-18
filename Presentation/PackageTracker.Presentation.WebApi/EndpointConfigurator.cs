@@ -1,5 +1,4 @@
 ﻿using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.DependencyInjection;
 using PackageTracker.WebHost.RateLimiters;
@@ -10,13 +9,14 @@ public static class EndpointConfigurator
 {
     public static RouteGroupBuilder ConfigureApiEndpoints(this RouteGroupBuilder route)
     {
-        route.RequireRateLimiting(new ApiRateLimiter());
-        route.CacheOutput(opt => opt.Expire(TimeSpan.FromSeconds(30)));
-        route.WithRequestTimeout(TimeSpan.FromSeconds(30));
+        route.RequireRateLimiting(new ApiRateLimiter())
+            .CacheOutput(opt => opt.Expire(TimeSpan.FromSeconds(30)))
+            .WithRequestTimeout(TimeSpan.FromSeconds(30));
 
-        route.MapGroup("/packages").MapPackagesApiEndpoints().WithTags("Packages");
-        route.MapGroup("/frameworks").MapFrameworksApiEndpoints().WithTags("Frameworks");
-        route.MapGroup("/applications").MapApplicationsApiEndpoints().WithTags("Applications");
+        route.MapGroup("/packages").MapPackagesApiEndpoints();
+        route.MapGroup("/frameworks").MapFrameworksApiEndpoints();
+        route.MapGroup("/applications").MapApplicationsApiEndpoints();
+        route.MapGroup("/modules").MapModulesApiEndpoints();
 
         return route
             .WithOpenApi();

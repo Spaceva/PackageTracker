@@ -1,7 +1,7 @@
 ﻿namespace PackageTracker.Export.Confluence;
 public interface IConfluenceExportRegistrator
 {
-    IConfluenceExportRegistrator Register<TPageContentGeneratorFactory>() where TPageContentGeneratorFactory : class, IPageContentGeneratorFactory;
-    IConfluenceExportRegistrator Register<TPageContentGeneratorFactory>(Func<IServiceProvider, TPageContentGeneratorFactory> factory) where TPageContentGeneratorFactory : class, IPageContentGeneratorFactory;
-    IConfluenceExportRegistrator Register(Type type);
+    IConfluenceExportRegistrator Register<TPageContentGenerator>(long pageId, string pageName) where TPageContentGenerator : class, IPageContentGenerator;
+    public IConfluenceExportRegistrator Register<TPageContentGenerator>(Func<IServiceProvider, object, TPageContentGenerator> factory, long pageId, string pageName) where TPageContentGenerator : class, IPageContentGenerator;
+    IConfluenceExportRegistrator Register(Type type, long pageId, string pageName);
 }

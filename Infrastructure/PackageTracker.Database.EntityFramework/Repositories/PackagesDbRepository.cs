@@ -3,7 +3,6 @@ using Microsoft.Extensions.DependencyInjection;
 using PackageTracker.Domain.Package;
 using PackageTracker.Domain.Package.Exceptions;
 using PackageTracker.Domain.Package.Model;
-using PackageTracker.Infrastructure;
 
 namespace PackageTracker.Database.EntityFramework;
 internal class PackagesDbRepository(IServiceScopeFactory serviceScopeFactory) : IPackagesRepository

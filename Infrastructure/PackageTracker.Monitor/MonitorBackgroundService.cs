@@ -3,13 +3,16 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using PackageTracker.Domain.Framework;
 using PackageTracker.Domain.Framework.Model;
-using PackageTracker.Infrastructure.BackgroundServices;
+using PackageTracker.Domain.Modules;
+using PackageTracker.Infrastructure.Modules;
 using PackageTracker.Messages.Events;
 
 namespace PackageTracker.Monitor;
 
-internal class MonitorBackgroundService(IEnumerable<IFrameworkMonitor> frameworkMonitors, IOptionsMonitor<MonitorSettings> monitorSettings, IMediator mediator, ILogger<MonitorBackgroundService> logger) : RepeatedBackgroundService(logger, TimeSpan.FromSeconds(1))
+internal class MonitorBackgroundService(IEnumerable<IFrameworkMonitor> frameworkMonitors, IOptionsMonitor<MonitorSettings> monitorSettings, IMediator mediator, IModuleManager moduleManager, ILogger<MonitorBackgroundService> logger) : ModuleBackgroundService(logger, moduleManager, TimeSpan.FromSeconds(1))
 {
+    protected override string ModuleName => Constants.ModuleName;
+
     protected override Task CloseServiceAsync()
     {
         foreach (var frameworkMonitor in frameworkMonitors) { frameworkMonitor.Dispose(); }

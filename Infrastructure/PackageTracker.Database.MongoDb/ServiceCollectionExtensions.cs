@@ -4,6 +4,7 @@ using PackageTracker.Database.MongoDb.Core;
 using PackageTracker.Database.MongoDb.Repositories;
 using PackageTracker.Domain.Application;
 using PackageTracker.Domain.Framework;
+using PackageTracker.Domain.Modules;
 using PackageTracker.Domain.Notifications;
 using PackageTracker.Domain.Package;
 
@@ -12,7 +13,7 @@ public static class ServiceCollectionExtensions
 {
     public static IServiceCollection AddMongoDatabase(this IServiceCollection services, IConfiguration configuration)
     {
-        services.AddSingleton(new MongoDbContext(configuration.GetConnectionString("Database")!));
+        services.AddSingleton(new MongoDbContext(configuration.GetSection("Persistence:ConnectionString").Value!));
         services.AddDbRepositories();
         return services;
     }
@@ -23,5 +24,6 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IApplicationsRepository, ApplicationsDbRepository>();
         services.AddScoped<IPackagesRepository, PackagesDbRepository>();
         services.AddScoped<IFrameworkRepository, FrameworksDbRepository>();
+        services.AddSingleton<IModuleManager, ModulesDbRepository>();
     }
 }

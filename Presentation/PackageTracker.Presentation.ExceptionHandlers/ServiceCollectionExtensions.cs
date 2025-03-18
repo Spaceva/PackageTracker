@@ -1,6 +1,7 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using PackageTracker.Presentation.ExceptionHandlers.Application;
 using PackageTracker.Presentation.ExceptionHandlers.Framework;
+using PackageTracker.Presentation.ExceptionHandlers.Module;
 using PackageTracker.Presentation.ExceptionHandlers.Notification;
 using PackageTracker.Presentation.ExceptionHandlers.Package;
 using PackageTracker.Presentation.ExceptionHandlers.Technical;
@@ -23,6 +24,8 @@ public static class ServiceCollectionExtensions
 
         services.AddExceptionHandler<NotificationAlreadyExistsExceptionHandler>();
         services.AddExceptionHandler<NotificationNotFoundExceptionHandler>();
+
+        services.AddExceptionHandler<ModuleNotFoundExceptionHandler>();
 
         return services;
     }

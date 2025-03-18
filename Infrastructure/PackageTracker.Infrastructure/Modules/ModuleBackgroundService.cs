@@ -1,10 +1,14 @@
 ﻿using Microsoft.Extensions.Logging;
+using PackageTracker.Domain.Modules;
+using PackageTracker.Infrastructure.BackgroundServices;
 
-namespace PackageTracker.Infrastructure.BackgroundServices;
+namespace PackageTracker.Infrastructure.Modules;
 
-public abstract class RepeatedBackgroundService(ILogger logger, TimeSpan? initialDelay = null) : IScopedBackgroundService
+public abstract class ModuleBackgroundService(ILogger logger, IModuleManager moduleManager, TimeSpan? initialDelay = null) : IScopedBackgroundService
 {
     protected ILogger Logger => logger;
+
+    protected abstract string ModuleName { get; }
 
     public async Task RunAsync(CancellationToken stoppingToken)
     {
@@ -19,6 +23,14 @@ public abstract class RepeatedBackgroundService(ILogger logger, TimeSpan? initia
             {
                 try
                 {
+                    var isModuleEnabled = await moduleManager.IsEnabledAsync(ModuleName, stoppingToken);
+                    if (!isModuleEnabled)
+                    {
+                        Logger.LogInformation("Module {ModuleName} is disabled.", ModuleName);
+                        await WaitForNextExecution(stoppingToken);
+                        continue;
+                    }
+
                     Logger.LogInformation("Starting...");
                     await RunIterationAsync(stoppingToken);
                 }

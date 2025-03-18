@@ -16,21 +16,23 @@ namespace PackageTracker.Presentation.WebApi;
 
 internal static class PackagesApiEndpoints
 {
-    public const string GetAllEndpointName = "Get All Packages";
-    public const string GetByNameEndpointName = "Get Package by Name";
-    public const string SearchEndpointName = "Search Packages";
-    public const string TrackEndpointName = "Track Package";
-    public const string DeleteEndpointName = "Untrack Package";
-    public const string FetchEndpointName = "Fetch Packages";
+    public static class EndpointNames
+    {
+        public const string GetAll = "Get All Packages";
+        public const string GetByName = "Get Package by Name";
+        public const string Search = "Search Packages";
+        public const string Track = "Track Package";
+        public const string Delete = "Untrack Package";
+    }
 
     public static IEndpointConventionBuilder MapPackagesApiEndpoints(this RouteGroupBuilder route)
     {
-        route.MapGet("/", GetAll).WithDisplayName(GetAllEndpointName);
-        route.MapGet("/{name}", GetByName).WithDisplayName(GetByNameEndpointName);
-        route.MapPost("/search", Search).WithDisplayName(SearchEndpointName);
-        route.MapPost("/track", Track).WithDisplayName(TrackEndpointName);
-        route.MapDelete("/{name}", Delete).WithDisplayName(DeleteEndpointName);
-        return route;
+        route.MapGet("/", GetAll).WithDisplayNameAndSummary(EndpointNames.GetAll);
+        route.MapGet("/{name}", GetByName).WithDisplayNameAndSummary(EndpointNames.GetByName);
+        route.MapPost("/search", Search).WithDisplayNameAndSummary(EndpointNames.Search);
+        route.MapPost("/track", Track).WithDisplayNameAndSummary(EndpointNames.Track);
+        route.MapDelete("/{name}", Delete).WithDisplayNameAndSummary(EndpointNames.Delete);
+        return route.WithTags("Packages");
     }
 
     private static async Task<Ok<IReadOnlyCollection<PackageDto>>> Search(PackageSearchCriteria? packageSearchCriteria, IMediator mediator, IMapper mapper, CancellationToken cancellationToken)

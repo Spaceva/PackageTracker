@@ -1,8 +1,8 @@
 {
   "Confluence": {
     "ProxyUrl": "",
-    "TimeBetweenEachExecution": "HH:MM:SS",
-    "Domain": "",
+    "TimeBetweenEachExecution": "00:05:00",
+    "Domain": "placeholder",
     "Username": "",
     "AccessToken": "",
     "Pages": {},

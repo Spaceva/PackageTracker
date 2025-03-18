@@ -129,13 +129,8 @@ internal class FrameworksDbRepository([FromKeyedServices(MemoryCache.Constants.S
     }
 
     private async Task<Framework?> TryGetByVersionNoCacheAsync(string name, string version, CancellationToken cancellationToken = default)
-    {
-        var frameworks = await FindAsync(Filter.Eq(f => f.Name, name) & Filter.Eq(f => f.Version, version), cancellationToken);
-        return frameworks.SingleOrDefault();
-    }
+        => await GetAsync(Filter.Eq(f => f.Name, name) & Filter.Eq(f => f.Version, version), cancellationToken);
 
     private async Task<bool> ExistsNoCacheAsync(string name, string version, CancellationToken cancellationToken = default)
-    {
-        return await AnyAsync(Filter.Eq(f => f.Name, name) & Filter.Eq(f => f.Version, version), cancellationToken);
-    }
+        => await AnyAsync(Filter.Eq(f => f.Name, name) & Filter.Eq(f => f.Version, version), cancellationToken);
 }

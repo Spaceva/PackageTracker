@@ -16,20 +16,23 @@ namespace PackageTracker.Presentation.WebApi;
 
 internal static class FrameworksApiEndpoints
 {
-    public const string GetAllEndpointName = "Get All Frameworks";
-    public const string GetAllActiveEndpointName = "Get All Active Frameworks";
-    public const string GetByNameEndpointName = "Get Framework by Name";
-    public const string DeleteEndpointName = "Delete Framework";
-    public const string SearchEndpointName = "Search Frameworks";
+    public static class EndpointNames
+    {
+        public const string GetAll = "Get All Frameworks";
+        public const string GetAllActive = "Get All Active Frameworks";
+        public const string GetByName = "Get Framework by Name";
+        public const string Delete = "Delete Framework";
+        public const string Search = "Search Frameworks";
+    }
 
     public static IEndpointConventionBuilder MapFrameworksApiEndpoints(this RouteGroupBuilder route)
     {
-        route.MapGet("/", GetAll).WithDisplayName(GetAllEndpointName);
-        route.MapGet("/active", GetAllActive).WithDisplayName(GetAllActiveEndpointName);
-        route.MapGet("/{name}", GetByName).WithDisplayName(GetByNameEndpointName);
-        route.MapPost("/search", Search).WithDisplayName(SearchEndpointName);
-        route.MapPost("/delete", Delete).WithDisplayName(DeleteEndpointName);
-        return route;
+        route.MapGet("/", GetAll).WithDisplayNameAndSummary(EndpointNames.GetAll);
+        route.MapGet("/active", GetAllActive).WithDisplayNameAndSummary(EndpointNames.GetAllActive);
+        route.MapGet("/{name}", GetByName).WithDisplayNameAndSummary(EndpointNames.GetByName);
+        route.MapPost("/search", Search).WithDisplayNameAndSummary(EndpointNames.Search);
+        route.MapPost("/delete", Delete).WithDisplayNameAndSummary(EndpointNames.Delete);
+        return route.WithTags("Frameworks");
     }
 
     private static async Task<Ok<IReadOnlyCollection<FrameworkDto>>> Search(FrameworkSearchCriteria? frameworkSearchCriteria, IMediator mediator, IMapper mapper, CancellationToken cancellationToken)

@@ -1,13 +1,13 @@
-﻿using PackageTracker.Infrastructure.BackgroundServices;
-using PackageTracker.Infrastructure.Http;
+﻿using PackageTracker.Infrastructure.Http;
+using PackageTracker.Infrastructure.Modules;
 
 namespace PackageTracker.Scanner;
 
-public class ScannerSettings : IRepeatedBackgroundSettings, IHttpProxy
+public class ScannerSettings : IModuleBackgroundSettings, IHttpProxy
 {
     public TimeSpan TimeBetweenEachExecution { get; init; }
 
-    public ICollection<TrackedApplication> Applications { get; init; } = default!;
+    public ICollection<TrackedApplication> Applications { get; init; } = [];
 
     public string? ProxyUrl { get; init; }
 

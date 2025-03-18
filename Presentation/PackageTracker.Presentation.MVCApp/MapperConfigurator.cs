@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using PackageTracker.Domain.Application.Model;
+using PackageTracker.Domain.Modules;
 using PackageTracker.Domain.Package.Model;
 using PackageTracker.Presentation.MVCApp.Mappers;
 using PackageTracker.Presentation.MVCApp.Models;
@@ -21,6 +22,8 @@ public static class MapperConfigurator
             .CreateMap<Package, PackageWithVersionsViewModel>()
             .ForMember(vm => vm.Type, o => o.MapFrom(src => src.Type.ToString()))
             .ForMember(vm => vm.Versions, o => o.MapFrom(src => src.VersionLabelsDescending().ToDictionary(p => p, CreateLink(src))));
+
+        mapperConfiguration.CreateMap<Module, ModuleViewModel>();
 
         return mapperConfiguration;
     }

@@ -4,11 +4,9 @@ using PackageTracker.Database.EntityFramework.Extensions;
 using PackageTracker.Domain.Framework;
 using PackageTracker.Domain.Framework.Exceptions;
 using PackageTracker.Domain.Framework.Model;
-using PackageTracker.Infrastructure;
-using System;
 
 namespace PackageTracker.Database.EntityFramework;
-internal class FrameworkDbRepository(IServiceScopeFactory serviceScopeFactory) : IFrameworkRepository
+internal class FrameworksDbRepository(IServiceScopeFactory serviceScopeFactory) : IFrameworkRepository
 {
     public async Task<bool> ExistsAsync(string name, string version, CancellationToken cancellationToken = default)
     {

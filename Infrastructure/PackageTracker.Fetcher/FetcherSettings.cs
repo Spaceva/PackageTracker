@@ -1,9 +1,9 @@
-﻿using PackageTracker.Infrastructure.BackgroundServices;
-using PackageTracker.Infrastructure.Http;
+﻿using PackageTracker.Infrastructure.Http;
+using PackageTracker.Infrastructure.Modules;
 
 namespace PackageTracker.Fetcher;
 
-public class FetcherSettings : IRepeatedBackgroundSettings, IHttpProxy
+public class FetcherSettings : IModuleBackgroundSettings, IHttpProxy
 {
     public TimeSpan TimeBetweenEachExecution { get; init; }
 

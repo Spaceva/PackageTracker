@@ -2,17 +2,21 @@
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using PackageTracker.Domain.Modules;
 using PackageTracker.Domain.Package;
 using PackageTracker.Domain.Package.Model;
-using PackageTracker.Infrastructure.BackgroundServices;
+using PackageTracker.Infrastructure.Modules;
 using PackageTracker.Messages.Events;
 
 namespace PackageTracker.Fetcher;
 
-internal class FetcherBackgroundService(IServiceProvider serviceProvider, IOptionsMonitor<FetcherSettings> fetcherSettings, IMediator mediator, IPackagesRepository packagesRepository, ILogger<FetcherBackgroundService> logger) : RepeatedBackgroundService(logger, TimeSpan.FromSeconds(1))
+internal class FetcherBackgroundService(IServiceProvider serviceProvider, IOptionsMonitor<FetcherSettings> fetcherSettings, IMediator mediator, IPackagesRepository packagesRepository, IModuleManager moduleManager, ILogger<FetcherBackgroundService> logger) : ModuleBackgroundService(logger, moduleManager, TimeSpan.FromSeconds(1))
 {
     private IEnumerable<IPackagesFetcher> PackagesFetchers => serviceProvider.GetServices<IPackagesFetcher>();
+
     private readonly PackageType[] packagesType = [.. Enum.GetValues<PackageType>().OfType<PackageType>()];
+
+    protected override string ModuleName => Constants.ModuleName;
 
     protected override Task CloseServiceAsync()
     {

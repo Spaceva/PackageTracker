@@ -4,7 +4,6 @@ using PackageTracker.Database.Common.Enrichers;
 using PackageTracker.Database.MongoDb.Core;
 using PackageTracker.Database.MongoDb.Model;
 using PackageTracker.Database.MongoDb.Repositories.Base;
-using PackageTracker.Database.MongoDb.Repositories.Enrichers;
 using PackageTracker.Domain.Application;
 using PackageTracker.Domain.Application.Exceptions;
 using PackageTracker.Domain.Application.Model;

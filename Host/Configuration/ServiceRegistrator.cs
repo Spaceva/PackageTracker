@@ -15,6 +15,7 @@ using PackageTracker.ChatBot.Discord.Notifications;
 using PackageTracker.Scanner.AzureDevOps;
 using PackageTracker.Scanner.GitHub;
 using PackageTracker.Scanner.Gitlab;
+using PackageTracker.Domain.Modules;
 
 namespace PackageTracker.Host.Configuration;
 internal static class ServiceRegistrator
@@ -58,44 +59,46 @@ internal static class ServiceRegistrator
         services.AddExceptionHandlers();
     }
 
+    public static async Task RegisterModulesAsync(this IModuleManager moduleManager)
+    {
+        await moduleManager.TryRegisterAsync(Fetcher.Constants.ModuleName);
+        await moduleManager.TryRegisterAsync(Scanner.Constants.ModuleName);
+        await moduleManager.TryRegisterAsync(Monitor.Constants.ModuleName);
+        await moduleManager.TryRegisterAsync(Export.Confluence.Constants.ModuleName);
+    }
+
     private static void AddModules(this IServiceCollection services, IConfiguration configuration)
     {
-        var modules = configuration.GetSection("Modules");
-        if (modules.GetValue<bool>("Fetcher"))
-        {
-            services.AddFetcher(configuration)
-                    .AddPublicRegistriesFetchers();
-        }
+        services.AddFetcher(configuration)
+                .AddPublicRegistriesFetchers();
 
-        if (modules.GetValue<bool>("Scanner"))
-        {
-            services.AddApplicationsScanner(configuration)
-                    .AddAzureDevOps()
-                    .AddGitHub()
-                    .AddGitlab();
-        }
+        services.AddApplicationsScanner(configuration)
+                .AddAzureDevOps()
+                .AddGitHub()
+                .AddGitlab();
 
-        if (modules.GetValue<bool>("Monitor"))
-        {
-            services.AddMonitor(configuration)
-                    .AddGitHubMonitors()
-                    .AddEndOfLifeMonitors();
-        }
+        services.AddMonitor(configuration)
+                .AddGitHubMonitors()
+                .AddEndOfLifeMonitors();
 
-        if (modules.GetValue<bool>("ConfluenceExport"))
-        {
-            services.AddConfluenceExport(configuration);
-            // Add your confluence exports registrations here
-        }
+        services.AddConfluenceExport(configuration);
 
-        if (modules.GetValue<bool>("Discord"))
+        try
         {
             services.NotifyWithDiscord(configuration);
         }
-
-        if (modules.GetValue<bool>("Telegram"))
+        catch (ArgumentException ex)
+        {
+            Console.WriteLine($"Notify with Discord disabled : {ex.ParamName} - {ex.Message}");
+        }
+        try
         {
             services.NotifyWithTelegram(configuration);
         }
+        catch (ArgumentException ex)
+        {
+            Console.WriteLine($"Notify with Telegram disabled : {ex.ParamName} - {ex.Message}");
+        }
+
     }
 }

@@ -3,13 +3,16 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using PackageTracker.Domain.Application;
 using PackageTracker.Domain.Application.Model;
-using PackageTracker.Infrastructure.BackgroundServices;
+using PackageTracker.Domain.Modules;
+using PackageTracker.Infrastructure.Modules;
 using PackageTracker.Messages.Events;
 
 namespace PackageTracker.Scanner;
 
-internal class ScannerBackgroundService(IEnumerable<IApplicationsScanner> applicationsScanners, IOptionsMonitor<ScannerSettings> scannerSettings, IMediator mediator, ILogger<ScannerBackgroundService> logger) : RepeatedBackgroundService(logger, TimeSpan.FromSeconds(5))
+internal class ScannerBackgroundService(IEnumerable<IApplicationsScanner> applicationsScanners, IOptionsMonitor<ScannerSettings> scannerSettings, IMediator mediator, IModuleManager moduleManager, ILogger<ScannerBackgroundService> logger) : ModuleBackgroundService(logger, moduleManager, TimeSpan.FromSeconds(5))
 {
+    protected override string ModuleName => Constants.ModuleName;
+
     protected override Task CloseServiceAsync()
     {
         foreach (var applicationsScanner in applicationsScanners) { applicationsScanner.Dispose(); }

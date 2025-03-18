@@ -11,7 +11,7 @@ public static class ServiceCollectionExtensions
     {
         services.AddScopedBackgroundService<FetcherBackgroundService>();
 
-        services.Configure<FetcherSettings>(configuration.GetSection("Fetcher"));
+        services.Configure<FetcherSettings>(configuration.GetSection(Constants.ModuleName));
 
         return new FetcherRegistrator(services);
     }

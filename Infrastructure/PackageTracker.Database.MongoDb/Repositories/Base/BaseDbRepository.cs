@@ -50,6 +50,15 @@ internal abstract class BaseDbRepository<TMongoEntity>(MongoDbContext dbContext,
         return entity;
     }
 
+    public async Task<TMongoEntity> InsertAsync(TMongoEntity entity, CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(entity);
+
+        await Collection.InsertOneAsync(entity, new InsertOneOptions(), cancellationToken: cancellationToken);
+
+        return entity;
+    }
+
     public async Task<IEnumerable<TResult>> ExecutePipelineAsync<TResult>(PipelineDefinition<TMongoEntity, TResult> pipeline, CancellationToken cancellationToken = default)
     {
         var cursor = await Collection.AggregateAsync(pipeline, cancellationToken: cancellationToken);

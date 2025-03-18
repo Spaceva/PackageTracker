@@ -1,0 +1,70 @@
+﻿@using PackageTracker.Messages.Queries;
+@using PackageTracker.Presentation.MVCApp.Controllers
+@model IEnumerable<PackageTracker.Presentation.MVCApp.Models.ModuleViewModel>
+@{
+    ViewData["Title"] = "Modules";
+    var toggleModuleUrl = Url.Action(nameof(ModuleController.Toggle), nameof(ModuleController).Replace(nameof(Controller), string.Empty));
+}
+
+<table class="table table-sm table-bordered table-hover align-content-center text-center">
+    <thead>
+        <tr class="bg-info">
+            <th><i class="fa-solid fa-tag"></i> Name</th>
+            <th><i class="fa-solid fa-toggle-on"></i> Status</th>
+            <th><i class="fa-solid fa-gear"></i> Actions</th>
+        </tr>
+    </thead>
+    <tbody class="table-group-divider">
+        @foreach (var module in Model)
+        {
+            var rowId = Guid.NewGuid();
+            <tr id="module_row_@rowId">
+                <td class="align-content-start text-start">
+                    @module.Name
+                </td>
+                <td id="status_@rowId">
+                    @Html.Raw(module.IsEnabled ? "<i class=\"fa-solid fa-toggle-on\"></i> Enabled" : "<i class=\"fa-solid fa-toggle-off\"></i> Disabled")
+                </td>
+                <td>
+                    <button id="toggle_module_btn_@rowId" type="button"
+                            class="btn btn-sm btn-@(module.IsEnabled ? "danger" : "success")"
+                            onclick="toggleModule('@module.Name', @((!module.IsEnabled).ToString().ToLower()), '@rowId')">
+                        <i id="toggle_module_icon_@rowId" class="fa-solid fa-toggle-@(module.IsEnabled ? "off":"on")"></i> <span id="btn_content_@rowId">@(module.IsEnabled ? "Disable" : "Enable")</span>
+                        <span id="toggle_module_spinner_@rowId" class="spinner-border spinner-border-sm" role="status" aria-hidden="true" style="display: none;"></span>
+                    </button>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+<script type="text/javascript">
+    const toggleModule = (moduleName, newState, rowId) => {
+        $(`#toggle_module_icon_${rowId}`).hide();
+        $(`#toggle_module_spinner_${rowId}`).show();
+        $(`#toggle_module_btn_${rowId}`).attr('disabled', 'disabled');
+        $.ajax({
+            type: "POST",
+            url: '@(toggleModuleUrl)',
+            data: JSON.stringify({ name: moduleName }),
+            contentType: "application/json",
+            success: () => {
+                toastContent("Module activé/désactivé", `Le module <b>${moduleName}</b> a été ${newState?'activé':'désactivé'}.`, 'success');
+                $(`#toggle_module_spinner_${rowId}`).hide();
+                $(`#toggle_module_icon_${rowId}`).show();
+                $(`#toggle_module_icon_${rowId}`).removeClass(`fa-toggle-${newState?'on':'off'}`);
+                $(`#toggle_module_icon_${rowId}`).addClass(`fa-toggle-${newState?'off':'on'}`);
+                $(`#toggle_module_btn_${rowId}`).removeAttr('disabled');
+                $(`#toggle_module_btn_${rowId}`).removeClass(`btn-${newState?'success':'danger'}`);
+                $(`#toggle_module_btn_${rowId}`).addClass(`btn-${newState?'danger':'success'}`);
+                $(`#toggle_module_btn_${rowId}`).attr('onclick', `toggleModule('${moduleName}', ${!newState}, '${rowId}')`);
+                $(`#status_${rowId}`).html(newState?"<i class=\"fa-solid fa-toggle-on\"></i> Enabled":"<i class=\"fa-solid fa-toggle-off\"></i> Disabled");
+                $(`#btn_content_${rowId}`).html(newState?"Disable":"Enable");
+            },
+            error: (data) => {
+                toastContent("Module non modifié", `Erreur HTTP ${data.status} : Le module <b>${moduleName}</b> n'a <b>pas</b> été ${newState?'activé':'désactivé'}.`, 'danger');
+                $(`#toggle_module_icon_${rowId}`).show();
+                $(`#toggle_module_spinner_${rowId}`).hide();
+                $(`#toggle_module_btn_${rowId}`).removeAttr('disabled');
+            }
+        })
+    }</script>

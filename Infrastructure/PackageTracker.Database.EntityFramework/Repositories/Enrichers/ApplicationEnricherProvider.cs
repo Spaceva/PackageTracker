@@ -2,7 +2,6 @@
 using PackageTracker.Database.Common.Enrichers;
 using PackageTracker.Domain.Framework;
 using PackageTracker.Domain.Package;
-using PackageTracker.Infrastructure;
 
 namespace PackageTracker.Database.EntityFramework.Repositories.Enrichers;
 internal static class ApplicationEnricherProvider

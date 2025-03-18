@@ -117,8 +117,7 @@ internal class PackagesDbRepository([FromKeyedServices(MemoryCache.Constants.SER
 
     private async Task<Package?> TryGetByNameNoCacheAsync(string packageName, CancellationToken cancellationToken = default)
     {
-        var packagesDb = await FindAsync(Builders<PackageDbModel>.Filter.Eq(p => p.Name, packageName), cancellationToken);
-        var packageDb = packagesDb.SingleOrDefault();
+        var packageDb = await GetAsync(Builders<PackageDbModel>.Filter.Eq(p => p.Name, packageName), cancellationToken);
         return packageDb?.ToDomain();
     }
 

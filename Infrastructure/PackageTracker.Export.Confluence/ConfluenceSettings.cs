@@ -1,9 +1,9 @@
-﻿using PackageTracker.Infrastructure.BackgroundServices;
-using PackageTracker.Infrastructure.Http;
+﻿using PackageTracker.Infrastructure.Http;
+using PackageTracker.Infrastructure.Modules;
 
 namespace PackageTracker.Export.Confluence;
 
-public class ConfluenceSettings : IRepeatedBackgroundSettings, IHttpProxy
+public class ConfluenceSettings : IModuleBackgroundSettings, IHttpProxy
 {
     public string Username { get; init; } = default!;
 
