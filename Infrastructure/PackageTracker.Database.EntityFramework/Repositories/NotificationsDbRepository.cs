@@ -44,19 +44,19 @@ internal class NotificationsDbRepository(IServiceScopeFactory serviceScopeFactor
             throw new NotificationNotFoundException();
         }
 
-        try
+        if (!dbContext.Database.IsInMemory())
         {
             await dbContext.Notifications.Where(n => ids.Contains(n.Id)).ExecuteUpdateAsync(s => s.SetProperty(n => n.IsRead, n => true), cancellationToken: cancellationToken);
+            return;
         }
-        catch (InvalidOperationException)
+
+        var notifications = await dbContext.Notifications.Where(n => ids.Contains(n.Id)).ToArrayAsync(cancellationToken);
+        foreach (var notification in notifications)
         {
-            var notifications = await dbContext.Notifications.Where(n => ids.Contains(n.Id)).ToArrayAsync(cancellationToken);
-            foreach (var notification in notifications)
-            {
-                notification.IsRead = true;
-            }
-            await dbContext.SaveChangesAsync(cancellationToken);
+            notification.IsRead = true;
         }
+        await dbContext.SaveChangesAsync(cancellationToken);
+        return;
     }
 
     public async Task MarkAllAsReadAsync(CancellationToken cancellationToken = default!)
@@ -64,19 +64,18 @@ internal class NotificationsDbRepository(IServiceScopeFactory serviceScopeFactor
         using var scope = serviceScopeFactory.CreateScope();
         using var dbContext = scope.ServiceProvider.GetRequiredService<PackageTrackerDbContext>();
 
-        try
+        if (!dbContext.Database.IsInMemory())
         {
             await dbContext.Notifications.ExecuteUpdateAsync(s => s.SetProperty(n => n.IsRead, n => true), cancellationToken: cancellationToken);
+            return;
         }
-        catch (InvalidOperationException)
+     
+        var notifications = await dbContext.Notifications.ToArrayAsync(cancellationToken);
+        foreach (var notification in notifications)
         {
-            var notifications = await dbContext.Notifications.ToArrayAsync(cancellationToken);
-            foreach (var notification in notifications)
-            {
-                notification.IsRead = true;
-            }
-            await dbContext.SaveChangesAsync(cancellationToken);
+            notification.IsRead = true;
         }
+        await dbContext.SaveChangesAsync(cancellationToken);
     }
 
     public async Task SaveAsync(Notification notification, CancellationToken cancellationToken = default!)

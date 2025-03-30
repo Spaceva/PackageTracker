@@ -12,6 +12,7 @@ internal class MainReleasesIndex
 
     [JsonPropertyName("latest-release-date")]
     public string LatestReleaseDate { get; init; } = default!;
+
     public string Product { get; init; } = default!;
 
     [JsonPropertyName("release-type")]
@@ -21,7 +22,8 @@ internal class MainReleasesIndex
     public string SupportPhase { get; init; } = default!;
 
     [JsonPropertyName("eol-date")]
-    public DateTime? EolDate { get; init; } = default!;
+    [JsonConverter(typeof(NullableDateTimeConverter))]
+    public DateTime? EolDate { get; init; }
 
     [JsonPropertyName("releases.json")]
     public string ReleasesJson { get; init; } = default!;

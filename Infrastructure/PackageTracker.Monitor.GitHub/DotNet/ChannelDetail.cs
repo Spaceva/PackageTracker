@@ -14,6 +14,7 @@ public class ChannelDetail
     public class Release
     {
         [JsonPropertyName("release-date")]
+        [JsonConverter(typeof(DateTimeConverter))]
         public DateTime ReleaseDate { get; init; } = default!;
 
         [JsonPropertyName("release-version")]

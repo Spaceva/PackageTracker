@@ -17,10 +17,18 @@ public static class ServiceCollectionExtensions
         services.AddSqlServer<PackageTrackerDbContext>(configuration.GetSection("Persistence:ConnectionString").Value!);
         return services;
     }
+    
     public static IServiceCollection AddInMemoryEFDatabase(this IServiceCollection services)
     {
         services.AddDbRepositories();
         services.AddDbContext<PackageTrackerDbContext>(opt => opt.UseInMemoryDatabase(nameof(PackageTrackerDbContext)));
+        return services;
+    }
+
+    public static IServiceCollection AddPostgresEFDatabase(this IServiceCollection services, IConfiguration configuration)
+    {
+        services.AddDbRepositories();
+        services.AddNpgsql<PackageTrackerDbContext>(configuration.GetSection("Persistence:ConnectionString").Value!);
         return services;
     }
 

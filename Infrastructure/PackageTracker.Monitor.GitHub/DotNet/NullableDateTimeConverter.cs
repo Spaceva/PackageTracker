@@ -2,7 +2,7 @@
 using System.Text.Json;
 using System.Runtime.Serialization;
 
-namespace PackageTracker.Monitor.GitHub.NodeJS;
+namespace PackageTracker.Monitor.GitHub.DotNet;
 internal class NullableDateTimeConverter : JsonConverter<DateTime?>
 {
     private static readonly IFormatProvider formatProvider = new DateTimeFormat("YYYY-MM-DD").FormatProvider;

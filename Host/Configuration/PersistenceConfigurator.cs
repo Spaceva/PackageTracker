@@ -7,6 +7,8 @@ using PackageTracker.Domain.Modules;
 namespace PackageTracker.Host.Configuration;
 internal static class PersistenceConfigurator
 {
+    private static readonly string[] needingInitDbTypes = [Database.EntityFramework.Constants.Postgres, Database.EntityFramework.Constants.SqlServer];
+
     public static void ConfigureDatabase(this IServiceCollection services, IConfiguration configuration)
     {
         var section = configuration.GetRequiredSection(PersistenceSettings.ConfigurationSection);
@@ -30,6 +32,13 @@ internal static class PersistenceConfigurator
             services.AddSqlServerEFDatabase(configuration);
             return;
         }
+
+        if (persistenceSettings.Type.Equals(Database.EntityFramework.Constants.Postgres))
+        {
+            services.AddPostgresEFDatabase(configuration);
+            return;
+        }
+
         if (persistenceSettings.Type.Equals(Database.MongoDb.Constants.PersistenceType))
         {
             services.AddMongoDatabase(configuration);
@@ -53,13 +62,12 @@ internal static class PersistenceConfigurator
 
         var settingsValue = settings.Value;
         logger.LogInformation("Database Type: {DatabaseType}, Use of Memory Cache: {UseMemoryCache}.", settingsValue.Type, settingsValue.UseMemoryCache ? "Yes" : "No");
-
-        var moduleManager = application.ApplicationServices.GetRequiredService<IModuleManager>();
-        moduleManager.RegisterModulesAsync().Wait();
-
-        if (settingsValue.Type.Equals(Database.EntityFramework.Constants.SqlServer))
+        if (needingInitDbTypes.Contains(settingsValue.Type))
         {
             application.ApplicationServices.EnsureDatabaseIsUpdatedAsync().Wait();
         }
+
+        var moduleManager = application.ApplicationServices.GetRequiredService<IModuleManager>();
+        moduleManager.RegisterModulesAsync().Wait();
     }
 }

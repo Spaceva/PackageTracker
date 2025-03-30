@@ -9,14 +9,14 @@ Use the `appsettings.json` configuration file to setup your database.
 {
   "AllowedHosts": "*",
   "Persistence": {
-    "Type": "MongoDb | SqlServer | InMemory",
+    "Type": "MongoDb | SqlServer | Postgres | InMemory",
     "UseMemoryCache": true,
     "ConnectionString": "YOUR_DATABASE_CONNECTION_STRING_HERE"
   }
 }
 ```
 
-`Persistence > Type` value can be : `MongoDb`, `SqlServer`, `InMemory`.
+`Persistence > Type` value can be : `MongoDb`, `SqlServer`, `Postgres`, `InMemory`.
 
 ## Modules
 ### Fetcher
