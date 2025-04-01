@@ -75,7 +75,7 @@ internal class GitHubScanner(Func<IGitHubClient, string, Task<IReadOnlyList<Repo
                 return null;
             }
 
-            return Application.From(repository.Name, repository.FullName.Replace("/", ">").Replace($">{repository.Name}", string.Empty), repository.HtmlUrl, applicationBranchs, RepositoryType.Gitlab);
+            return Application.From(repository.Name, repository.FullName.Replace("/", ">").Replace($">{repository.Name}", string.Empty), repository.HtmlUrl, applicationBranchs, RepositoryType.GitHub);
         }
         catch (TaskCanceledException)
         {

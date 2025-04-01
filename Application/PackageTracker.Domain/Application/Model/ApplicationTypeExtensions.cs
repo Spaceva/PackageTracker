@@ -82,7 +82,7 @@ public static class ApplicationTypeExtensions
             nameof(PhpApplicationBranch) => ApplicationType.Php,
             nameof(JavaApplicationBranch) => ApplicationType.Java,
             nameof(DotNetApplicationBranch) => ApplicationType.DotNet,
-            nameof(ReactApplicationBranch) => ApplicationType.DotNet,
+            nameof(ReactApplicationBranch) => ApplicationType.React,
             _ => throw new ArgumentOutOfRangeException(nameof(type)),
         };
     }
@@ -95,7 +95,7 @@ public static class ApplicationTypeExtensions
             nameof(PhpModule) => ApplicationType.Php,
             nameof(JavaModule) => ApplicationType.Java,
             nameof(DotNetAssembly) => ApplicationType.DotNet,
-            nameof(ReactApplication) => ApplicationType.React,
+            nameof(ReactModule) => ApplicationType.React,
             _ => throw new ArgumentOutOfRangeException(nameof(type)),
         };
     }

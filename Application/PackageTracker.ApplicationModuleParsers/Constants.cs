@@ -26,7 +26,7 @@ internal static partial class Constants
             public const string PackagesProperty = "dependencies";
             public const string DevPackagesProperty = "devDependencies";
             public const string AngularVersionPropertyName = "@angular/cli";
-            public const string ReactVersionPropertyName = "@angular/cli";
+            public const string ReactVersionPropertyName = "react";
         }
 
         public static class Php
