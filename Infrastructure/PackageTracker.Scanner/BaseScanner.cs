@@ -1,11 +1,11 @@
-﻿using MediatR;
-using Microsoft.Extensions.Logging;
+﻿using Microsoft.Extensions.Logging;
 using PackageTracker.Domain.Application;
 using PackageTracker.Domain.Application.Model;
 using PackageTracker.Domain.Package.Model;
 using PackageTracker.Messages.Queries;
 using System.Collections.Concurrent;
 using static PackageTracker.Scanner.ScannerSettings;
+using PackageTracker.SharedKernel.Mediator;
 
 namespace PackageTracker.Scanner;
 public abstract class BaseScanner<TRepository>(TrackedApplication trackedApplication, IEnumerable<IApplicationModuleParser> moduleParsers, ILogger logger, IMediator mediator) : IApplicationsScanner
@@ -18,7 +18,7 @@ public abstract class BaseScanner<TRepository>(TrackedApplication trackedApplica
 
     public async Task<IReadOnlyCollection<Application>> FindDeadLinksAsync(CancellationToken cancellationToken)
     {
-        var response = await mediator.Send(new GetApplicationsQuery { SearchCriteria = new ApplicationSearchCriteria { RepositoryTypes = [RepositoryType], ShowDeadLink = true } }, cancellationToken);
+        var response = await mediator.Query<GetApplicationsQuery, GetApplicationsQueryResponse>(new GetApplicationsQuery { SearchCriteria = new ApplicationSearchCriteria { RepositoryTypes = [RepositoryType], ShowDeadLink = true } }, cancellationToken);
         var localApplications = response.Applications;
 
         var repositories = await GetRepositoriesAsync(cancellationToken);
@@ -35,7 +35,7 @@ public abstract class BaseScanner<TRepository>(TrackedApplication trackedApplica
         var applications = new ConcurrentBag<Application>();
         var repositories = await GetRepositoriesAsync(cancellationToken);
         using var semaphore = new SemaphoreSlim(MaximumConcurrencyCalls, MaximumConcurrencyCalls);
-        
+
         try
         {
             await Parallel.ForEachAsync(repositories.Where(IsNotArchived), cancellationToken, async (repository, cancellationToken) =>

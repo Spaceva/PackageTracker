@@ -1,5 +1,4 @@
 ﻿using AutoMapper;
-using MediatR;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.HttpResults;
@@ -11,6 +10,7 @@ using PackageTracker.Messages.Queries;
 using PackageTracker.Presentation.WebApi.DTOs.Framework;
 using PackageTracker.Presentation.WebApi.Mappers;
 using System.Web;
+using PackageTracker.SharedKernel.Mediator;
 
 namespace PackageTracker.Presentation.WebApi;
 
@@ -39,25 +39,25 @@ internal static class FrameworksApiEndpoints
     {
         ArgumentNullException.ThrowIfNull(frameworkSearchCriteria);
 
-        var queryResponse = await mediator.Send(new GetFrameworksQuery { SearchCriteria = frameworkSearchCriteria }, cancellationToken);
+        var queryResponse = await mediator.Query<GetFrameworksQuery, GetFrameworksQueryResponse>(new GetFrameworksQuery { SearchCriteria = frameworkSearchCriteria }, cancellationToken);
         return TypedResults.Ok(mapper.MapCollection<Framework, FrameworkDto>(queryResponse.Frameworks));
     }
 
     private static async Task<Ok<IReadOnlyCollection<FrameworkDto>>> GetAll(IMediator mediator, IMapper mapper, CancellationToken cancellationToken)
     {
-        var queryResponse = await mediator.Send(new GetFrameworksQuery { SearchCriteria = new FrameworkSearchCriteria() }, cancellationToken);
+        var queryResponse = await mediator.Query<GetFrameworksQuery, GetFrameworksQueryResponse>(new GetFrameworksQuery { SearchCriteria = new FrameworkSearchCriteria() }, cancellationToken);
         return TypedResults.Ok(mapper.MapCollection<Framework, FrameworkDto>(queryResponse.Frameworks));
     }
 
     private static async Task<Ok<IReadOnlyCollection<FrameworkDto>>> GetByName(string name, IMediator mediator, IMapper mapper, CancellationToken cancellationToken)
     {
-        var queryResponse = await mediator.Send(new GetFrameworksQuery { SearchCriteria = new FrameworkSearchCriteria() { Name = HttpUtility.UrlDecode(name) } }, cancellationToken);
+        var queryResponse = await mediator.Query<GetFrameworksQuery, GetFrameworksQueryResponse>(new GetFrameworksQuery { SearchCriteria = new FrameworkSearchCriteria() { Name = HttpUtility.UrlDecode(name) } }, cancellationToken);
         return TypedResults.Ok(mapper.MapCollection<Framework, FrameworkDto>(queryResponse.Frameworks));
     }
 
     private static async Task<Ok<IReadOnlyCollection<FrameworkDto>>> GetAllActive(IMediator mediator, IMapper mapper, CancellationToken cancellationToken)
     {
-        var queryResponse = await mediator.Send(new GetFrameworksQuery { SearchCriteria = new FrameworkSearchCriteria { Status = [FrameworkStatus.Active, FrameworkStatus.LongTermSupport] } }, cancellationToken);
+        var queryResponse = await mediator.Query<GetFrameworksQuery, GetFrameworksQueryResponse>(new GetFrameworksQuery { SearchCriteria = new FrameworkSearchCriteria { Status = [FrameworkStatus.Active, FrameworkStatus.LongTermSupport] } }, cancellationToken);
         return TypedResults.Ok(mapper.MapCollection<Framework, FrameworkDto>(queryResponse.Frameworks));
     }
 

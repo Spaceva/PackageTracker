@@ -1,6 +1,8 @@
-﻿namespace PackageTracker.ChatBot;
+﻿using PackageTracker.SharedKernel.Mediator;
 
-public interface IChatBotCommand
+namespace PackageTracker.ChatBot;
+
+public interface IChatBotCommand : IRequest
 {
     public IIncomingMessage MessageProperties { get; }
 }

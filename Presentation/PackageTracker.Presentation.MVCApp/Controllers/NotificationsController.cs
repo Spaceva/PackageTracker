@@ -1,10 +1,10 @@
-﻿using MediatR;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using PackageTracker.Domain.Notifications.Exceptions;
 using PackageTracker.Domain.Notifications.Model;
 using PackageTracker.Messages.Commands;
 using PackageTracker.Messages.Queries;
 using PackageTracker.Presentation.MVCApp.Models;
+using PackageTracker.SharedKernel.Mediator;
 
 namespace PackageTracker.Presentation.MVCApp.Controllers;
 
@@ -12,13 +12,13 @@ public class NotificationsController(IMediator mediator) : Controller
 {
     public async Task<IActionResult> Index()
     {
-        var queryResponse = await mediator.Send(new GetLatestNotificationsQuery());
+        var queryResponse = await mediator.Query<GetLatestNotificationsQuery, GetLatestNotificationsQueryResponse>(new GetLatestNotificationsQuery());
         return View(queryResponse.Notifications);
     }
 
     public async Task<IActionResult> Unread()
     {
-        var queryResponse = await mediator.Send(new GetUnreadNotificationsQuery());
+        var queryResponse = await mediator.Query<GetUnreadNotificationsQuery, GetUnreadNotificationsQueryResponse>(new GetUnreadNotificationsQuery());
         return Json(queryResponse.Notifications);
     }
 

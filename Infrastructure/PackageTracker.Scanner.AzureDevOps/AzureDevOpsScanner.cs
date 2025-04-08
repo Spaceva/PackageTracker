@@ -1,11 +1,11 @@
-﻿using MediatR;
-using Microsoft.Extensions.Logging;
+﻿using Microsoft.Extensions.Logging;
 using PackageTracker.Domain.Application;
 using PackageTracker.Domain.Application.Model;
 using PackageTracker.Infrastructure.Http;
 using PackageTracker.Scanner.AzureDevOps.Model;
 using static PackageTracker.Scanner.ScannerSettings;
 using DownloadedFile = (string Name, string Content);
+using PackageTracker.SharedKernel.Mediator;
 
 namespace PackageTracker.Scanner.AzureDevOps;
 

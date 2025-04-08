@@ -61,9 +61,9 @@ internal static class ServiceRegistrator
 
     public static async Task RegisterModulesAsync(this IModuleManager moduleManager)
     {
-        await moduleManager.TryRegisterAsync(Fetcher.Constants.ModuleName);
-        await moduleManager.TryRegisterAsync(Scanner.Constants.ModuleName);
-        await moduleManager.TryRegisterAsync(Monitor.Constants.ModuleName);
+        await moduleManager.TryRegisterAsync(Fetcher.Constants.ModuleName, true);
+        await moduleManager.TryRegisterAsync(Scanner.Constants.ModuleName, true);
+        await moduleManager.TryRegisterAsync(Monitor.Constants.ModuleName, true);
         await moduleManager.TryRegisterAsync(Export.Confluence.Constants.ModuleName);
     }
 

@@ -1,5 +1,5 @@
-﻿using MediatR;
-using PackageTracker.Domain.Package;
+﻿using PackageTracker.Domain.Package;
+using PackageTracker.SharedKernel.Mediator;
 
 namespace PackageTracker.Messages.Queries;
 public class GetPackagesQuery : IRequest<GetPackagesQueryResponse>

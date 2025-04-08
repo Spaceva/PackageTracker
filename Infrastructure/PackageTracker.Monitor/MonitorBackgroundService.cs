@@ -1,11 +1,11 @@
-﻿using MediatR;
-using Microsoft.Extensions.Logging;
+﻿using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using PackageTracker.Domain.Framework;
 using PackageTracker.Domain.Framework.Model;
 using PackageTracker.Domain.Modules;
 using PackageTracker.Infrastructure.Modules;
 using PackageTracker.Messages.Events;
+using PackageTracker.SharedKernel.Mediator;
 
 namespace PackageTracker.Monitor;
 

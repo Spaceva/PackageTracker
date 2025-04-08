@@ -1,8 +1,8 @@
-﻿using MediatR;
-using Microsoft.Extensions.DependencyInjection;
+﻿using Microsoft.Extensions.DependencyInjection;
 using PackageTracker.Domain.Package;
 using PackageTracker.Messages.Commands;
 using PackageTracker.Messages.Events;
+using PackageTracker.SharedKernel.Mediator;
 
 namespace PackageTracker.Handlers;
 

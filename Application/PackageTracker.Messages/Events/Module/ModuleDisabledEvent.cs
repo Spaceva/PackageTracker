@@ -1,4 +1,4 @@
-﻿using MediatR;
+﻿using PackageTracker.SharedKernel.Mediator;
 
 namespace PackageTracker.Messages.Events;
 

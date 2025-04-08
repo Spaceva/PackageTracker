@@ -1,6 +1,6 @@
 ﻿namespace PackageTracker.Messages.Commands;
 
-using MediatR;
+using PackageTracker.SharedKernel.Mediator;
 using System;
 
 public class ReadNotificationCommand : IRequest

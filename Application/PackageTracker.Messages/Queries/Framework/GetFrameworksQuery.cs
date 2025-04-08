@@ -1,5 +1,5 @@
-﻿using MediatR;
-using PackageTracker.Domain.Framework;
+﻿using PackageTracker.Domain.Framework;
+using PackageTracker.SharedKernel.Mediator;
 
 namespace PackageTracker.Messages.Queries;
 public class GetFrameworksQuery : IRequest<GetFrameworksQueryResponse>

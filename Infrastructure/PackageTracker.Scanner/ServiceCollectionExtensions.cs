@@ -1,9 +1,9 @@
-﻿using MediatR;
-using Microsoft.Extensions.Configuration;
+﻿using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using PackageTracker.Domain.Application;
 using PackageTracker.Infrastructure.BackgroundServices;
+using PackageTracker.SharedKernel.Mediator;
 
 namespace PackageTracker.Scanner;
 

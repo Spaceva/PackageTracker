@@ -1,6 +1,6 @@
-﻿using MediatR;
-using PackageTracker.Domain.Notifications;
+﻿using PackageTracker.Domain.Notifications;
 using PackageTracker.Messages.Queries;
+using PackageTracker.SharedKernel.Mediator;
 
 namespace PackageTracker.Handlers.Queries;
 internal class GetUnreadNotificationsQueryHandler(INotificationsRepository notificationsRepository) : IRequestHandler<GetUnreadNotificationsQuery, GetUnreadNotificationsQueryResponse>

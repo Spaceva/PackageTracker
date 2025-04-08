@@ -1,5 +1,4 @@
 ﻿using AutoMapper;
-using MediatR;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.HttpResults;
@@ -11,6 +10,7 @@ using PackageTracker.Messages.Commands;
 using PackageTracker.Messages.Queries;
 using PackageTracker.Presentation.WebApi.DTOs.Application;
 using PackageTracker.Presentation.WebApi.Mappers;
+using PackageTracker.SharedKernel.Mediator;
 
 namespace PackageTracker.Presentation.WebApi;
 
@@ -40,7 +40,7 @@ internal static class ApplicationsApiEndpoints
     {
         ArgumentNullException.ThrowIfNull(applicationSearchCriteria);
 
-        var queryResponse = await mediator.Send(new GetApplicationsQuery { SearchCriteria = applicationSearchCriteria }, cancellationToken);
+        var queryResponse = await mediator.Query<GetApplicationsQuery, GetApplicationsQueryResponse>(new GetApplicationsQuery { SearchCriteria = applicationSearchCriteria }, cancellationToken);
         return TypedResults.Ok(mapper.MapCollection<Application, ApplicationDto>(queryResponse.Applications));
     }
 
@@ -70,7 +70,7 @@ internal static class ApplicationsApiEndpoints
 
     private static async Task PatchApplicationAsync(Action<Application> patch, ApplicationRequestDto applicationRequestBody, IMediator mediator, CancellationToken cancellationToken)
     {
-        var queryResponse = await mediator.Send(new GetApplicationQuery { Name = applicationRequestBody.Name, RepositoryLink = applicationRequestBody.RepositoryLink, Type = applicationRequestBody.Type }, cancellationToken);
+        var queryResponse = await mediator.Query<GetApplicationQuery, GetApplicationQueryResponse>(new GetApplicationQuery { Name = applicationRequestBody.Name, RepositoryLink = applicationRequestBody.RepositoryLink, Type = applicationRequestBody.Type }, cancellationToken);
         var application = queryResponse.Application ?? throw new ApplicationNotFoundException();
         patch(application);
         await mediator.Send(new UpdateApplicationCommand { Application = application }, cancellationToken);

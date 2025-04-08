@@ -1,7 +1,7 @@
-﻿using MediatR;
-using Microsoft.Extensions.DependencyInjection;
+﻿using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using PackageTracker.Domain.Application;
+using PackageTracker.SharedKernel.Mediator;
 
 namespace PackageTracker.Scanner.Gitlab;
 

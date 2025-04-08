@@ -1,5 +1,4 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using MediatR;
 using PackageTracker.Messages.Queries;
 using PackageTracker.Domain.Application.Model;
 using PackageTracker.Domain.Application;
@@ -10,6 +9,7 @@ using PackageTracker.Domain.Application.Exceptions;
 using PackageTracker.Presentation.MVCApp.Models;
 using AutoMapper;
 using PackageTracker.Presentation.MVCApp.Mappers;
+using PackageTracker.SharedKernel.Mediator;
 
 namespace PackageTracker.Presentation.MVCApp.Controllers;
 
@@ -22,19 +22,19 @@ public class ApplicationController(IMediator mediator, IMapper mapper) : Control
 
     public async Task<IActionResult> ApplicationType(ApplicationType id)
     {
-        var queryResponse = await mediator.Send(new GetApplicationsQuery { SearchCriteria = new() { ApplicationTypes = [id] } });
+        var queryResponse = await mediator.Query<GetApplicationsQuery, GetApplicationsQueryResponse>(new GetApplicationsQuery { SearchCriteria = new() { ApplicationTypes = [id] } });
         return View(nameof(Index), mapper.MapCollection<Application, ApplicationDetailViewModel>(queryResponse.Applications));
     }
 
     public async Task<IActionResult> RepositoryType(RepositoryType id)
     {
-        var queryResponse = await mediator.Send(new GetApplicationsQuery { SearchCriteria = new() { RepositoryTypes = [id] } });
+        var queryResponse = await mediator.Query<GetApplicationsQuery, GetApplicationsQueryResponse>(new GetApplicationsQuery { SearchCriteria = new() { RepositoryTypes = [id] } });
         return View(nameof(Index), mapper.MapCollection<Application, ApplicationDetailViewModel>(queryResponse.Applications));
     }
 
     public async Task<IActionResult> Search(ApplicationSearchCriteria searchCriteria)
     {
-        var queryResponse = await mediator.Send(new GetApplicationsQuery { SearchCriteria = searchCriteria });
+        var queryResponse = await mediator.Query<GetApplicationsQuery, GetApplicationsQueryResponse>(new GetApplicationsQuery { SearchCriteria = searchCriteria });
         return View(nameof(Index), mapper.MapCollection<Application, ApplicationDetailViewModel>(queryResponse.Applications));
     }
 
@@ -57,7 +57,7 @@ public class ApplicationController(IMediator mediator, IMapper mapper) : Control
     {
         try
         {
-            var queryResponse = await mediator.Send(new GetApplicationQuery { Name = applicationViewModel.Name, RepositoryLink = applicationViewModel.RepositoryLink, Type = Enum.Parse<ApplicationType>(applicationViewModel.Type) });
+            var queryResponse = await mediator.Query<GetApplicationQuery, GetApplicationQueryResponse>(new GetApplicationQuery { Name = applicationViewModel.Name, RepositoryLink = applicationViewModel.RepositoryLink, Type = Enum.Parse<ApplicationType>(applicationViewModel.Type) });
             var application = queryResponse.Application;
             application.IsSoonDecommissioned = true;
             await mediator.Send(new UpdateApplicationCommand { Application = application });
@@ -74,7 +74,7 @@ public class ApplicationController(IMediator mediator, IMapper mapper) : Control
     {
         try
         {
-            var queryResponse = await mediator.Send(new GetApplicationQuery { Name = applicationViewModel.Name, RepositoryLink = applicationViewModel.RepositoryLink, Type = Enum.Parse<ApplicationType>(applicationViewModel.Type) });
+            var queryResponse = await mediator.Query<GetApplicationQuery, GetApplicationQueryResponse>(new GetApplicationQuery { Name = applicationViewModel.Name, RepositoryLink = applicationViewModel.RepositoryLink, Type = Enum.Parse<ApplicationType>(applicationViewModel.Type) });
             var application = queryResponse.Application;
             application.IsSoonDecommissioned = false;
             await mediator.Send(new UpdateApplicationCommand { Application = application });
@@ -91,7 +91,7 @@ public class ApplicationController(IMediator mediator, IMapper mapper) : Control
     {
         try
         {
-            var queryResponse = await mediator.Send(new GetApplicationQuery { Name = applicationViewModel.Name, RepositoryLink = applicationViewModel.RepositoryLink, Type = Enum.Parse<ApplicationType>(applicationViewModel.Type) });
+            var queryResponse = await mediator.Query<GetApplicationQuery, GetApplicationQueryResponse>(new GetApplicationQuery { Name = applicationViewModel.Name, RepositoryLink = applicationViewModel.RepositoryLink, Type = Enum.Parse<ApplicationType>(applicationViewModel.Type) });
             var application = queryResponse.Application;
             application.IsDeadLink = false;
             await mediator.Send(new UpdateApplicationCommand { Application = application });

@@ -1,8 +1,8 @@
-﻿using MediatR;
-using PackageTracker.Domain.Package;
+﻿using PackageTracker.Domain.Package;
 using PackageTracker.Domain.Package.Model;
 using PackageTracker.Messages.Commands;
 using PackageTracker.Messages.Events;
+using PackageTracker.SharedKernel.Mediator;
 
 namespace PackageTracker.Handlers;
 

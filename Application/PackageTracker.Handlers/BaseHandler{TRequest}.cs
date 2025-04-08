@@ -1,4 +1,4 @@
-﻿using MediatR;
+﻿using PackageTracker.SharedKernel.Mediator;
 
 namespace PackageTracker.Handlers;
 internal abstract class BaseHandler<TRequest>(IMediator mediator) : NotificationsPublisher(mediator), IRequestHandler<TRequest>

@@ -1,5 +1,4 @@
-﻿using MediatR;
-using Microsoft.AspNetCore.Builder;
+﻿using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
@@ -7,6 +6,7 @@ using PackageTracker.Messages.Commands;
 using PackageTracker.Messages.Queries;
 using PackageTracker.Domain.Modules;
 using PackageTracker.Presentation.WebApi.Mappers;
+using PackageTracker.SharedKernel.Mediator;
 
 namespace PackageTracker.Presentation.WebApi;
 
@@ -31,7 +31,7 @@ internal static class ModulesApiEndpoints
 
     private static async Task<Ok<IReadOnlyCollection<Module>>> GetAll(IMediator mediator, CancellationToken cancellationToken)
     {
-        var response = await mediator.Send(new GetModulesQuery(), cancellationToken);
+        var response = await mediator.Query<GetModulesQuery, GetModulesQueryResponse>(new GetModulesQuery(), cancellationToken);
         return TypedResults.Ok(response.Modules);
     }
 

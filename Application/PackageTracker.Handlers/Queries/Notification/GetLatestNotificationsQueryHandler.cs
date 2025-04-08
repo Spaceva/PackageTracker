@@ -1,8 +1,8 @@
 ﻿namespace PackageTracker.Handlers.Queries;
 
-using MediatR;
 using PackageTracker.Domain.Notifications;
 using PackageTracker.Messages.Queries;
+using PackageTracker.SharedKernel.Mediator;
 
 internal class GetLatestNotificationsQueryHandler(INotificationsRepository notificationsRepository) : IRequestHandler<GetLatestNotificationsQuery, GetLatestNotificationsQueryResponse>
 {

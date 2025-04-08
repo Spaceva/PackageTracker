@@ -1,5 +1,5 @@
-﻿using MediatR;
-using Microsoft.Extensions.Logging;
+﻿using Microsoft.Extensions.Logging;
+using PackageTracker.SharedKernel.Mediator;
 
 namespace PackageTracker.ChatBot.Notifications.Handlers;
 internal abstract class ChatBotNotificationHandler<TNotification>(IEnumerable<IChatBot> chatBots, ILogger logger) : INotificationHandler<TNotification>

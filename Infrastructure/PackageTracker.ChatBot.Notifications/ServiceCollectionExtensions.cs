@@ -5,6 +5,7 @@ using PackageTracker.ChatBot.Notifications.Configuration;
 using PackageTracker.ChatBot.Notifications.Discord;
 using PackageTracker.ChatBot.Notifications.Telegram;
 using PackageTracker.ChatBot.Telegram;
+using PackageTracker.SharedKernel.Mediator;
 using System.Reflection;
 
 namespace PackageTracker.ChatBot.Discord.Notifications;
@@ -54,11 +55,7 @@ public static class ServiceCollectionExtensions
 
     private static IServiceCollection AddNotificationsHandler(this IServiceCollection services)
     {
-        services.AddMediatR(cfg =>
-        {
-            cfg.RegisterServicesFromAssembly(Assembly.GetExecutingAssembly());
-        });
-
+        services.AddMediator(Assembly.GetExecutingAssembly());
         hasRegisteredHandlers = true;
         return services;
     }

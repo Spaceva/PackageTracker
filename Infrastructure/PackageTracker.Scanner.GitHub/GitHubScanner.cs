@@ -1,11 +1,11 @@
-﻿using MediatR;
-using Microsoft.Extensions.Logging;
+﻿using Microsoft.Extensions.Logging;
 using Octokit;
 using PackageTracker.Domain.Application;
 using PackageTracker.Domain.Application.Model;
 using static PackageTracker.Scanner.ScannerSettings;
 using Application = PackageTracker.Domain.Application.Model.Application;
 using RepositoryType = PackageTracker.Domain.Application.Model.RepositoryType;
+using PackageTracker.SharedKernel.Mediator;
 
 namespace PackageTracker.Scanner.GitHub;
 

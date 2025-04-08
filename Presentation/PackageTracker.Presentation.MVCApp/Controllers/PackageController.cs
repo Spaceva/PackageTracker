@@ -1,12 +1,12 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using PackageTracker.Domain.Package.Exceptions;
-using MediatR;
 using PackageTracker.Messages.Queries;
 using PackageTracker.Messages.Commands;
 using PackageTracker.Presentation.MVCApp.Models;
 using AutoMapper;
 using PackageTracker.Presentation.MVCApp.Mappers;
 using PackageTracker.Domain.Package.Model;
+using PackageTracker.SharedKernel.Mediator;
 
 namespace PackageTracker.Presentation.MVCApp.Controllers;
 
@@ -14,7 +14,7 @@ public class PackageController(IMediator mediator, IMapper mapper) : Controller
 {
     public async Task<IActionResult> Index()
     {
-        var queryResponse = await mediator.Send(new GetPackagesQuery() { SearchCriteria = new Domain.Package.PackageSearchCriteria { } });
+        var queryResponse = await mediator.Query<GetPackagesQuery, GetPackagesQueryResponse>(new GetPackagesQuery() { SearchCriteria = new Domain.Package.PackageSearchCriteria { } });
         if (queryResponse is null)
         {
             return View(Array.Empty<PackageViewModel>());
@@ -27,7 +27,7 @@ public class PackageController(IMediator mediator, IMapper mapper) : Controller
     {
         try
         {
-            var queryResponse = await mediator.Send(new GetPackagesQuery { SearchCriteria = new Domain.Package.PackageSearchCriteria { Name = Uri.UnescapeDataString(id) } });
+            var queryResponse = await mediator.Query<GetPackagesQuery, GetPackagesQueryResponse>(new GetPackagesQuery { SearchCriteria = new Domain.Package.PackageSearchCriteria { Name = Uri.UnescapeDataString(id) } });
             return View(mapper.Map<Package, PackageWithVersionsViewModel>(queryResponse.Packages.Single()));
         }
         catch (PackageNotFoundException)

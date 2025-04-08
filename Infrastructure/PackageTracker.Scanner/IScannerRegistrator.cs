@@ -1,6 +1,6 @@
-﻿using MediatR;
-using PackageTracker.Domain.Application;
+﻿using PackageTracker.Domain.Application;
 using static PackageTracker.Scanner.ScannerSettings;
+using PackageTracker.SharedKernel.Mediator;
 
 namespace PackageTracker.Scanner;
 public interface IScannerRegistrator

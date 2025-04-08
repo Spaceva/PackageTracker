@@ -1,8 +1,8 @@
-﻿using MediatR;
-using Microsoft.Extensions.Logging;
+﻿using Microsoft.Extensions.Logging;
 using PackageTracker.Domain.Modules;
 using PackageTracker.Messages.Commands;
 using PackageTracker.Messages.Events;
+using PackageTracker.SharedKernel.Mediator;
 
 namespace PackageTracker.Handlers.Commands.Module;
 

@@ -1,6 +1,6 @@
-﻿using MediatR;
-using PackageTracker.Domain.Application;
+﻿using PackageTracker.Domain.Application;
 using PackageTracker.Messages.Queries;
+using PackageTracker.SharedKernel.Mediator;
 
 namespace PackageTracker.Handlers.Queries;
 

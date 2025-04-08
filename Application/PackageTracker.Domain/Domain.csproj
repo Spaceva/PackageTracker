@@ -9,4 +9,8 @@
 		<RootNamespace>PackageTracker.Domain</RootNamespace>
 	</PropertyGroup>
 
+	<ItemGroup>
+	  <ProjectReference Include="..\PackageTracker.SharedKernel\SharedKernel.csproj" />
+	</ItemGroup>
+
 </Project>

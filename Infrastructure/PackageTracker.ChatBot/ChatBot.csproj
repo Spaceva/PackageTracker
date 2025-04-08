@@ -10,10 +10,13 @@
 	</PropertyGroup>
 
 	<ItemGroup>
-		<PackageReference Include="MediatR" Version="12.4.1" />
 		<PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" Version="9.0.3" />
 		<PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="9.0.3" />
 		<PackageReference Include="Microsoft.Extensions.Options" Version="9.0.3" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <ProjectReference Include="..\..\Application\PackageTracker.SharedKernel\SharedKernel.csproj" />
 	</ItemGroup>
 
 </Project>

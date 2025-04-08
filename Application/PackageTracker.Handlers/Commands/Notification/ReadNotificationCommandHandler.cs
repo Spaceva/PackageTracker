@@ -1,6 +1,6 @@
-﻿using MediatR;
-using PackageTracker.Domain.Notifications;
+﻿using PackageTracker.Domain.Notifications;
 using PackageTracker.Messages.Commands;
+using PackageTracker.SharedKernel.Mediator;
 
 namespace PackageTracker.Handlers.Commands;
 

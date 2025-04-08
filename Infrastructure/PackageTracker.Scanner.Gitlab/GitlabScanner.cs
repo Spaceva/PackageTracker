@@ -1,7 +1,6 @@
 ﻿using GitLabApiClient;
 using GitLabApiClient.Models.Branches.Responses;
 using GitLabApiClient.Models.Projects.Responses;
-using MediatR;
 using Microsoft.Extensions.Logging;
 using PackageTracker.Domain.Application;
 using PackageTracker.Domain.Application.Model;
@@ -9,6 +8,7 @@ using System.Globalization;
 using System.Net.Http.Json;
 using static PackageTracker.Scanner.ScannerSettings;
 using File = GitLabApiClient.Models.Files.Responses.File;
+using PackageTracker.SharedKernel.Mediator;
 
 namespace PackageTracker.Scanner.Gitlab;
 

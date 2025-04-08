@@ -1,6 +1,6 @@
-﻿using MediatR;
-using PackageTracker.Domain.Package;
+﻿using PackageTracker.Domain.Package;
 using PackageTracker.Messages.Queries;
+using PackageTracker.SharedKernel.Mediator;
 
 namespace PackageTracker.Handlers.Queries;
 internal class GetAllPackagesQueryHandler(IPackagesRepository packagesRepository) : IRequestHandler<GetPackagesQuery, GetPackagesQueryResponse>

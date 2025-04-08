@@ -1,8 +1,8 @@
-﻿using MediatR;
-using Microsoft.Extensions.DependencyInjection;
+﻿using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Octokit;
 using PackageTracker.Domain.Application;
+using PackageTracker.SharedKernel.Mediator;
 
 namespace PackageTracker.Scanner.GitHub;
 

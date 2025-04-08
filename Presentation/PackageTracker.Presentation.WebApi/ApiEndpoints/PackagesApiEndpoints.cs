@@ -1,5 +1,4 @@
 ﻿using AutoMapper;
-using MediatR;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.HttpResults;
@@ -11,6 +10,7 @@ using PackageTracker.Messages.Queries;
 using PackageTracker.Presentation.WebApi.DTOs.Package;
 using PackageTracker.Presentation.WebApi.Mappers;
 using System.Web;
+using PackageTracker.SharedKernel.Mediator;
 
 namespace PackageTracker.Presentation.WebApi;
 
@@ -39,19 +39,19 @@ internal static class PackagesApiEndpoints
     {
         ArgumentNullException.ThrowIfNull(packageSearchCriteria);
 
-        var queryResponse = await mediator.Send(new GetPackagesQuery { SearchCriteria = packageSearchCriteria }, cancellationToken);
+        var queryResponse = await mediator.Query<GetPackagesQuery, GetPackagesQueryResponse>(new GetPackagesQuery { SearchCriteria = packageSearchCriteria }, cancellationToken);
         return TypedResults.Ok(mapper.MapCollection<Package, PackageDto>(queryResponse.Packages));
     }
 
     private static async Task<Ok<IReadOnlyCollection<PackageDto>>> GetAll(IMediator mediator, IMapper mapper, CancellationToken cancellationToken)
     {
-        var queryResponse = await mediator.Send(new GetPackagesQuery { SearchCriteria = new PackageSearchCriteria() }, cancellationToken);
+        var queryResponse = await mediator.Query<GetPackagesQuery, GetPackagesQueryResponse>(new GetPackagesQuery { SearchCriteria = new PackageSearchCriteria() }, cancellationToken);
         return TypedResults.Ok(mapper.MapCollection<Package, PackageDto>(queryResponse.Packages));
     }
 
     private static async Task<Ok<IReadOnlyCollection<PackageDto>>> GetByName(string name, IMediator mediator, IMapper mapper, CancellationToken cancellationToken)
     {
-        var queryResponse = await mediator.Send(new GetPackagesQuery() { SearchCriteria = new PackageSearchCriteria { Name = HttpUtility.UrlDecode(name) } }, cancellationToken);
+        var queryResponse = await mediator.Query<GetPackagesQuery, GetPackagesQueryResponse>(new GetPackagesQuery() { SearchCriteria = new PackageSearchCriteria { Name = HttpUtility.UrlDecode(name) } }, cancellationToken);
         return TypedResults.Ok(mapper.MapCollection<Package, PackageDto>(queryResponse.Packages));
     }
 

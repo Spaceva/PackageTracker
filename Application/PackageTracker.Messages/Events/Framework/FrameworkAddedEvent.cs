@@ -1,5 +1,5 @@
-﻿using MediatR;
-using PackageTracker.Domain.Framework.Model;
+﻿using PackageTracker.Domain.Framework.Model;
+using PackageTracker.SharedKernel.Mediator;
 
 namespace PackageTracker.Messages.Events;
 
